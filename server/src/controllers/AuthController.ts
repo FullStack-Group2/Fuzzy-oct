@@ -17,11 +17,9 @@ export const registerVendor = async (req: Request, res: Response) => {
     // 1. Validate that required fields are not empty
     // The profilePicture is now expected as a URL string in the body
     if (!username || !password || !businessName || !businessAddress) {
-      return res
-        .status(400)
-        .json({
-          message: 'All fields, including profile picture URL, are required.',
-        });
+      return res.status(400).json({
+        message: 'All fields, including profile picture URL, are required.',
+      });
     }
 
     // 2. Check for uniqueness constraints before attempting to save

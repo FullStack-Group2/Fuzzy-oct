@@ -85,6 +85,4 @@ Here is a list of the most important scripts available in the project.
 - `pnpm lint`: Lints all files in the project.
 - `pnpm format`: Formats all files in the project with Prettier.
 - `pnpm format:check`: Checks for formatting issues without modifying files.# Fuzzy-Dop
-# Fuzzy
-# Fuzzy
-# Fuzzy-oct
+

@@ -35,7 +35,7 @@ jobs:
       - name: Setup PNPM
         uses: pnpm/action-setup@v3
         with:
-          version: 8 # Specify pnpm version
+          version: 9 # Specify pnpm version to match lockfile
 
       # Step 4: Setup Node.js and cache pnpm dependencies
       - name: Use Node.js ${{ matrix.node-version }}
@@ -76,7 +76,7 @@ jobs:
       - name: Setup PNPM
         uses: pnpm/action-setup@v3
         with:
-          version: 8 # Specify pnpm version
+          version: 9 # Specify pnpm version to match lockfile
 
       # Step 4: Setup Node.js and cache pnpm dependencies
       - name: Use Node.js ${{ matrix.node-version }}

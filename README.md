@@ -1,4 +1,4 @@
-# E-Commerce Platform
+# Fuzzy-oct E-Commerce Platform
 
 This is a full-stack e-commerce application built with a modern technology stack, structured as a monorepo with separate client and server workspaces managed by pnpm.
 

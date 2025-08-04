@@ -5,6 +5,9 @@
   "private": true,
   "scripts": {
     "dev": "pnpm --parallel dev",
+    "build": "pnpm --parallel build",
+    "start": "pnpm --parallel start",
+    "preview": "pnpm --parallel preview",
     "lint": "eslint . --ext .ts,.tsx",
     "lint:fix": "eslint . --ext .ts,.tsx --fix",
     "format": "prettier --write .",

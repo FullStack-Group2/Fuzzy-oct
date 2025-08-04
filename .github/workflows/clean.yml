@@ -1,0 +1,95 @@
+# .github/workflows/clean.yml
+
+name: Lint and Format Check 🧹
+
+on:
+  # Run on pull requests targeting the main branch
+  pull_request:
+    branches:
+      - main
+  
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  # Job to run ESLint
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18.x] # Define the Node.js version to use
+
+    steps:
+      # Step 1: Cancel any previous runs of the same workflow on the same branch
+      - name: Cancel Previous Run
+        uses: styfle/cancel-workflow-action@0.12.1
+        with:
+          access_token: ${{ secrets.GITHUB_TOKEN }}
+
+      # Step 2: Check out the repository's code
+      - name: Checkout Code
+        uses: actions/checkout@v4.1.1
+
+      # Step 3: Setup PNPM
+      - name: Setup PNPM
+        uses: pnpm/action-setup@v3
+        with:
+          version: 8 # Specify pnpm version
+
+      # Step 4: Setup Node.js and cache pnpm dependencies
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'pnpm' # Enable caching for pnpm
+
+      # Step 5: Install project dependencies
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # Step 6: Run the linter
+      # This runs the "lint" script from your package.json
+      - name: Run linter
+        run: pnpm lint
+
+  # Job to run Prettier format check
+  format:
+    name: Format Check
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18.x] # Define the Node.js version to use
+
+    steps:
+      # Step 1: Cancel any previous runs of the same workflow on the same branch
+      - name: Cancel Previous Runs
+        uses: styfle/cancel-workflow-action@0.12.1
+        with:
+          access_token: ${{ secrets.GITHUB_TOKEN }}
+
+      # Step 2: Check out the repository's code
+      - name: Checkout Code
+        uses: actions/checkout@v4.1.1
+
+      # Step 3: Setup PNPM
+      - name: Setup PNPM
+        uses: pnpm/action-setup@v3
+        with:
+          version: 8 # Specify pnpm version
+
+      # Step 4: Setup Node.js and cache pnpm dependencies
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'pnpm' # Enable caching for pnpm
+      
+      # Step 5: Install project dependencies
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # Step 6: Run the format checker
+      # This runs the "format:check" script from your package.json
+      - name: Run format checker
+        run: pnpm format:check

@@ -96,3 +96,26 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     }
   }
 };
+
+export const logout = async (req: Request, res: Response): Promise<void> => {
+  try {
+    // Clear any server-side session data if using sessions
+    // If using JWT tokens, you could maintain a blacklist of invalidated tokens
+
+    // For now, we'll just acknowledge the logout request
+    // In a real application, you might want to:
+    // 1. Clear session cookies
+    // 2. Add JWT to blacklist
+    // 3. Clear user-specific cache
+
+    console.log('User logged out successfully');
+
+    res.status(200).json({
+      message: 'Logout successful',
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    console.error('Logout Error:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};

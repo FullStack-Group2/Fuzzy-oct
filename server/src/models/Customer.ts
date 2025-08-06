@@ -8,18 +8,25 @@ export interface ICustomer extends IUser {
   role: UserRole.CUSTOMER;
 }
 
-const customerSchema = new Schema<ICustomer>({
-  username: { type: String, required: true, unique: true },
-  password: { type: String, required: true, select: false },
-  role: { type: String, enum: [UserRole.CUSTOMER], default: UserRole.CUSTOMER, required: true },
+const customerSchema = new Schema<ICustomer>(
+  {
+    username: { type: String, required: true, unique: true },
+    password: { type: String, required: true, select: false },
+    role: {
+      type: String,
+      enum: [UserRole.CUSTOMER],
+      default: UserRole.CUSTOMER,
+      required: true,
+    },
 
-  
-  // Customer-specific fields
-  name: { type: String, required: true },
-  profilePicture: { type: String, required: false }
-}, {
-  timestamps: true
-});
+    // Customer-specific fields
+    name: { type: String, required: true },
+    profilePicture: { type: String, required: false },
+  },
+  {
+    timestamps: true,
+  },
+);
 
 // Indexes for performance
 customerSchema.index({ username: 1 });

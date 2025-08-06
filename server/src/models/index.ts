@@ -6,7 +6,10 @@ export { default as Shipper, IShipper } from './Shipper';
 export { UserRole } from './UserRole';
 
 // Export other models
-export { default as DistributionHub, IDistributionHub } from './DistributionHub';
+export {
+  default as DistributionHub,
+  IDistributionHub,
+} from './DistributionHub';
 export { default as Product, IProduct } from './Product';
 export { default as Order, IOrder } from './Order';
 export { default as OrderItem, IOrderItem } from './OrderItem';

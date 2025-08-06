@@ -10,4 +10,7 @@ const DistributionHubSchema = new Schema<IDistributionHub>({
   hubLocation: { type: String, required: true },
 });
 
-export default model<IDistributionHub>('DistributionHub', DistributionHubSchema);
+export default model<IDistributionHub>(
+  'DistributionHub',
+  DistributionHubSchema,
+);

@@ -4,7 +4,7 @@ import { UserRole } from './UserRole';
 export interface IUser extends Document {
   username: string;
   password: string;
-  role:UserRole;
+  role: UserRole;
 }
 
 const userSchema = new Schema<IUser>({
@@ -12,6 +12,5 @@ const userSchema = new Schema<IUser>({
   password: { type: String, required: true, select: true },
   role: { type: String, enum: Object.values(UserRole), required: true },
 });
-
 
 export default model<IUser>('User', userSchema);

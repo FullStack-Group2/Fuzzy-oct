@@ -8,21 +8,29 @@ export interface IShipper extends IUser {
   role: UserRole.SHIPPER;
 }
 
-const shipperSchema = new Schema<IShipper>({
-  username: { type: String, required: true, unique: true },
-  password: { type: String, required: true, select: true },
-  role: { type: String, enum: [UserRole.SHIPPER], default: UserRole.SHIPPER, required: true },
-  
-  // Shipper-specific fields
-  assignedHub: { 
-    type: Schema.Types.ObjectId, 
-    ref: 'DistributionHub', 
-    required: true 
+const shipperSchema = new Schema<IShipper>(
+  {
+    username: { type: String, required: true, unique: true },
+    password: { type: String, required: true, select: true },
+    role: {
+      type: String,
+      enum: [UserRole.SHIPPER],
+      default: UserRole.SHIPPER,
+      required: true,
+    },
+
+    // Shipper-specific fields
+    assignedHub: {
+      type: Schema.Types.ObjectId,
+      ref: 'DistributionHub',
+      required: true,
+    },
+    profilePicture: { type: String, required: true },
   },
-  profilePicture: { type: String, required: true }
-}, {
-  timestamps: true
-});
+  {
+    timestamps: true,
+  },
+);
 
 // Indexes for performance
 shipperSchema.index({ username: 1 });

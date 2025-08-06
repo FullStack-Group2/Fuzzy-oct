@@ -1,7 +1,6 @@
-import { Schema, model, Document }from 'mongoose';
+import { Schema, model, Document } from 'mongoose';
 import { IOrderItem } from './OrderItem';
 import { OrderStatus } from './OrderStatus';
-
 
 export interface IOrder extends Document {
   customer: Schema.Types.ObjectId;
@@ -12,18 +11,27 @@ export interface IOrder extends Document {
   orderItems: IOrderItem[]; // This will be a populated virtual field
 }
 
-const orderSchema = new Schema<IOrder>({
+const orderSchema = new Schema<IOrder>(
+  {
     customer: { type: Schema.Types.ObjectId, ref: 'Customer', required: true },
-    hub: { type: Schema.Types.ObjectId, ref: 'DistributionHub', required: true },
+    hub: {
+      type: Schema.Types.ObjectId,
+      ref: 'DistributionHub',
+      required: true,
+    },
     orderDate: { type: Date, default: Date.now },
-    status: { type: String, enum: Object.values(OrderStatus), default: OrderStatus.ACTIVE },
+    status: {
+      type: String,
+      enum: Object.values(OrderStatus),
+      default: OrderStatus.ACTIVE,
+    },
     totalPrice: { type: Number, required: true },
   },
   {
     // Important: Enable virtuals for toJSON and toObject
     toJSON: { virtuals: true },
     toObject: { virtuals: true },
-  }
+  },
 );
 
 // VIRTUAL: Create a virtual property 'orderItems' on the Order schema.

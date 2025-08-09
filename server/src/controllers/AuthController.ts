@@ -1,115 +1,299 @@
 import { Request, Response } from 'express';
-import bcrypt from 'bcryptjs';
-import * as vendorService from '../services/VendorService';
-import { validatePassword } from '../services/AuthenticationService';
-import { findVendorByUsername } from '../services/VendorService';
+import bcrypt from 'bcrypt';
 
+import { VendorModel } from '../models/Vendor';
+import { CustomerModel } from '../models/Customer';
+import { ShipperModel } from '../models/Shipper';
+import { UserRole } from '../models/UserRole';
+import { UserServices } from '../services/UserServices';
+import { signJWT } from '../utils/SignHelper';
+
+interface TokenPayload {
+  userId: string;
+  username: string;
+  role: UserRole;
+}
+
+// Register Vendor
 export const registerVendor = async (req: Request, res: Response) => {
   try {
-    const {
-      username,
-      password,
-      businessName,
-      businessAddress,
-      profilePicture,
-    } = req.body;
+    const { username, password, businessName, businessAddress, profilePicture } = req.body;
 
-    // 1. Validate that required fields are not empty
-    // The profilePicture is now expected as a URL string in the body
     if (!username || !password || !businessName || !businessAddress) {
       return res.status(400).json({
-        message: 'All fields, including profile picture URL, are required.',
+        message: 'Username, password, business name, and business address are required.',
       });
     }
 
-    // 2. Check for uniqueness constraints before attempting to save
-    const existingUsername = await vendorService.findVendorByUsername(username);
-    if (existingUsername) {
-      return res.status(409).json({ message: 'Username already exists.' }); // 409 Conflict
+    // Check if username already exists
+    const existingUser = await VendorModel.findOne({ username });
+    if (existingUser) {
+      return res.status(409).json({ message: 'Username already exists.' });
     }
 
-    const existingBusinessName =
-      await vendorService.findVendorByBusinessName(businessName);
-    if (existingBusinessName) {
-      return res
-        .status(409)
-        .json({ message: 'Business name is already registered.' });
-    }
+    // Hash password
+    const hashedPassword = await bcrypt.hash(password, 12);
 
-    // 3. Create the new vendor with the provided profile picture URL
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const vendorData = {
-      username,
+    // Create vendor
+    const vendor = new VendorModel({
+      username: username.trim(),
       password: hashedPassword,
-      businessName,
-      businessAddress,
-      profilePicture, // Use the URL from the request body
+      role: UserRole.VENDOR,
+      businessName: businessName.trim(),
+      businessAddress: businessAddress.trim(),
+      profilePicture: profilePicture || '',
+    });
+
+    await vendor.save();
+
+    // Generate JWT token
+    const tokenPayload: TokenPayload = {
+      userId: vendor.id.toString(),
+      username: vendor.username,
+      role: vendor.role
     };
 
-    const newVendor = await vendorService.createVendor(vendorData);
+    const token = signJWT(tokenPayload);
 
-    res
-      .status(200)
-      .json({ message: 'Vendor registered successfully', vendor: newVendor });
-  } catch (error) {
-    console.error('Registration Error:', error);
+    res.status(201).json({
+      message: 'Vendor registered successfully',
+      vendor: {
+        id: vendor._id,
+        username: vendor.username,
+        businessName: vendor.businessName,
+        businessAddress: vendor.businessAddress,
+        profilePicture: vendor.profilePicture,
+        role: vendor.role,
+      },
+      token,
+    });
+  } catch (error: unknown) {
+    console.error('Vendor Registration Error:', error);
+
+    if (error && typeof error === 'object' && 'code' in error && error.code === 11000) {
+      const field = error && typeof error === 'object' && 'keyPattern' in error 
+        ? Object.keys(error.keyPattern as object)[0] 
+        : 'field';
+      return res.status(409).json({
+        message: `${field} already exists.`,
+      });
+    }
+
     res.status(500).json({ message: 'Internal server error' });
   }
 };
 
-export const login = async (req: Request, res: Response): Promise<void> => {
-  let { username } = req.body;
-  const { password } = req.body;
-  username = username.trim();
-
-  if (!username || !password) {
-    res.status(400).json({ message: 'Username and password are required' });
-    return;
-  }
-
+// Register Customer
+export const registerCustomer = async (req: Request, res: Response) => {
   try {
-    const vendor = await findVendorByUsername(username);
-    if (!vendor) {
-      res.status(401).json({ message: 'Invalid credentials' });
-      return;
+    const { username, password, name, address, profilePicture } = req.body;
+
+    if (!username || !password || !name || !address) {
+      return res.status(400).json({
+        message: 'Username, password, name, and address are required.',
+      });
     }
 
-    const isPasswordValid = await validatePassword(password, vendor.password);
-    if (!isPasswordValid) {
-      res.status(401).json({ message: 'Invalid credentials' });
-      return;
+    // Check if username already exists
+    const existingUser = await CustomerModel.findOne({ username });
+    if (existingUser) {
+      return res.status(409).json({ message: 'Username already exists.' });
     }
 
-    res.status(200).json({
-      message: 'Login successful',
-      user: {
-        id: vendor.id,
-        email: vendor.username,
-      },
-      redirectUrl: '/dashboard',
+    // Hash password
+    const hashedPassword = await bcrypt.hash(password, 12);
+
+    // Create customer
+    const customer = new CustomerModel({
+      username: username.trim(),
+      password: hashedPassword,
+      role: UserRole.CUSTOMER,
+      name: name.trim(),
+      address: address.trim(),
+      profilePicture: profilePicture || '',
     });
-    return;
-  } catch {
-    if (!res.headersSent) {
-      res.status(500).json({ message: 'Internal server error' });
-      return;
+
+    await customer.save();
+
+    // Generate JWT token
+    const tokenPayload: TokenPayload = {
+      userId: customer.id.toString(),
+      username: customer.username,
+      role: customer.role
+    };
+    
+    const token = signJWT(tokenPayload);
+
+    res.status(201).json({
+      message: 'Customer registered successfully',
+      customer: {
+        id: customer._id,
+        username: customer.username,
+        name: customer.name,
+        address: customer.address,
+        profilePicture: customer.profilePicture,
+        role: customer.role,
+      },
+      token,
+    });
+  } catch (error: unknown) {
+    console.error('Customer Registration Error:', error);
+
+    if (error && typeof error === 'object' && 'code' in error && error.code === 11000) {
+      return res.status(409).json({
+        message: 'Username already exists.',
+      });
     }
+
+    res.status(500).json({ message: 'Internal server error' });
   }
 };
 
-export const logout = async (req: Request, res: Response): Promise<void> => {
+// Register Shipper
+export const registerShipper = async (req: Request, res: Response) => {
   try {
-    // Clear any server-side session data if using sessions
-    // If using JWT tokens, you could maintain a blacklist of invalidated tokens
+    const { username, password, assignedHub, profilePicture } = req.body;
 
-    // For now, we'll just acknowledge the logout request
-    // In a real application, you might want to:
-    // 1. Clear session cookies
-    // 2. Add JWT to blacklist
-    // 3. Clear user-specific cache
+    if (!username || !password || !assignedHub) {
+      return res.status(400).json({
+        message: 'Username, password, and assigned hub are required.',
+      });
+    }
 
-    console.log('User logged out successfully');
+    // Check if username already exists
+    const existingUser = await ShipperModel.findOne({ username });
+    if (existingUser) {
+      return res.status(409).json({ message: 'Username already exists.' });
+    }
 
+    // Hash password
+    const hashedPassword = await bcrypt.hash(password, 12);
+
+    // Create shipper
+    const shipper = new ShipperModel({
+      username: username.trim(),
+      password: hashedPassword,
+      role: UserRole.SHIPPER,
+      assignedHub,
+      profilePicture: profilePicture || '',
+    });
+
+    await shipper.save();
+
+    // Generate JWT token
+    const tokenPayload: TokenPayload = {
+      userId: shipper.id.toString(),
+      username: shipper.username,
+      role: shipper.role
+    };
+    
+    const token = signJWT(tokenPayload);
+
+    res.status(201).json({
+      message: 'Shipper registered successfully',
+      shipper: {
+        id: shipper._id,
+        username: shipper.username,
+        assignedHub: shipper.assignedHub,
+        profilePicture: shipper.profilePicture,
+        role: shipper.role,
+      },
+      token,
+    });
+  } catch (error: unknown) {
+    console.error('Shipper Registration Error:', error);
+
+    if (error && typeof error === 'object' && 'code' in error && error.code === 11000) {
+      return res.status(409).json({
+        message: 'Username already exists.',
+      });
+    }
+
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+// Login for all user types
+export const login = async (req: Request, res: Response) => {
+  try {
+    const { username, password } = req.body;
+
+    if (!username || !password) {
+      return res.status(400).json({
+        message: 'Username and password are required.',
+      });
+    }
+
+     const user = await UserServices.findByUserName(username);
+      if (!user) {
+        res.status(401).json({ message: "Invalid credentials" });
+        return;
+      }
+    // Verify password
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      res.status(401).json({ message: 'Invalid credentials.' });
+      return;
+    }
+
+    // Generate JWT token
+    const tokenPayload: TokenPayload = {
+      userId: user.id.toString(),
+      username: user.username,
+      role: user.role
+    };
+    
+    const token = signJWT(tokenPayload);
+
+    // Prepare user data (without password)
+    const userData: Record<string, unknown> = {
+      id: user._id,
+      username: user.username,
+      role: user.role,
+      profilePicture: user.profilePicture,
+    };
+
+     // Fetch role-specific data
+    switch (user.role) {
+      case UserRole.VENDOR: {
+        const vendor = await VendorModel.findById(user._id);
+        if (vendor) {
+          userData.businessName = vendor.businessName;
+          userData.businessAddress = vendor.businessAddress;
+        }
+        break;
+      }
+      case UserRole.CUSTOMER: {
+        const customer = await CustomerModel.findById(user._id);
+        if (customer) {
+          userData.name = customer.name;
+          userData.address = customer.address;
+        }
+        break;
+      }
+      case UserRole.SHIPPER: {
+        const shipper = await ShipperModel.findById(user._id).populate('assignedHub');
+        if (shipper) {
+          userData.assignedHub = shipper.assignedHub;
+        }
+        break;
+      }
+    }
+
+    return res.status(200).json({
+      message: 'Login successful',
+      user: userData,
+      token,
+    });
+  } catch (error) {
+    console.error('Login Error:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+// Logout
+export const logout = async (req: Request, res: Response) => {
+  try {
     res.status(200).json({
       message: 'Logout successful',
       timestamp: new Date().toISOString(),
@@ -119,3 +303,4 @@ export const logout = async (req: Request, res: Response): Promise<void> => {
     res.status(500).json({ message: 'Internal server error' });
   }
 };
+

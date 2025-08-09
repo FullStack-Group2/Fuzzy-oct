@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import AuthRoutes from './authRoutes';
+import AuthRoutes from './auth'; // Updated to use new role-based auth
 import UploadRoutes from './uploadRoutes';
 import VendorRoutes from './VendorRoutes';
 

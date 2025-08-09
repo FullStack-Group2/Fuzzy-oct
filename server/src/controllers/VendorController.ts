@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import Vendor from '../models/Vendor';
+import { Vendor } from '../models';
 
 // Get vendor with profile picture
 export const getVendorById = async (req: Request, res: Response) => {

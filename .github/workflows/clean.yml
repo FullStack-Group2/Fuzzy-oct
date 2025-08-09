@@ -7,7 +7,7 @@ on:
   pull_request:
     branches:
       - main
-  
+
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
@@ -35,7 +35,7 @@ jobs:
       - name: Setup PNPM
         uses: pnpm/action-setup@v3
         with:
-          version: 8 # Specify pnpm version
+          version: 9 # Specify pnpm version to match lockfile
 
       # Step 4: Setup Node.js and cache pnpm dependencies
       - name: Use Node.js ${{ matrix.node-version }}
@@ -76,7 +76,7 @@ jobs:
       - name: Setup PNPM
         uses: pnpm/action-setup@v3
         with:
-          version: 8 # Specify pnpm version
+          version: 9 # Specify pnpm version to match lockfile
 
       # Step 4: Setup Node.js and cache pnpm dependencies
       - name: Use Node.js ${{ matrix.node-version }}
@@ -84,7 +84,7 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'pnpm' # Enable caching for pnpm
-      
+
       # Step 5: Install project dependencies
       - name: Install dependencies
         run: pnpm install --frozen-lockfile

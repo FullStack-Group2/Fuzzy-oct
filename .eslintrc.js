@@ -15,7 +15,7 @@ module.exports = {
   },
   env: {
     browser: true, // For client-side code
-    node: true,    // For server-side code
+    node: true, // For server-side code
     es2021: true,
   },
   rules: {

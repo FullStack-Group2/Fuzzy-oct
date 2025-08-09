@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "scripts": {
     "dev": "nodemon src/server.ts",
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "lint": "eslint src --ext .ts --fix"
   },
   "dependencies": {

@@ -17,11 +17,11 @@ The frontend is a dynamic and responsive React application powered by Vite, with
 
 ## Tech Stack
 
-| Area | Technology |
-|------|------------|
-| **Client (FE)** | React, Vite, TypeScript, Redux Toolkit, React Router, Tailwind CSS |
+| Area            | Technology                                                              |
+| --------------- | ----------------------------------------------------------------------- |
+| **Client (FE)** | React, Vite, TypeScript, Redux Toolkit, React Router, Tailwind CSS      |
 | **Server (BE)** | Node.js, Express, TypeScript, MongoDB, Mongoose, JWT for authentication |
-| **Dev Tools** | PNPM, ESLint, Prettier, Vercel, GitHub Actions |
+| **Dev Tools**   | PNPM, ESLint, Prettier, Vercel, GitHub Actions                          |
 
 ## Getting Started
 
@@ -65,6 +65,7 @@ pnpm dev
 ```
 
 This will concurrently:
+
 - Start the Vite development server for the React client (usually on http://localhost:3000).
 - Start the Nodemon development server for the Express backend (usually on http://localhost:5000).
 
@@ -73,16 +74,19 @@ This will concurrently:
 Here is a list of the most important scripts available in the project.
 
 ### Root
+
 - `pnpm dev`: Starts both client and server in parallel.
 
 ### Client (/client)
+
 - `pnpm dev`: Starts the Vite development server.
 
 ### Server (/server)
+
 - `pnpm dev`: Starts the Express server with Nodemon for auto-reloading.
 
 ### Linting & Formatting
+
 - `pnpm lint`: Lints all files in the project.
 - `pnpm format`: Formats all files in the project with Prettier.
 - `pnpm format:check`: Checks for formatting issues without modifying files.# Fuzzy-Dop
-

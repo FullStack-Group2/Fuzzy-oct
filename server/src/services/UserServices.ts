@@ -16,16 +16,20 @@ export class UserServices {
   static async findByUserName(username: string): Promise<AnyUser | null> {
     try {
       // Search across all user types using discriminator models
-      let user: AnyUser | null = await VendorModel.findOne({ username }).select('+password');
-      
+      let user: AnyUser | null = await VendorModel.findOne({ username }).select(
+        '+password',
+      );
+
       if (!user) {
         user = await CustomerModel.findOne({ username }).select('+password');
       }
-      
+
       if (!user) {
-        user = await ShipperModel.findOne({ username }).select('+password').populate('assignedHub');
+        user = await ShipperModel.findOne({ username })
+          .select('+password')
+          .populate('assignedHub');
       }
-      
+
       return user;
     } catch (error) {
       console.error('Error finding user by username:', error);
@@ -39,10 +43,13 @@ export class UserServices {
    * @param role - The specific role to search within
    * @returns Promise<AnyUser | null> - The user document or null if not found
    */
-  static async findByUserNameAndRole(username: string, role: UserRole): Promise<AnyUser | null> {
+  static async findByUserNameAndRole(
+    username: string,
+    role: UserRole,
+  ): Promise<AnyUser | null> {
     try {
       let user: AnyUser | null = null;
-      
+
       switch (role) {
         case UserRole.VENDOR:
           user = await VendorModel.findOne({ username }).select('+password');
@@ -51,12 +58,14 @@ export class UserServices {
           user = await CustomerModel.findOne({ username }).select('+password');
           break;
         case UserRole.SHIPPER:
-          user = await ShipperModel.findOne({ username }).select('+password').populate('assignedHub');
+          user = await ShipperModel.findOne({ username })
+            .select('+password')
+            .populate('assignedHub');
           break;
         default:
           throw new Error('Invalid user role');
       }
-      
+
       return user;
     } catch (error) {
       console.error('Error finding user by username and role:', error);
@@ -107,15 +116,15 @@ export class UserServices {
         .skip(skip)
         .limit(limit)
         .sort({ createdAt: -1 });
-      
+
       const total = await UserModel.countDocuments();
       const pages = Math.ceil(total / limit);
-      
+
       return {
         users,
         total,
         page,
-        pages
+        pages,
       };
     } catch (error) {
       console.error('Error getting all users:', error);
@@ -130,13 +139,17 @@ export class UserServices {
    * @param limit - Number of users per page (default: 10)
    * @returns Promise<{users: AnyUser[], total: number, page: number, pages: number}>
    */
-  static async getUsersByRole(role: UserRole, page: number = 1, limit: number = 10) {
+  static async getUsersByRole(
+    role: UserRole,
+    page: number = 1,
+    limit: number = 10,
+  ) {
     try {
       const skip = (page - 1) * limit;
-      
+
       let users: AnyUser[];
       let total: number;
-      
+
       switch (role) {
         case UserRole.VENDOR:
           users = await VendorModel.find()
@@ -162,14 +175,14 @@ export class UserServices {
         default:
           throw new Error('Invalid user role');
       }
-      
+
       const pages = Math.ceil(total / limit);
-      
+
       return {
         users,
         total,
         page,
-        pages
+        pages,
       };
     } catch (error) {
       console.error('Error getting users by role:', error);

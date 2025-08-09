@@ -17,11 +17,18 @@ interface TokenPayload {
 // Register Vendor
 export const registerVendor = async (req: Request, res: Response) => {
   try {
-    const { username, password, businessName, businessAddress, profilePicture } = req.body;
+    const {
+      username,
+      password,
+      businessName,
+      businessAddress,
+      profilePicture,
+    } = req.body;
 
     if (!username || !password || !businessName || !businessAddress) {
       return res.status(400).json({
-        message: 'Username, password, business name, and business address are required.',
+        message:
+          'Username, password, business name, and business address are required.',
       });
     }
 
@@ -50,7 +57,7 @@ export const registerVendor = async (req: Request, res: Response) => {
     const tokenPayload: TokenPayload = {
       userId: vendor.id.toString(),
       username: vendor.username,
-      role: vendor.role
+      role: vendor.role,
     };
 
     const token = signJWT(tokenPayload);
@@ -70,10 +77,16 @@ export const registerVendor = async (req: Request, res: Response) => {
   } catch (error: unknown) {
     console.error('Vendor Registration Error:', error);
 
-    if (error && typeof error === 'object' && 'code' in error && error.code === 11000) {
-      const field = error && typeof error === 'object' && 'keyPattern' in error 
-        ? Object.keys(error.keyPattern as object)[0] 
-        : 'field';
+    if (
+      error &&
+      typeof error === 'object' &&
+      'code' in error &&
+      error.code === 11000
+    ) {
+      const field =
+        error && typeof error === 'object' && 'keyPattern' in error
+          ? Object.keys(error.keyPattern as object)[0]
+          : 'field';
       return res.status(409).json({
         message: `${field} already exists.`,
       });
@@ -119,9 +132,9 @@ export const registerCustomer = async (req: Request, res: Response) => {
     const tokenPayload: TokenPayload = {
       userId: customer.id.toString(),
       username: customer.username,
-      role: customer.role
+      role: customer.role,
     };
-    
+
     const token = signJWT(tokenPayload);
 
     res.status(201).json({
@@ -139,7 +152,12 @@ export const registerCustomer = async (req: Request, res: Response) => {
   } catch (error: unknown) {
     console.error('Customer Registration Error:', error);
 
-    if (error && typeof error === 'object' && 'code' in error && error.code === 11000) {
+    if (
+      error &&
+      typeof error === 'object' &&
+      'code' in error &&
+      error.code === 11000
+    ) {
       return res.status(409).json({
         message: 'Username already exists.',
       });
@@ -184,9 +202,9 @@ export const registerShipper = async (req: Request, res: Response) => {
     const tokenPayload: TokenPayload = {
       userId: shipper.id.toString(),
       username: shipper.username,
-      role: shipper.role
+      role: shipper.role,
     };
-    
+
     const token = signJWT(tokenPayload);
 
     res.status(201).json({
@@ -203,7 +221,12 @@ export const registerShipper = async (req: Request, res: Response) => {
   } catch (error: unknown) {
     console.error('Shipper Registration Error:', error);
 
-    if (error && typeof error === 'object' && 'code' in error && error.code === 11000) {
+    if (
+      error &&
+      typeof error === 'object' &&
+      'code' in error &&
+      error.code === 11000
+    ) {
       return res.status(409).json({
         message: 'Username already exists.',
       });
@@ -224,11 +247,11 @@ export const login = async (req: Request, res: Response) => {
       });
     }
 
-     const user = await UserServices.findByUserName(username);
-      if (!user) {
-        res.status(401).json({ message: "Invalid credentials" });
-        return;
-      }
+    const user = await UserServices.findByUserName(username);
+    if (!user) {
+      res.status(401).json({ message: 'Invalid credentials' });
+      return;
+    }
     // Verify password
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
@@ -240,9 +263,9 @@ export const login = async (req: Request, res: Response) => {
     const tokenPayload: TokenPayload = {
       userId: user.id.toString(),
       username: user.username,
-      role: user.role
+      role: user.role,
     };
-    
+
     const token = signJWT(tokenPayload);
 
     // Prepare user data (without password)
@@ -253,7 +276,7 @@ export const login = async (req: Request, res: Response) => {
       profilePicture: user.profilePicture,
     };
 
-     // Fetch role-specific data
+    // Fetch role-specific data
     switch (user.role) {
       case UserRole.VENDOR: {
         const vendor = await VendorModel.findById(user._id);
@@ -272,7 +295,9 @@ export const login = async (req: Request, res: Response) => {
         break;
       }
       case UserRole.SHIPPER: {
-        const shipper = await ShipperModel.findById(user._id).populate('assignedHub');
+        const shipper = await ShipperModel.findById(user._id).populate(
+          'assignedHub',
+        );
         if (shipper) {
           userData.assignedHub = shipper.assignedHub;
         }
@@ -303,4 +328,3 @@ export const logout = async (req: Request, res: Response) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 };
-

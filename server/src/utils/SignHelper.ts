@@ -14,5 +14,5 @@ const validateJWTSecret = (): string => {
 // Helper function to sign JWT tokens
 export const signJWT = (payload: object): string => {
   const secret = validateJWTSecret();
-  return (jwt.sign)(payload, secret, { expiresIn: JWT_EXPIRES_IN });
+  return jwt.sign(payload, secret, { expiresIn: JWT_EXPIRES_IN });
 };

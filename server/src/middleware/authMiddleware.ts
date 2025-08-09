@@ -18,7 +18,7 @@ export interface AuthenticatedRequest extends Request {
 export const authMiddleware = async (
   req: AuthenticatedRequest,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     if (!JWT_SECRET) {
@@ -29,7 +29,7 @@ export const authMiddleware = async (
     }
 
     const authHeader = req.headers.authorization;
-    
+
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return res.status(401).json({
         message: 'Access denied. No token provided or invalid format.',
@@ -44,7 +44,7 @@ export const authMiddleware = async (
         username: string;
         role: UserRole;
       };
-      
+
       // Verify user still exists in database
       let user = null;
       switch (decoded.role) {
@@ -102,5 +102,12 @@ export const requireRole = (roles: UserRole[]) => {
 export const requireVendor = requireRole([UserRole.VENDOR]);
 export const requireCustomer = requireRole([UserRole.CUSTOMER]);
 export const requireShipper = requireRole([UserRole.SHIPPER]);
-export const requireVendorOrCustomer = requireRole([UserRole.VENDOR, UserRole.CUSTOMER]);
-export const requireAnyRole = requireRole([UserRole.VENDOR, UserRole.CUSTOMER, UserRole.SHIPPER]);
+export const requireVendorOrCustomer = requireRole([
+  UserRole.VENDOR,
+  UserRole.CUSTOMER,
+]);
+export const requireAnyRole = requireRole([
+  UserRole.VENDOR,
+  UserRole.CUSTOMER,
+  UserRole.SHIPPER,
+]);

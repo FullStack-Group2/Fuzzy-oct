@@ -17,5 +17,5 @@ const shipperSchema = new Schema<IShipper>({
 
 export const ShipperModel = UserModel.discriminator<IShipper>(
   UserRole.SHIPPER,
-  shipperSchema
+  shipperSchema,
 );

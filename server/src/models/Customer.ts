@@ -15,5 +15,5 @@ const customerSchema = new Schema<ICustomer>({
 
 export const CustomerModel = UserModel.discriminator<ICustomer>(
   UserRole.CUSTOMER,
-  customerSchema
+  customerSchema,
 );

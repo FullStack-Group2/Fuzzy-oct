@@ -25,5 +25,5 @@ const vendorSchema = new Schema<IVendor>({
 
 export const VendorModel = UserModel.discriminator<IVendor>(
   UserRole.VENDOR,
-  vendorSchema
+  vendorSchema,
 );

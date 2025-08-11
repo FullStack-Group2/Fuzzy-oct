@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { VendorProfile } from './components/VendorProfile';
-import { VendorRegistration } from './components/VendorRegistration';
-import { Login } from './components/Login';
+import { VendorProfile } from './app/vendor/VendorProfile';
+import { VendorRegistration } from './app/vendor/VendorRegistration';
+import { Login } from './app/auth/Login';
 
 interface RegisteredVendor {
   id: string;

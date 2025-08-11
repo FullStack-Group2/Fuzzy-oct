@@ -1,12 +1,13 @@
 import { Request, Response } from 'express';
-import { Vendor } from '../models';
+import { VendorModel } from '../models/Vendor';
+
 
 // Get vendor with profile picture
 export const getVendorById = async (req: Request, res: Response) => {
   try {
     const { vendorId } = req.params;
 
-    const vendor = await Vendor.findById(vendorId).select('-password');
+    const vendor = await VendorModel.findById(vendorId).select('-password');
     if (!vendor) {
       return res.status(404).json({ message: 'Vendor not found.' });
     }

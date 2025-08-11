@@ -1,3 +1,4 @@
+import { Button } from '@/components/ui/button';
 import React, { useState, useCallback } from 'react';
 
 interface VendorData {
@@ -187,12 +188,11 @@ export const VendorProfile: React.FC<VendorProfileProps> = ({
 
           {/* Refresh Button */}
           <div className="mt-6 pt-4 border-t">
-            <button
+            <Button
               onClick={() => fetchVendor(vendor.id)}
-              className="w-full bg-gray-600 text-white py-2 px-4 rounded-lg hover:bg-gray-700"
             >
               Refresh Profile
-            </button>
+            </Button>
           </div>
         </>
       )}

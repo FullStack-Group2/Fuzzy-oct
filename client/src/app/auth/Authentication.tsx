@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Login } from './Login';
-import { VendorRegistration } from './VendorRegistration';
+import { VendorRegistration } from '../vendor/VendorRegistration';
 import { Logout } from './Logout';
 
 interface LoggedInUser {

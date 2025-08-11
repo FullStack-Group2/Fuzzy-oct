@@ -1,3 +1,4 @@
+import { Button } from '@/components/ui/button';
 import React, { useState } from 'react';
 
 interface VendorRegistrationData {
@@ -285,7 +286,7 @@ export const VendorRegistration: React.FC<VendorRegistrationProps> = ({
         </div>
 
         {/* Submit Button */}
-        <button
+        <Button
           type="submit"
           disabled={registering || uploading}
           className={`w-full py-2 px-4 rounded-lg font-medium ${
@@ -293,7 +294,7 @@ export const VendorRegistration: React.FC<VendorRegistrationProps> = ({
           } text-white`}
         >
           {registering ? 'Registering...' : 'Register Vendor'}
-        </button>
+        </Button>
       </form>
     </div>
   );

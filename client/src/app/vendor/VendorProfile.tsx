@@ -188,9 +188,7 @@ export const VendorProfile: React.FC<VendorProfileProps> = ({
 
           {/* Refresh Button */}
           <div className="mt-6 pt-4 border-t">
-            <Button
-              onClick={() => fetchVendor(vendor.id)}
-            >
+            <Button onClick={() => fetchVendor(vendor.id)}>
               Refresh Profile
             </Button>
           </div>

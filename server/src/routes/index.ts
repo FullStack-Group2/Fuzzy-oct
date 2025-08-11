@@ -3,7 +3,6 @@ import AuthRoutes from './authRoutes';
 import UploadRoutes from './uploadRoutes';
 import VendorRoutes from './vendorRoutes';
 
-
 const router = Router();
 // this is the main router for the API
 router.use('/auth', AuthRoutes);

@@ -1,5 +1,4 @@
-import { IVendor, VendorModel } from "../models/Vendor";
-
+import { IVendor, VendorModel } from '../models/Vendor';
 
 // Check if a username already exists
 export const findVendorByUsername = async (username: string) => {

@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import AuthRoutes from './authRoutes';
 import UploadRoutes from './uploadRoutes';
-import VendorRoutes from './vendorRoutes';
+import VendorRoutes from './VendorRoutes';
 
 const router = Router();
 // this is the main router for the API

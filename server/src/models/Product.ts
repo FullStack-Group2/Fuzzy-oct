@@ -12,16 +12,16 @@ const ProductSchema = new Schema<IProduct>({
   name: {
     type: String,
     required: true,
-    minlength: 10,
-    maxlength: 20,
+    minlength: 2,
+    maxlength: 200,
   },
   price: {
     type: Number,
     required: true,
-    min: 0.01,
+    min: 0,
   },
   imageUrl: { type: String, required: true },
-  description: { type: String, maxlength: 500 },
+  description: { type: String, maxlength: 2000 },
   vendor: {
     type: Schema.Types.ObjectId,
     ref: 'Vendor',

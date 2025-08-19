@@ -19,21 +19,22 @@ export const registerVendor = async (req: Request, res: Response) => {
   try {
     const {
       username,
+      email,
       password,
       businessName,
       businessAddress,
       profilePicture,
     } = req.body;
 
-    if (!username || !password || !businessName || !businessAddress) {
+    if (!username || !email || !password || !businessName || !businessAddress) {
       return res.status(400).json({
         message:
-          'Username, password, business name, and business address are required.',
+          'Username, email, password, business name, and business address are required.',
       });
     }
 
     // Check if username already exists
-    const existingUser = await VendorModel.findOne({ username });
+    const existingUser = await UserServices.usernameExists(username);
     if (existingUser) {
       return res.status(409).json({ message: 'Username already exists.' });
     }
@@ -44,6 +45,7 @@ export const registerVendor = async (req: Request, res: Response) => {
     // Create vendor
     const vendor = new VendorModel({
       username: username.trim(),
+      email: email.trim().toLowerCase(),
       password: hashedPassword,
       role: UserRole.VENDOR,
       businessName: businessName.trim(),
@@ -67,6 +69,7 @@ export const registerVendor = async (req: Request, res: Response) => {
       vendor: {
         id: vendor._id,
         username: vendor.username,
+        email: vendor.email,
         businessName: vendor.businessName,
         businessAddress: vendor.businessAddress,
         profilePicture: vendor.profilePicture,
@@ -76,22 +79,6 @@ export const registerVendor = async (req: Request, res: Response) => {
     });
   } catch (error: unknown) {
     console.error('Vendor Registration Error:', error);
-
-    if (
-      error &&
-      typeof error === 'object' &&
-      'code' in error &&
-      error.code === 11000
-    ) {
-      const field =
-        error && typeof error === 'object' && 'keyPattern' in error
-          ? Object.keys(error.keyPattern as object)[0]
-          : 'field';
-      return res.status(409).json({
-        message: `${field} already exists.`,
-      });
-    }
-
     res.status(500).json({ message: 'Internal server error' });
   }
 };
@@ -99,16 +86,16 @@ export const registerVendor = async (req: Request, res: Response) => {
 // Register Customer
 export const registerCustomer = async (req: Request, res: Response) => {
   try {
-    const { username, password, name, address, profilePicture } = req.body;
+    const { username, email, password, name, address, profilePicture } = req.body;
 
-    if (!username || !password || !name || !address) {
+    if (!username || !email || !password || !name || !address) {
       return res.status(400).json({
-        message: 'Username, password, name, and address are required.',
+        message: 'Username, email, password, name, and address are required.',
       });
     }
 
     // Check if username already exists
-    const existingUser = await CustomerModel.findOne({ username });
+    const existingUser = await UserServices.usernameExists(username);
     if (existingUser) {
       return res.status(409).json({ message: 'Username already exists.' });
     }
@@ -119,6 +106,7 @@ export const registerCustomer = async (req: Request, res: Response) => {
     // Create customer
     const customer = new CustomerModel({
       username: username.trim(),
+      email: email.trim().toLowerCase(),
       password: hashedPassword,
       role: UserRole.CUSTOMER,
       name: name.trim(),
@@ -142,6 +130,7 @@ export const registerCustomer = async (req: Request, res: Response) => {
       customer: {
         id: customer._id,
         username: customer.username,
+        email: customer.email,
         name: customer.name,
         address: customer.address,
         profilePicture: customer.profilePicture,
@@ -152,17 +141,6 @@ export const registerCustomer = async (req: Request, res: Response) => {
   } catch (error: unknown) {
     console.error('Customer Registration Error:', error);
 
-    if (
-      error &&
-      typeof error === 'object' &&
-      'code' in error &&
-      error.code === 11000
-    ) {
-      return res.status(409).json({
-        message: 'Username already exists.',
-      });
-    }
-
     res.status(500).json({ message: 'Internal server error' });
   }
 };
@@ -170,16 +148,16 @@ export const registerCustomer = async (req: Request, res: Response) => {
 // Register Shipper
 export const registerShipper = async (req: Request, res: Response) => {
   try {
-    const { username, password, assignedHub, profilePicture } = req.body;
+    const { username, email, password, assignedHub, profilePicture } = req.body;
 
-    if (!username || !password || !assignedHub) {
+    if (!username || !email || !password || !assignedHub) {
       return res.status(400).json({
-        message: 'Username, password, and assigned hub are required.',
+        message: 'Username, email, password, and assigned hub are required.',
       });
     }
 
     // Check if username already exists
-    const existingUser = await ShipperModel.findOne({ username });
+    const existingUser = await UserServices.usernameExists(username);
     if (existingUser) {
       return res.status(409).json({ message: 'Username already exists.' });
     }
@@ -190,6 +168,7 @@ export const registerShipper = async (req: Request, res: Response) => {
     // Create shipper
     const shipper = new ShipperModel({
       username: username.trim(),
+      email: email.trim().toLowerCase(),
       password: hashedPassword,
       role: UserRole.SHIPPER,
       assignedHub,
@@ -212,6 +191,7 @@ export const registerShipper = async (req: Request, res: Response) => {
       shipper: {
         id: shipper._id,
         username: shipper.username,
+        email: shipper.email,
         assignedHub: shipper.assignedHub,
         profilePicture: shipper.profilePicture,
         role: shipper.role,
@@ -260,6 +240,7 @@ export const login = async (req: Request, res: Response) => {
     const userData: Record<string, unknown> = {
       id: user._id,
       username: user.username,
+      email: user.email,
       role: user.role,
       profilePicture: user.profilePicture,
     };
@@ -316,3 +297,64 @@ export const logout = async (req: Request, res: Response) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 };
+
+export const forgotPassword = async (req: Request, res: Response) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ message: 'Email is required.' });
+    }
+
+    // Check if user exists
+    const user = await UserServices.findByEmail(email);
+    if (!user) {
+      return res.status(404).json({ message: 'Email is not correct.' });
+    }
+
+      // send email based on id and email
+      // const emailSent = await emailService.sendPasswordResetEmail(
+      //   emailExists.id,
+      //   email,
+      //   emailExists.fullName,
+      // );
+
+      // if (!emailSent) {
+      //   res.status(500).json({ error: "Failed to send password reset email." });
+      //   return;
+      // }
+
+      res.status(200).json({ status: "Verification email sent successfully" });
+  } catch (error) {
+    console.error('Forgot Password Error:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+}
+
+export const resetPassword = async (req: Request, res: Response) => {
+  try {
+    const { userId, newPassword } = req.body;
+
+    if (!userId || !newPassword) {
+      return res.status(400).json({ message: 'User ID and new password are required.' });
+    }
+
+    // Find user by ID
+    const user = await UserServices.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found.' });
+    }
+
+    // Hash new password
+    const hashedPassword = await bcrypt.hash(newPassword, 12);
+
+    // Update user's password
+    user.password = hashedPassword;
+    await user.save();
+
+    res.status(200).json({ message: 'Password reset successfully.' });
+  } catch (error) {
+    console.error('Reset Password Error:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+}

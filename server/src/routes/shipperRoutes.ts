@@ -13,5 +13,11 @@ router.get(
   requireShipper,
   shipperController.getShipperById,
 );
+router.put(
+  '/:id',
+  authMiddleware,
+  requireShipper,
+  shipperController.updateShipper,
+);
 
 export default router;

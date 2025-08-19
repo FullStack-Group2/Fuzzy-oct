@@ -13,5 +13,10 @@ router.get(
   requireCustomer,
   customerController.getCustomerById,
 );
-
+router.put(
+  '/:id',
+  authMiddleware,
+  requireCustomer,
+  customerController.updateCustomer,
+);
 export default router;

@@ -13,5 +13,11 @@ router.get(
   requireVendor,
   vendorController.getVendorById,
 );
+router.put(
+  '/:id',
+  authMiddleware,
+  requireVendor,
+  vendorController.updateVendor,
+);
 
 export default router;

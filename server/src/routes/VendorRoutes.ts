@@ -19,8 +19,18 @@ router.get(
   vendorController.getVendorById,
 );
 router.post('/add', authMiddleware, requireVendor, vendorController.addProduct);
-router.get('/orders', authMiddleware, requireVendor, vendorController.getActiveOrders);
-router.get('/order-history', authMiddleware, requireVendor, vendorController.getOrderHistory);
+router.get(
+  '/orders',
+  authMiddleware,
+  requireVendor,
+  vendorController.getActiveOrders,
+);
+router.get(
+  '/order-history',
+  authMiddleware,
+  requireVendor,
+  vendorController.getOrderHistory,
+);
 router.put(
   '/:productId',
   authMiddleware,

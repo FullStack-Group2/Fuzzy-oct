@@ -111,12 +111,10 @@ export const editProductDetails = async (
 
     // Update the product
     const updatedProduct = await editProduct(productId, updateData);
-    res
-      .status(200)
-      .json({
-        message: 'Product updated successfully.',
-        product: updatedProduct,
-      });
+    res.status(200).json({
+      message: 'Product updated successfully.',
+      product: updatedProduct,
+    });
   } catch (error) {
     console.error('Error updating product:', error);
     res.status(500).json({
@@ -174,7 +172,10 @@ export const getActiveOrders = async (
   }
 };
 
-export const getOrderHistory = async (req: AuthenticatedRequest, res: Response) => {
+export const getOrderHistory = async (
+  req: AuthenticatedRequest,
+  res: Response,
+) => {
   try {
     const { userId } = req.user!;
     const orders = await getVendorOrderHistory(userId);

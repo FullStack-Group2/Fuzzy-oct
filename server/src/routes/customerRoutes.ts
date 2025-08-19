@@ -1,8 +1,8 @@
 import { Router } from 'express';
 
-import * as vendorController from '../controllers/VendorController';
+import * as customerController from '../controllers/CustomerController';
 import { authMiddleware } from '../middleware/authMiddleware';
-import { requireVendor } from '../middleware/roleMiddleware';
+import { requireCustomer } from '../middleware/roleMiddleware';
 
 const router = Router();
 
@@ -10,8 +10,8 @@ const router = Router();
 router.get(
   '/:id',
   authMiddleware,
-  requireVendor,
-  vendorController.getVendorById,
+  requireCustomer,
+  customerController.getCustomerById,
 );
 
 export default router;

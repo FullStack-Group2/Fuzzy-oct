@@ -220,18 +220,6 @@ export const registerShipper = async (req: Request, res: Response) => {
     });
   } catch (error: unknown) {
     console.error('Shipper Registration Error:', error);
-
-    if (
-      error &&
-      typeof error === 'object' &&
-      'code' in error &&
-      error.code === 11000
-    ) {
-      return res.status(409).json({
-        message: 'Username already exists.',
-      });
-    }
-
     res.status(500).json({ message: 'Internal server error' });
   }
 };

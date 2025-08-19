@@ -4,9 +4,9 @@ import { VendorModel } from '../models/Vendor';
 // Get vendor with profile picture
 export const getVendorById = async (req: Request, res: Response) => {
   try {
-    const { vendorId } = req.params;
+    const { id } = req.params;
 
-    const vendor = await VendorModel.findById(vendorId).select('-password');
+    const vendor = await VendorModel.findById(id).select('-password');
     if (!vendor) {
       return res.status(404).json({ message: 'Vendor not found.' });
     }
@@ -15,6 +15,7 @@ export const getVendorById = async (req: Request, res: Response) => {
       vendor: {
         id: vendor._id,
         username: vendor.username,
+        role: vendor.role,
         businessName: vendor.businessName,
         businessAddress: vendor.businessAddress,
         profilePicture: vendor.profilePicture,

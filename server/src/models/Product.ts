@@ -2,11 +2,12 @@ import mongoose, { Schema, model, Document } from 'mongoose';
 
 export interface IProduct extends Document {
   _id: mongoose.Types.ObjectId;
+
   name: string;
   price: number;
   imageUrl: string;
   description: string;
-  vendor: mongoose.Types.ObjectId; // Reference to the User (Vendor)
+  vendor: Schema.Types.ObjectId; // Reference to the User (Vendor)
 }
 
 const ProductSchema = new Schema<IProduct>({

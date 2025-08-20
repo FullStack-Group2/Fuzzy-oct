@@ -1,14 +1,14 @@
 {
   "name": "server",
   "version": "1.0.0",
-  "scripts": {
-    "dev": "ts-node src/server.ts",
-    "build": "tsc",
-    "start": "node dist/server.js",
-    "format": "prettier --write .",
-    "format:check": "prettier --check .",
-    "lint": "eslint src --ext .ts --fix"
-  },
+ "scripts": {
+  "dev": "tsx watch src/server.ts",     
+  "build": "tsc",                         
+  "start": "tsx dist/server.js",          
+  "format": "prettier --write .",
+  "format:check": "prettier --check .",
+  "lint": "eslint src --ext .ts --fix"
+},
   "dependencies": {
     "bcrypt": "^5.1.1",
     "connect-mongo": "^5.1.0",
@@ -19,6 +19,7 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.2.0",
     "multer": "^2.0.2",
+    "twilio": "^5.8.0",
     "zod": "^4.0.16"
   },
   "devDependencies": {
@@ -29,7 +30,7 @@
     "@types/jsonwebtoken": "^9.0.6",
     "@types/mongoose": "^5.11.97",
     "@types/multer": "^2.0.0",
-    "@types/node": "^20.11.24",
+    "@types/node": "^20.19.9",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.2"
   }

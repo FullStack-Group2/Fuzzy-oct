@@ -3,6 +3,7 @@ import { VendorModel, IVendor } from '../models/Vendor';
 import { CustomerModel, ICustomer } from '../models/Customer';
 import { ShipperModel, IShipper } from '../models/Shipper';
 import { UserRole } from '../models/UserRole';
+import bcrypt from 'bcrypt';
 
 // Union type for all user types
 type AnyUser = IVendor | ICustomer | IShipper;
@@ -110,5 +111,47 @@ export class UserServices {
       console.error('Error checking username existence:', error);
       throw new Error('Failed to check username');
     }
+  }
+  static async updatePassword(
+    email: string,
+    newPassword: string,
+  ): Promise<IUser | null> {
+    try {
+      // First, find the user with the current password
+      const existingUser = await UserServices.findByEmail(email);
+      if (!existingUser) {
+        throw new Error('User not found');
+      }
+
+      // Check if new password matches the old hashed password
+      if (existingUser.password) {
+        const isSamePassword = await bcrypt.compare(newPassword, existingUser.password);
+        if (isSamePassword) {
+          throw new Error('New password cannot be the same as the current password');
+        }
+      }
+
+      // Simple similarity check for plain text comparison
+      const newPasswordLower = newPassword.toLowerCase();
+      
+      // Basic similarity checks
+      if (newPasswordLower.length < 6) {
+        throw new Error('New password must be at least 6 characters long');
+      }
+      console.log('New password length:', newPassword);
+      // Hash the new password before saving
+      const hashedNewPassword = await bcrypt.hash(newPassword, 12);
+      console.log('Updating password for user:', hashedNewPassword);
+
+      const user = await UserModel.findOneAndUpdate(
+        { email },
+        { password: hashedNewPassword },
+        { new: true, runValidators: true, select: '+password' },
+      );
+      return user;
+    } catch (error) {
+      console.error('Error updating password:', error);
+      throw new Error(error instanceof Error ? error.message : 'Failed to update password');
+    } 
   }
 }

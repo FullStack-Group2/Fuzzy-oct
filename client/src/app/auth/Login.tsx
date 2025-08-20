@@ -1,23 +1,28 @@
 import React, { useState } from 'react';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 interface LoginData {
   username: string;
   password: string;
 }
 
-interface LoggedInUser {
+export interface LoggedInUser {
   id: string;
-  email: string;
+  username: string;
 }
 
 interface LoginProps {
   onLoginSuccess?: (user: LoggedInUser) => void;
   onSwitchToRegister?: () => void;
+  onForgotPassword?: () => void;
 }
 
 export const Login: React.FC<LoginProps> = ({
   onLoginSuccess,
   onSwitchToRegister,
+  onForgotPassword,
 }) => {
   const [formData, setFormData] = useState<LoginData>({
     username: '',
@@ -47,7 +52,10 @@ export const Login: React.FC<LoginProps> = ({
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          username: formData.username,
+          password: formData.password,
+        }),
       });
 
       const data = await response.json();
@@ -73,93 +81,102 @@ export const Login: React.FC<LoginProps> = ({
   };
 
   return (
-    <div className="max-w-md mx-auto bg-white rounded-lg shadow-md p-6">
-      <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">
-        Vendor Login
-      </h2>
-
-      <form onSubmit={handleSubmit} className="space-y-4">
-        {/* Error Message */}
-        {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
-            {error}
-          </div>
-        )}
-
-        {/* Username */}
-        <div>
-          <label
-            htmlFor="username"
-            className="block text-sm font-medium text-gray-700 mb-1"
-          >
-            Username *
-          </label>
-          <input
-            type="text"
-            id="username"
-            name="username"
-            value={formData.username}
-            onChange={handleInputChange}
-            required
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Enter your username"
-            disabled={loading}
-          />
-        </div>
-
-        {/* Password */}
-        <div>
-          <label
-            htmlFor="password"
-            className="block text-sm font-medium text-gray-700 mb-1"
-          >
-            Password *
-          </label>
-          <input
-            type="password"
-            id="password"
-            name="password"
-            value={formData.password}
-            onChange={handleInputChange}
-            required
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Enter your password"
-            disabled={loading}
-          />
-        </div>
-
-        {/* Submit Button */}
-        <button
-          type="submit"
-          disabled={loading}
-          className={`w-full py-2 px-4 rounded-lg font-medium ${
-            loading
-              ? 'bg-gray-400 cursor-not-allowed'
-              : 'bg-blue-600 hover:bg-blue-700'
-          } text-white`}
-        >
-          {loading ? 'Logging in...' : 'Login'}
-        </button>
-      </form>
-
-      {/* Switch to Register */}
-      <div className="mt-6 text-center">
-        <p className="text-gray-600 text-sm">
-          Don&apos;t have an account?{' '}
-          <button
-            onClick={onSwitchToRegister}
-            className="text-blue-600 hover:text-blue-800 font-medium"
-          >
-            Register here
-          </button>
-        </p>
+    <div className="min-h-screen flex">
+      {/* Left Panel - Image */}
+      <div className="flex-1 bg-gray-200 flex items-center justify-center">
+        <div className="w-80 h-80 bg-gray-300 rounded-lg"></div>
       </div>
 
-      {/* Demo Credentials */}
-      <div className="mt-4 p-3 bg-gray-50 rounded-lg">
-        <p className="text-xs text-gray-600 mb-2">Demo credentials:</p>
-        <p className="text-xs text-gray-500">Username: huy123</p>
-        <p className="text-xs text-gray-500">Password: password123</p>
+      {/* Right Panel - Login Form */}
+      <div className="flex-1 flex items-center justify-center bg-gray-50">
+        <div className="w-full max-w-md p-8">
+          {/* Header */}
+          <div className="mb-8 text-center">
+            <h1 className="text-4xl font-normal mb-2">WELCOME BACK</h1>
+            <p className="text-gray-600 text-base">Welcome back! Please enter your details.</p>
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Error Message */}
+            {error && (
+              <div className="px-4 py-3 rounded-lg text-sm">
+                {error}
+              </div>
+            )}
+
+            {/* Username Field */}
+            <div className="space-y-2">
+              <Label htmlFor="username" className="text-sm font-medium text-gray-700">
+                Username
+              </Label>
+              <Input
+                type="text"
+                id="username"
+                name="username"
+                value={formData.username}
+                onChange={handleInputChange}
+                placeholder="Enter your username"
+                disabled={loading}
+                className="w-full"
+                required
+              />
+            </div>
+
+            {/* Password Field */}
+            <div className="space-y-2">
+              <Label htmlFor="password" className="text-sm font-medium text-gray-700">
+                Password
+              </Label>
+              <Input
+                type="password"
+                id="password"
+                name="password"
+                value={formData.password}
+                onChange={handleInputChange}
+                placeholder="••••••••"
+                disabled={loading}
+                className="w-full"
+                required
+              />
+            </div>
+
+            {/* Forgot Password */}
+            <div className="text-right">
+              <Button
+                variant="link" 
+                type="button"
+                className="text-sm text-gray-600 hover:text-gray-800"
+                onClick={onForgotPassword}
+              >
+                Forgot password
+              </Button>
+            </div>
+
+            {/* Sign In Button */}
+            <Button
+              type="submit"
+              disabled={loading}
+              className="w-full py-3 rounded-lg font-medium"
+            >
+              {loading ? 'Signing in...' : 'Sign in'}
+            </Button>
+
+            {/* Sign Up Link */}
+            <div className="text-center ">
+              <p className="text-sm text-gray-600">
+                Don&apos;t have an account?{' '}
+                <Button
+                  variant="link"
+                  type="button"
+                  onClick={onSwitchToRegister}
+                  className="font-medium"
+                >
+                  Sign up
+                </Button>
+              </p>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );

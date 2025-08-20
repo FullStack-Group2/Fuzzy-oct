@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 interface LoginData {
   username: string;
@@ -93,20 +93,23 @@ export const Login: React.FC<LoginProps> = ({
           {/* Header */}
           <div className="mb-8 text-center">
             <h1 className="text-4xl font-normal mb-2">WELCOME BACK</h1>
-            <p className="text-gray-600 text-base">Welcome back! Please enter your details.</p>
+            <p className="text-gray-600 text-base">
+              Welcome back! Please enter your details.
+            </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Error Message */}
             {error && (
-              <div className="px-4 py-3 rounded-lg text-sm">
-                {error}
-              </div>
+              <div className="px-4 py-3 rounded-lg text-sm">{error}</div>
             )}
 
             {/* Username Field */}
             <div className="space-y-2">
-              <Label htmlFor="username" className="text-sm font-medium text-gray-700">
+              <Label
+                htmlFor="username"
+                className="text-sm font-medium text-gray-700"
+              >
                 Username
               </Label>
               <Input
@@ -124,7 +127,10 @@ export const Login: React.FC<LoginProps> = ({
 
             {/* Password Field */}
             <div className="space-y-2">
-              <Label htmlFor="password" className="text-sm font-medium text-gray-700">
+              <Label
+                htmlFor="password"
+                className="text-sm font-medium text-gray-700"
+              >
                 Password
               </Label>
               <Input
@@ -143,7 +149,7 @@ export const Login: React.FC<LoginProps> = ({
             {/* Forgot Password */}
             <div className="text-right">
               <Button
-                variant="link" 
+                variant="link"
                 type="button"
                 className="text-sm text-gray-600 hover:text-gray-800"
                 onClick={onForgotPassword}

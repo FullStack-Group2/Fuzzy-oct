@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Button } from "@/components/ui/button";
-import { Store, Truck, User } from "lucide-react";
+import { Button } from '@/components/ui/button';
+import { Store, Truck, User } from 'lucide-react';
 
 export type RegistrationType = 'vendor' | 'shipper' | 'customer';
 
@@ -13,7 +13,9 @@ export const SelectRegistrationType: React.FC<SelectRegistrationTypeProps> = ({
   onContinue,
   onBack,
 }) => {
-  const [selectedType, setSelectedType] = useState<RegistrationType | null>(null);
+  const [selectedType, setSelectedType] = useState<RegistrationType | null>(
+    null,
+  );
 
   const handleTypeSelect = (type: RegistrationType) => {
     setSelectedType(type);
@@ -58,26 +60,29 @@ export const SelectRegistrationType: React.FC<SelectRegistrationTypeProps> = ({
           {registrationTypes.map((type) => {
             const Icon = type.icon;
             const isSelected = selectedType === type.id;
-            
+
             return (
               <div
                 key={type.id}
                 onClick={() => handleTypeSelect(type.id)}
                 className={`
                   relative cursor-pointer rounded-2xl p-8 text-center transition-all duration-200 hover:scale-105
-                  ${isSelected 
-                    ? 'bg-emerald-600 text-white shadow-lg' 
-                    : 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'
+                  ${
+                    isSelected
+                      ? 'bg-emerald-600 text-white shadow-lg'
+                      : 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'
                   }
                 `}
               >
                 <div className="flex flex-col items-center space-y-4">
-                  <div className={`
+                  <div
+                    className={`
                     p-4 rounded-xl
                     ${isSelected ? 'bg-white/20' : 'bg-white/60'}
-                  `}>
-                    <Icon 
-                      size={48} 
+                  `}
+                  >
+                    <Icon
+                      size={48}
                       className={`
                         ${isSelected ? 'text-white' : 'text-emerald-600'}
                       `}
@@ -86,13 +91,14 @@ export const SelectRegistrationType: React.FC<SelectRegistrationTypeProps> = ({
                   <h3 className="font-bold text-lg tracking-wide">
                     {type.title}
                   </h3>
-                  <p className={`
+                  <p
+                    className={`
                     text-sm opacity-80
                     ${isSelected ? 'text-white' : 'text-emerald-600'}
-                  `}>
-                  </p>
+                  `}
+                  ></p>
                 </div>
-                
+
                 {/* Selection indicator */}
                 {isSelected && (
                   <div className="absolute top-4 right-4">
@@ -117,15 +123,16 @@ export const SelectRegistrationType: React.FC<SelectRegistrationTypeProps> = ({
               Back to Login
             </Button>
           )}
-          
+
           <Button
             onClick={handleContinue}
             disabled={!selectedType}
             className={`
               px-12 py-3 rounded-lg font-medium transition-all duration-200
-              ${selectedType 
-                ? '' 
-                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+              ${
+                selectedType
+                  ? ''
+                  : 'bg-gray-300 text-gray-500 cursor-not-allowed'
               }
             `}
           >

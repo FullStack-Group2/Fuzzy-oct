@@ -3,7 +3,11 @@ import { ForgotPassword } from './ForgotPassword';
 import { PasswordRequest } from './PasswordRequest';
 import { SetNewPassword } from './SetNewPassword';
 
-type PasswordResetStep = 'forgot-password' | 'verify-otp' | 'set-new-password' | 'reset-complete';
+type PasswordResetStep =
+  | 'forgot-password'
+  | 'verify-otp'
+  | 'set-new-password'
+  | 'reset-complete';
 
 interface PasswordResetFlowProps {
   onBackToLogin?: () => void;
@@ -14,7 +18,8 @@ export const PasswordResetFlow: React.FC<PasswordResetFlowProps> = ({
   onBackToLogin,
   onPasswordResetComplete,
 }) => {
-  const [currentStep, setCurrentStep] = useState<PasswordResetStep>('forgot-password');
+  const [currentStep, setCurrentStep] =
+    useState<PasswordResetStep>('forgot-password');
   const [email, setEmail] = useState<string>('');
 
   const handleOtpSent = (userEmail: string) => {
@@ -41,15 +46,18 @@ export const PasswordResetFlow: React.FC<PasswordResetFlowProps> = ({
   const handleResendOtp = async () => {
     // Resend OTP by calling the forgot-password endpoint again
     try {
-      const response = await fetch('http://localhost:5001/api/auth/forgot-password', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
+      const response = await fetch(
+        'http://localhost:5001/api/auth/forgot-password',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            email: email,
+          }),
         },
-        body: JSON.stringify({
-          email: email,
-        }),
-      });
+      );
 
       if (response.ok) {
         console.log('OTP resent successfully');
@@ -68,8 +76,18 @@ export const PasswordResetFlow: React.FC<PasswordResetFlowProps> = ({
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
           <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+            <svg
+              className="w-8 h-8 text-green-600"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M5 13l4 4L19 7"
+              ></path>
             </svg>
           </div>
           <h1 className="text-2xl font-bold text-gray-900 mb-2">
@@ -108,9 +126,6 @@ export const PasswordResetFlow: React.FC<PasswordResetFlowProps> = ({
 
   // Show forgot password step (default)
   return (
-    <ForgotPassword
-      onOtpSent={handleOtpSent}
-      onBackToLogin={onBackToLogin}
-    />
+    <ForgotPassword onOtpSent={handleOtpSent} onBackToLogin={onBackToLogin} />
   );
 };

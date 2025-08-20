@@ -1,29 +1,32 @@
 import React, { useState } from 'react';
 import { z } from 'zod';
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from '@/components/ui/select';
 
 // Zod schema for shipper registration validation
 const shipperRegistrationSchema = z.object({
   username: z
     .string()
-    .min(3, "Username must be at least 3 characters long")
-    .max(50, "Username must be less than 50 characters")
-    .regex(/^[a-zA-Z0-9_]+$/, "Username can only contain letters, numbers, and underscores"),
+    .min(3, 'Username must be at least 3 characters long')
+    .max(50, 'Username must be less than 50 characters')
+    .regex(
+      /^[a-zA-Z0-9_]+$/,
+      'Username can only contain letters, numbers, and underscores',
+    ),
   password: z
     .string()
-    .min(6, "Password must be at least 6 characters long")
-    .max(100, "Password must be less than 100 characters"),
+    .min(6, 'Password must be at least 6 characters long')
+    .max(100, 'Password must be less than 100 characters'),
   assignedHub: z.enum(['south-hub', 'north-hub', 'east-hub'], {
-    message: "Please select an assigned hub",
+    message: 'Please select an assigned hub',
   }),
   profilePicture: z.string().optional(),
 });
@@ -73,7 +76,7 @@ export const RegisterShipper: React.FC<RegisterShipperProps> = ({
     // Clear general error and field-specific error when user starts typing
     if (error) setError('');
     if (fieldErrors[name]) {
-      setFieldErrors(prev => ({
+      setFieldErrors((prev) => ({
         ...prev,
         [name]: '',
       }));
@@ -84,11 +87,11 @@ export const RegisterShipper: React.FC<RegisterShipperProps> = ({
     setFormData((prev) => ({
       ...prev,
       assignedHub: value,
-    }));    
+    }));
     // Clear general error and field-specific error when user makes a selection
     if (error) setError('');
     if (fieldErrors.assignedHub) {
-      setFieldErrors(prev => ({
+      setFieldErrors((prev) => ({
         ...prev,
         assignedHub: '',
       }));
@@ -99,14 +102,14 @@ export const RegisterShipper: React.FC<RegisterShipperProps> = ({
     try {
       // Clear previous field errors
       setFieldErrors({});
-      
+
       // Check for undefined assignedHub first
       if (!formData.assignedHub) {
-        setFieldErrors({ assignedHub: "Please select an assigned hub" });
-        setError("Please select an assigned hub");
+        setFieldErrors({ assignedHub: 'Please select an assigned hub' });
+        setError('Please select an assigned hub');
         return false;
       }
-      
+
       // Validate using Zod schema with complete data
       const completeData = {
         ...formData,
@@ -125,7 +128,7 @@ export const RegisterShipper: React.FC<RegisterShipperProps> = ({
           }
         });
         setFieldErrors(newFieldErrors);
-        
+
         // Set general error message with first error
         const firstError = error.issues[0];
         setError(firstError?.message || 'Please fix the validation errors');
@@ -138,7 +141,7 @@ export const RegisterShipper: React.FC<RegisterShipperProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
@@ -153,14 +156,17 @@ export const RegisterShipper: React.FC<RegisterShipperProps> = ({
         assignedHub: formData.assignedHub!, // Non-null assertion since validation passed
         profilePicture: formData.profilePicture,
       };
-      
-      const response = await fetch('http://localhost:5001/api/auth/register/shipper', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
+
+      const response = await fetch(
+        'http://localhost:5001/api/auth/register/shipper',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(registrationData),
         },
-        body: JSON.stringify(registrationData),
-      });
+      );
 
       const data = await response.json();
 
@@ -172,7 +178,7 @@ export const RegisterShipper: React.FC<RegisterShipperProps> = ({
         localStorage.setItem('token', data.token);
 
         onRegistrationSuccess?.(data.Shipper);
-          alert('Shipper registration successful!');
+        alert('Shipper registration successful!');
       } else {
         setError(data.message || 'Registration failed');
         console.error('Registration failed:', data);
@@ -212,9 +218,7 @@ export const RegisterShipper: React.FC<RegisterShipperProps> = ({
 
             {/* Username Field */}
             <div className="space-y-2">
-              <Label htmlFor="username" >
-                Username *
-              </Label>
+              <Label htmlFor="username">Username *</Label>
               <Input
                 type="text"
                 id="username"
@@ -233,34 +237,40 @@ export const RegisterShipper: React.FC<RegisterShipperProps> = ({
 
             {/* Assigned Distribution Hub Field */}
             <div className="space-y-2">
-              <Label htmlFor="assignedHub">
-                Assigned distribution hub *
-              </Label>
+              <Label htmlFor="assignedHub">Assigned distribution hub *</Label>
               <Select
                 value={formData.assignedHub}
                 onValueChange={handleSelectChange}
                 disabled={loading}
                 required
               >
-                <SelectTrigger className={`w-full ${fieldErrors.assignedHub ? 'border-red-500' : ''}`}>
+                <SelectTrigger
+                  className={`w-full ${fieldErrors.assignedHub ? 'border-red-500' : ''}`}
+                >
                   <SelectValue placeholder="Select your assigned hub" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="south-hub">Sai Gon Distribution Hub</SelectItem>
-                  <SelectItem value="north-hub">Ha Noi Distribution Hub</SelectItem>
-                  <SelectItem value="east-hub">Da Nang Distribution Hub</SelectItem>
+                  <SelectItem value="south-hub">
+                    Sai Gon Distribution Hub
+                  </SelectItem>
+                  <SelectItem value="north-hub">
+                    Ha Noi Distribution Hub
+                  </SelectItem>
+                  <SelectItem value="east-hub">
+                    Da Nang Distribution Hub
+                  </SelectItem>
                 </SelectContent>
               </Select>
               {fieldErrors.assignedHub && (
-                <p className="text-red-500 text-sm">{fieldErrors.assignedHub}</p>
+                <p className="text-red-500 text-sm">
+                  {fieldErrors.assignedHub}
+                </p>
               )}
             </div>
 
             {/* Password Field */}
             <div className="space-y-2">
-              <Label htmlFor="password" >
-                Password *
-              </Label>
+              <Label htmlFor="password">Password *</Label>
               <Input
                 type="password"
                 id="password"

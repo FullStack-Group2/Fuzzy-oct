@@ -1,15 +1,15 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { z } from 'zod';
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { ArrowLeft } from "lucide-react";
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { ArrowLeft } from 'lucide-react';
 
 // Zod schema for OTP validation
 const otpSchema = z.object({
   otp: z
     .string()
-    .length(6, "Please enter all 6 digits")
-    .regex(/^\d+$/, "OTP must contain only numbers"),
+    .length(6, 'Please enter all 6 digits')
+    .regex(/^\d+$/, 'OTP must contain only numbers'),
 });
 
 interface PasswordRequestProps {
@@ -55,7 +55,10 @@ export const PasswordRequest: React.FC<PasswordRequestProps> = ({
     }
   };
 
-  const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = (
+    index: number,
+    e: React.KeyboardEvent<HTMLInputElement>,
+  ) => {
     // Handle backspace
     if (e.key === 'Backspace' && otp[index] === '' && index > 0) {
       inputRefs.current[index - 1]?.focus();
@@ -65,7 +68,7 @@ export const PasswordRequest: React.FC<PasswordRequestProps> = ({
   const handlePaste = (e: React.ClipboardEvent) => {
     e.preventDefault();
     const pastedData = e.clipboardData.getData('text').trim();
-    
+
     // Check if pasted data is 6 digits
     if (/^\d{6}$/.test(pastedData)) {
       const newOtp = pastedData.split('');
@@ -76,7 +79,7 @@ export const PasswordRequest: React.FC<PasswordRequestProps> = ({
 
   const validateOtp = (): boolean => {
     const otpString = otp.join('');
-    
+
     try {
       otpSchema.parse({ otp: otpString });
       return true;
@@ -93,7 +96,7 @@ export const PasswordRequest: React.FC<PasswordRequestProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateOtp()) {
       return;
     }
@@ -102,16 +105,19 @@ export const PasswordRequest: React.FC<PasswordRequestProps> = ({
     setError('');
 
     try {
-      const response = await fetch('http://localhost:5001/api/auth/verify-otp', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
+      const response = await fetch(
+        'http://localhost:5001/api/auth/verify-otp',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            email: email,
+            otp: otp.join(''),
+          }),
         },
-        body: JSON.stringify({
-          email: email,
-          otp: otp.join(''),
-        }),
-      });
+      );
 
       const data = await response.json();
 
@@ -133,7 +139,7 @@ export const PasswordRequest: React.FC<PasswordRequestProps> = ({
   const handleResendOtp = async () => {
     setLoading(true);
     setError('');
-    
+
     try {
       await onResendOtp?.();
     } catch (error) {
@@ -146,8 +152,7 @@ export const PasswordRequest: React.FC<PasswordRequestProps> = ({
   return (
     <div className="min-h-screen flex">
       {/* Left Panel - Decorative Image */}
-      <div className="flex-1 flex items-center justify-center p-8">
-      </div>
+      <div className="flex-1 flex items-center justify-center p-8"></div>
 
       {/* Right Panel - OTP Form */}
       <div className="flex-1 flex items-center justify-center bg-gray-50">
@@ -189,7 +194,7 @@ export const PasswordRequest: React.FC<PasswordRequestProps> = ({
                   />
                 ))}
               </div>
-              
+
               {fieldError && (
                 <p className="text-red-500 text-sm text-center">{fieldError}</p>
               )}

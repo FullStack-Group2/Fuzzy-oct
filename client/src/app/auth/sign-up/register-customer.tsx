@@ -1,24 +1,27 @@
 import React, { useState } from 'react';
 import { z } from 'zod';
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 // Zod schema for customer registration validation
 const customerRegistrationSchema = z.object({
   username: z
     .string()
-    .min(3, "Username must be at least 3 characters long")
-    .max(50, "Username must be less than 50 characters")
-    .regex(/^[a-zA-Z0-9_]+$/, "Username can only contain letters, numbers, and underscores"),
+    .min(3, 'Username must be at least 3 characters long')
+    .max(50, 'Username must be less than 50 characters')
+    .regex(
+      /^[a-zA-Z0-9_]+$/,
+      'Username can only contain letters, numbers, and underscores',
+    ),
   password: z
     .string()
-    .min(6, "Password must be at least 6 characters long")
-    .max(100, "Password must be less than 100 characters"),
+    .min(6, 'Password must be at least 6 characters long')
+    .max(100, 'Password must be less than 100 characters'),
   address: z
     .string()
-    .min(5, "Address must be at least 5 characters long")
-    .max(200, "Address must be less than 200 characters"),
+    .min(5, 'Address must be at least 5 characters long')
+    .max(200, 'Address must be less than 200 characters'),
   profilePicture: z.string().optional(),
 });
 
@@ -51,7 +54,6 @@ export const RegisterCustomer: React.FC<RegisterCustomerProps> = ({
   const [error, setError] = useState<string>('');
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
-
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -61,7 +63,7 @@ export const RegisterCustomer: React.FC<RegisterCustomerProps> = ({
     // Clear general error and field-specific error when user starts typing
     if (error) setError('');
     if (fieldErrors[name]) {
-      setFieldErrors(prev => ({
+      setFieldErrors((prev) => ({
         ...prev,
         [name]: '',
       }));
@@ -72,7 +74,7 @@ export const RegisterCustomer: React.FC<RegisterCustomerProps> = ({
     try {
       // Clear previous field errors
       setFieldErrors({});
-      
+
       // Validate using Zod schema
       customerRegistrationSchema.parse(formData);
       return true;
@@ -87,7 +89,7 @@ export const RegisterCustomer: React.FC<RegisterCustomerProps> = ({
           }
         });
         setFieldErrors(newFieldErrors);
-        
+
         // Set general error message with first error
         const firstError = error.issues[0];
         setError(firstError?.message || 'Please fix the validation errors');
@@ -100,7 +102,7 @@ export const RegisterCustomer: React.FC<RegisterCustomerProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
@@ -115,14 +117,17 @@ export const RegisterCustomer: React.FC<RegisterCustomerProps> = ({
         address: formData.address,
         profilePicture: formData.profilePicture,
       };
-      
-      const response = await fetch('http://localhost:5001/api/auth/register/Customer', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
+
+      const response = await fetch(
+        'http://localhost:5001/api/auth/register/Customer',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(registrationData),
         },
-        body: JSON.stringify(registrationData),
-      });
+      );
 
       const data = await response.json();
 
@@ -174,9 +179,7 @@ export const RegisterCustomer: React.FC<RegisterCustomerProps> = ({
 
             {/* Username Field */}
             <div className="space-y-2">
-              <Label htmlFor="username" >
-                Username *
-              </Label>
+              <Label htmlFor="username">Username *</Label>
               <Input
                 type="text"
                 id="username"
@@ -193,12 +196,9 @@ export const RegisterCustomer: React.FC<RegisterCustomerProps> = ({
               )}
             </div>
 
-
             {/* Address Field */}
             <div className="space-y-2">
-              <Label htmlFor="address" >
-                Address *
-              </Label>
+              <Label htmlFor="address">Address *</Label>
               <Input
                 type="text"
                 id="address"
@@ -217,9 +217,7 @@ export const RegisterCustomer: React.FC<RegisterCustomerProps> = ({
 
             {/* Password Field */}
             <div className="space-y-2">
-              <Label htmlFor="password" >
-                Password *
-              </Label>
+              <Label htmlFor="password">Password *</Label>
               <Input
                 type="password"
                 id="password"

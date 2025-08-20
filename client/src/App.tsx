@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { Login, LoggedInUser } from './app/auth/Login';
-import { RegistrationFlow, RegisteredUser } from './app/auth/sign-up/RegistrationFlow';
+import {
+  RegistrationFlow,
+  RegisteredUser,
+} from './app/auth/sign-up/RegistrationFlow';
 import { PasswordResetFlow } from './app/auth/PasswordResetFlow';
 
 type AuthView = 'login' | 'register' | 'forgot-password';
@@ -45,9 +48,7 @@ function App() {
           <h1 className="text-3xl font-bold text-gray-800 mb-4">
             Welcome to Fuzzy!
           </h1>
-          <p className="text-gray-600 mb-6">
-            You have successfully logged in.
-          </p>
+          <p className="text-gray-600 mb-6">You have successfully logged in.</p>
           <button
             onClick={() => setUser(null)}
             className="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-lg"

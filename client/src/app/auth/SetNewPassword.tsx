@@ -1,24 +1,29 @@
 import React, { useState } from 'react';
 import { z } from 'zod';
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { ArrowLeft, Eye, EyeOff, Check } from "lucide-react";
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { ArrowLeft, Eye, EyeOff, Check } from 'lucide-react';
 
 // Zod schema for password validation
-const passwordSchema = z.object({
-  password: z
-    .string()
-    .min(8, "Password must be at least 8 characters")
-    .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
-    .regex(/[a-z]/, "Password must contain at least one lowercase letter")
-    .regex(/\d/, "Password must contain at least one number")
-    .regex(/[!@#$%^&*(),.?":{}|<>]/, "Password must contain at least one special character"),
-  confirmPassword: z.string().min(1, "Please confirm your password"),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ["confirmPassword"],
-});
+const passwordSchema = z
+  .object({
+    password: z
+      .string()
+      .min(8, 'Password must be at least 8 characters')
+      .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
+      .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
+      .regex(/\d/, 'Password must contain at least one number')
+      .regex(
+        /[!@#$%^&*(),.?":{}|<>]/,
+        'Password must contain at least one special character',
+      ),
+    confirmPassword: z.string().min(1, 'Please confirm your password'),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ['confirmPassword'],
+  });
 
 interface SetNewPasswordProps {
   email: string;
@@ -37,7 +42,7 @@ export const SetNewPassword: React.FC<SetNewPasswordProps> = ({
     password: '',
     confirmPassword: '',
   });
-  
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>('');
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -56,12 +61,12 @@ export const SetNewPassword: React.FC<SetNewPasswordProps> = ({
   const allChecksPass = Object.values(passwordChecks).every(Boolean);
 
   const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-    
+    setFormData((prev) => ({ ...prev, [field]: value }));
+
     // Clear errors when user starts typing
     if (error) setError('');
     if (fieldErrors[field]) {
-      setFieldErrors(prev => ({ ...prev, [field]: '' }));
+      setFieldErrors((prev) => ({ ...prev, [field]: '' }));
     }
   };
 
@@ -86,7 +91,7 @@ export const SetNewPassword: React.FC<SetNewPasswordProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
@@ -95,17 +100,20 @@ export const SetNewPassword: React.FC<SetNewPasswordProps> = ({
     setError('');
 
     try {
-      const response = await fetch('http://localhost:5001/api/auth/reset-password', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
+      const response = await fetch(
+        'http://localhost:5001/api/auth/reset-password',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            email: email,
+            otp: otp,
+            newPassword: formData.password,
+          }),
         },
-        body: JSON.stringify({
-          email: email,
-          otp: otp,
-          newPassword: formData.password,
-        }),
-      });
+      );
 
       const data = await response.json();
 
@@ -127,9 +135,7 @@ export const SetNewPassword: React.FC<SetNewPasswordProps> = ({
   return (
     <div className="min-h-screen flex">
       {/* Left Panel - Decorative Image */}
-      <div className="flex-1 flex items-center justify-center p-8">
-        
-      </div>
+      <div className="flex-1 flex items-center justify-center p-8"></div>
 
       {/* Right Panel - Set New Password Form */}
       <div className="flex-1 flex items-center justify-center bg-gray-50">
@@ -151,15 +157,20 @@ export const SetNewPassword: React.FC<SetNewPasswordProps> = ({
 
             {/* Create Password Field */}
             <div className="space-y-2">
-              <Label htmlFor="password" className="text-sm font-medium text-gray-700">
+              <Label
+                htmlFor="password"
+                className="text-sm font-medium text-gray-700"
+              >
                 Create password
               </Label>
               <div className="relative">
                 <Input
                   id="password"
-                  type={showPassword ? "text" : "password"}
+                  type={showPassword ? 'text' : 'password'}
                   value={formData.password}
-                  onChange={(e) => handleInputChange('password', e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange('password', e.target.value)
+                  }
                   disabled={loading}
                   className={`pr-10 ${
                     fieldErrors.password ? 'border-red-500' : 'border-gray-300'
@@ -179,7 +190,7 @@ export const SetNewPassword: React.FC<SetNewPasswordProps> = ({
                   )}
                 </Button>
               </div>
-              
+
               {fieldErrors.password && (
                 <p className="text-red-500 text-sm">{fieldErrors.password}</p>
               )}
@@ -188,51 +199,77 @@ export const SetNewPassword: React.FC<SetNewPasswordProps> = ({
             {/* Password Requirements */}
             <div className="space-y-2">
               <div className="flex items-center gap-2">
-                <Check 
-                  size={16} 
-                  className={passwordChecks.length ? 'text-emerald-500' : 'text-gray-300'} 
+                <Check
+                  size={16}
+                  className={
+                    passwordChecks.length ? 'text-emerald-500' : 'text-gray-300'
+                  }
                 />
-                <span className={`text-sm ${passwordChecks.length ? 'text-emerald-600' : 'text-gray-500'}`}>
+                <span
+                  className={`text-sm ${passwordChecks.length ? 'text-emerald-600' : 'text-gray-500'}`}
+                >
                   At least 8 characters
                 </span>
               </div>
-              
+
               <div className="flex items-center gap-2">
-                <Check 
-                  size={16} 
-                  className={passwordChecks.uppercase ? 'text-emerald-500' : 'text-gray-300'} 
+                <Check
+                  size={16}
+                  className={
+                    passwordChecks.uppercase
+                      ? 'text-emerald-500'
+                      : 'text-gray-300'
+                  }
                 />
-                <span className={`text-sm ${passwordChecks.uppercase ? 'text-emerald-600' : 'text-gray-500'}`}>
+                <span
+                  className={`text-sm ${passwordChecks.uppercase ? 'text-emerald-600' : 'text-gray-500'}`}
+                >
                   At least one upper case letter
                 </span>
               </div>
-              
+
               <div className="flex items-center gap-2">
-                <Check 
-                  size={16} 
-                  className={passwordChecks.lowercase ? 'text-emerald-500' : 'text-gray-300'} 
+                <Check
+                  size={16}
+                  className={
+                    passwordChecks.lowercase
+                      ? 'text-emerald-500'
+                      : 'text-gray-300'
+                  }
                 />
-                <span className={`text-sm ${passwordChecks.lowercase ? 'text-emerald-600' : 'text-gray-500'}`}>
+                <span
+                  className={`text-sm ${passwordChecks.lowercase ? 'text-emerald-600' : 'text-gray-500'}`}
+                >
                   At least one lower case letter
                 </span>
               </div>
-              
+
               <div className="flex items-center gap-2">
-                <Check 
-                  size={16} 
-                  className={passwordChecks.number ? 'text-emerald-500' : 'text-gray-300'} 
+                <Check
+                  size={16}
+                  className={
+                    passwordChecks.number ? 'text-emerald-500' : 'text-gray-300'
+                  }
                 />
-                <span className={`text-sm ${passwordChecks.number ? 'text-emerald-600' : 'text-gray-500'}`}>
+                <span
+                  className={`text-sm ${passwordChecks.number ? 'text-emerald-600' : 'text-gray-500'}`}
+                >
                   At least one number
                 </span>
               </div>
-              
+
               <div className="flex items-center gap-2">
-                <Check 
-                  size={16} 
-                  className={passwordChecks.special ? 'text-emerald-500' : 'text-gray-300'} 
+                <Check
+                  size={16}
+                  className={
+                    passwordChecks.special
+                      ? 'text-emerald-500'
+                      : 'text-gray-300'
+                  }
                 />
-                <span className={`text-sm ${passwordChecks.special ? 'text-emerald-600' : 'text-gray-500'}`}>
+                <span
+                  className={`text-sm ${passwordChecks.special ? 'text-emerald-600' : 'text-gray-500'}`}
+                >
                   At least one special character
                 </span>
               </div>
@@ -240,18 +277,25 @@ export const SetNewPassword: React.FC<SetNewPasswordProps> = ({
 
             {/* Confirm Password Field */}
             <div className="space-y-2">
-              <Label htmlFor="confirmPassword" className="text-sm font-medium text-gray-700">
+              <Label
+                htmlFor="confirmPassword"
+                className="text-sm font-medium text-gray-700"
+              >
                 Confirm password
               </Label>
               <div className="relative">
                 <Input
                   id="confirmPassword"
-                  type={showConfirmPassword ? "text" : "password"}
+                  type={showConfirmPassword ? 'text' : 'password'}
                   value={formData.confirmPassword}
-                  onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange('confirmPassword', e.target.value)
+                  }
                   disabled={loading}
                   className={`pr-10 ${
-                    fieldErrors.confirmPassword ? 'border-red-500' : 'border-gray-300'
+                    fieldErrors.confirmPassword
+                      ? 'border-red-500'
+                      : 'border-gray-300'
                   }`}
                   placeholder="••••••••"
                 />
@@ -268,9 +312,11 @@ export const SetNewPassword: React.FC<SetNewPasswordProps> = ({
                   )}
                 </button>
               </div>
-              
+
               {fieldErrors.confirmPassword && (
-                <p className="text-red-500 text-sm">{fieldErrors.confirmPassword}</p>
+                <p className="text-red-500 text-sm">
+                  {fieldErrors.confirmPassword}
+                </p>
               )}
             </div>
 

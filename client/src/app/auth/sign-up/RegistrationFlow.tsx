@@ -3,13 +3,16 @@ import { SelectRegistrationType } from './SelectRegistrationType';
 import { RegisterVendor } from './register-vendor';
 import type { RegisteredVendor } from './register-vendor';
 import { RegisteredShipper, RegisterShipper } from './register-shipper';
-import {  RegisterCustomer, RegisteredCustomer } from './register-customer';
+import { RegisterCustomer, RegisteredCustomer } from './register-customer';
 
 // Types for registration roles
 export type RegistrationType = 'vendor' | 'shipper' | 'customer';
 
 // Common user type for registration success - union of all possible user types
-export type RegisteredUser = RegisteredVendor | RegisteredShipper | RegisteredCustomer;
+export type RegisteredUser =
+  | RegisteredVendor
+  | RegisteredShipper
+  | RegisteredCustomer;
 
 interface RegistrationFlowProps {
   onRegistrationSuccess?: (user: RegisteredUser) => void;
@@ -20,8 +23,12 @@ export const RegistrationFlow: React.FC<RegistrationFlowProps> = ({
   onRegistrationSuccess,
   onSwitchToLogin,
 }) => {
-  const [currentStep, setCurrentStep] = useState<'select-type' | 'register'>('select-type');
-  const [selectedType, setSelectedType] = useState<RegistrationType | null>(null);
+  const [currentStep, setCurrentStep] = useState<'select-type' | 'register'>(
+    'select-type',
+  );
+  const [selectedType, setSelectedType] = useState<RegistrationType | null>(
+    null,
+  );
 
   const handleTypeSelection = (type: RegistrationType) => {
     setSelectedType(type);

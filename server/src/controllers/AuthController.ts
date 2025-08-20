@@ -402,11 +402,9 @@ export const changePassword = async (req: Request, res: Response) => {
   try {
     const { email, currentPassword, newPassword } = req.body;
     if (!email || !currentPassword || !newPassword) {
-      return res
-        .status(400)
-        .json({
-          message: 'Email, current password, and new password are required.',
-        });
+      return res.status(400).json({
+        message: 'Email, current password, and new password are required.',
+      });
     }
 
     // Find user by email

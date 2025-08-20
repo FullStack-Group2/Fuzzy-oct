@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
 import { z } from 'zod';
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { ArrowLeft } from "lucide-react";
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { ArrowLeft } from 'lucide-react';
 
 // Zod schema for forgot password validation
 const forgotPasswordSchema = z.object({
   email: z
     .string()
-    .min(1, "Email is required")
-    .email("Please enter a valid email address"),
+    .min(1, 'Email is required')
+    .email('Please enter a valid email address'),
 });
 
 type ForgotPasswordData = z.infer<typeof forgotPasswordSchema>;
@@ -42,7 +42,7 @@ export const ForgotPassword: React.FC<ForgotPasswordProps> = ({
     if (error) setError('');
     if (successMessage) setSuccessMessage('');
     if (fieldErrors[name]) {
-      setFieldErrors(prev => ({
+      setFieldErrors((prev) => ({
         ...prev,
         [name]: '',
       }));
@@ -53,7 +53,7 @@ export const ForgotPassword: React.FC<ForgotPasswordProps> = ({
     try {
       // Clear previous field errors
       setFieldErrors({});
-      
+
       // Validate using Zod schema
       forgotPasswordSchema.parse(formData);
       return true;
@@ -68,7 +68,7 @@ export const ForgotPassword: React.FC<ForgotPasswordProps> = ({
           }
         });
         setFieldErrors(newFieldErrors);
-        
+
         // Set general error message with first error
         const firstError = error.issues[0];
         setError(firstError?.message || 'Please fix the validation errors');
@@ -81,7 +81,7 @@ export const ForgotPassword: React.FC<ForgotPasswordProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
@@ -91,15 +91,18 @@ export const ForgotPassword: React.FC<ForgotPasswordProps> = ({
     setSuccessMessage('');
 
     try {
-      const response = await fetch('http://localhost:5001/api/auth/forgot-password', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
+      const response = await fetch(
+        'http://localhost:5001/api/auth/forgot-password',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            email: formData.email,
+          }),
         },
-        body: JSON.stringify({
-          email: formData.email,
-        }),
-      });
+      );
 
       const data = await response.json();
 
@@ -123,9 +126,7 @@ export const ForgotPassword: React.FC<ForgotPasswordProps> = ({
   return (
     <div className="min-h-screen flex">
       {/* Left Panel - Decorative Image */}
-      <div className="flex-1 flex items-center justify-center p-8">
-        
-      </div>
+      <div className="flex-1 flex items-center justify-center p-8"></div>
 
       {/* Right Panel - Forgot Password Form */}
       <div className="flex-1 flex items-center justify-center bg-gray-50">
@@ -153,13 +154,16 @@ export const ForgotPassword: React.FC<ForgotPasswordProps> = ({
 
             {/* Email Field */}
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-sm font-medium text-gray-700">
+              <Label
+                htmlFor="email"
+                className="text-sm font-medium text-gray-700"
+              >
                 Email
               </Label>
               <Input
                 type="email"
                 id="email"
-                name="email"    
+                name="email"
                 value={formData.email}
                 onChange={handleInputChange}
                 placeholder="Enter your email"

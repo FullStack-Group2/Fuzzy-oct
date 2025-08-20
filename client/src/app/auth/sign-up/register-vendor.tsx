@@ -34,7 +34,7 @@ const vendorRegistrationSchema = z.object({
 
 type VendorRegistrationData = z.infer<typeof vendorRegistrationSchema>;
 
-interface RegisteredVendor {
+export interface RegisteredVendor {
   id: string;
   username: string;
   businessName: string;

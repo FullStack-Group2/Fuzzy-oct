@@ -24,7 +24,7 @@ const customerRegistrationSchema = z.object({
 
 type CustomerRegistrationData = z.infer<typeof customerRegistrationSchema>;
 
-interface RegisteredCustomer {
+export interface RegisteredCustomer {
   id: string;
   username: string;
   address: string;

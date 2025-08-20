@@ -37,7 +37,7 @@ interface ShipperRegistrationData {
   profilePicture?: string;
 }
 
-interface RegisteredShipper {
+export interface RegisteredShipper {
   id: string;
   username: string;
   assignedHub?: string;

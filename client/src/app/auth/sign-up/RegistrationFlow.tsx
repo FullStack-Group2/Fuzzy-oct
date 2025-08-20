@@ -1,11 +1,15 @@
 import React, { useState } from 'react';
-import { SelectRegistrationType, RegistrationType } from './SelectRegistrationType';
+import { SelectRegistrationType } from './SelectRegistrationType';
 import { RegisterVendor } from './register-vendor';
-import { RegisterShipper } from './register-shipper';
-import { RegisterCustomer } from './register-customer';
+import type { RegisteredVendor } from './register-vendor';
+import { RegisteredShipper, RegisterShipper } from './register-shipper';
+import {  RegisterCustomer, RegisteredCustomer } from './register-customer';
 
-// Common user type for registration success - flexible to work with all user types
-type RegisteredUser = Record<string, unknown>;
+// Types for registration roles
+export type RegistrationType = 'vendor' | 'shipper' | 'customer';
+
+// Common user type for registration success - union of all possible user types
+export type RegisteredUser = RegisteredVendor | RegisteredShipper | RegisteredCustomer;
 
 interface RegistrationFlowProps {
   onRegistrationSuccess?: (user: RegisteredUser) => void;
@@ -33,21 +37,6 @@ export const RegistrationFlow: React.FC<RegistrationFlowProps> = ({
     onRegistrationSuccess?.(user);
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleVendorSuccess = (vendor: any) => {
-    handleRegistrationSuccess(vendor);
-  };
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleShipperSuccess = (shipper: any) => {
-    handleRegistrationSuccess(shipper);
-  };
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleCustomerSuccess = (customer: any) => {
-    handleRegistrationSuccess(customer);
-  };
-
   // Render type selection step
   if (currentStep === 'select-type') {
     return (
@@ -64,21 +53,21 @@ export const RegistrationFlow: React.FC<RegistrationFlowProps> = ({
       case 'vendor':
         return (
           <RegisterVendor
-            onRegistrationSuccess={handleVendorSuccess}
+            onRegistrationSuccess={handleRegistrationSuccess}
             onSwitchToLogin={handleBackToSelection}
           />
         );
       case 'shipper':
         return (
           <RegisterShipper
-            onRegistrationSuccess={handleShipperSuccess}
+            onRegistrationSuccess={handleRegistrationSuccess}
             onSwitchToLogin={handleBackToSelection}
           />
         );
       case 'customer':
         return (
           <RegisterCustomer
-            onRegistrationSuccess={handleCustomerSuccess}
+            onRegistrationSuccess={handleRegistrationSuccess}
             onSwitchToLogin={handleBackToSelection}
           />
         );

@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { Login, LoggedInUser } from './app/auth/Login';
-import { RegistrationFlow } from './app/auth/sign-up/RegistrationFlow';
+import { RegistrationFlow, RegisteredUser } from './app/auth/sign-up/RegistrationFlow';
 import { PasswordResetFlow } from './app/auth/PasswordResetFlow';
 
 type AuthView = 'login' | 'register' | 'forgot-password';
-type User = LoggedInUser | Record<string, unknown> | null;
+type User = LoggedInUser | RegisteredUser | null;
 
 function App() {
   const [currentView, setCurrentView] = useState<AuthView>('login');
@@ -15,7 +15,7 @@ function App() {
     console.log('User logged in:', loggedInUser);
   };
 
-  const handleRegistrationSuccess = (registeredUser: Record<string, unknown>) => {
+  const handleRegistrationSuccess = (registeredUser: RegisteredUser) => {
     setUser(registeredUser);
     console.log('User registered:', registeredUser);
   };

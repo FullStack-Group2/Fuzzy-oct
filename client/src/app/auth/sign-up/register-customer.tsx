@@ -255,7 +255,7 @@ export const RegisterCustomer: React.FC<RegisterCustomerProps> = ({
                   onClick={onSwitchToLogin}
                   className="font-medium"
                 >
-                  Sign in here
+                  Login
                 </Button>
               </p>
             </div>

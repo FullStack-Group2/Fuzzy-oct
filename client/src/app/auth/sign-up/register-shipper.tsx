@@ -296,7 +296,7 @@ export const RegisterShipper: React.FC<RegisterShipperProps> = ({
                   onClick={onSwitchToLogin}
                   className="font-medium"
                 >
-                  Sign in here
+                  Login
                 </Button>
               </p>
             </div>

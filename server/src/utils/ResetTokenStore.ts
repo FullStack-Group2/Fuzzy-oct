@@ -1,4 +1,3 @@
-
 const resetTokenMap = new Map<string, string>(); // email -> token
 
 // Expire tokens after 10 minutes

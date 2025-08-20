@@ -1,10 +1,10 @@
-import { NextFunction, Response } from "express";
-import { UserRole } from "../models/UserRole";
-import { AuthenticatedRequest } from "./authMiddleware";
+import { NextFunction, Response } from 'express';
+import { UserRole } from '../models/UserRole';
+import { AuthenticatedRequest } from './authMiddleware';
 
 // Role-based middleware
 export const requireRole = (roles: UserRole[]) => {
-  return (req: AuthenticatedRequest, res: Response, next: NextFunction,) => {
+  return (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     if (!req.user) {
       return res.status(401).json({ message: 'Authentication required.' });
     }

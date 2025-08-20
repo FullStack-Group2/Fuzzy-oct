@@ -30,7 +30,7 @@ export const getShipperById = async (req: Request, res: Response) => {
       error: error instanceof Error ? error.message : 'Unknown error',
     });
   }
-}
+};
 
 export const updateShipper = async (req: Request, res: Response) => {
   try {
@@ -43,13 +43,12 @@ export const updateShipper = async (req: Request, res: Response) => {
         return res.status(409).json({ message: 'Username already exists.' });
       }
       updateData.username = username;
-        }
+    }
 
-    const shipper = await ShipperModel.findByIdAndUpdate(
-      id,
-      updateData,
-      { new: true, runValidators: true }
-    ).select('-password'); 
+    const shipper = await ShipperModel.findByIdAndUpdate(id, updateData, {
+      new: true,
+      runValidators: true,
+    }).select('-password');
     if (!shipper) {
       return res.status(404).json({ message: 'Shipper not found.' });
     }
@@ -67,4 +66,4 @@ export const updateShipper = async (req: Request, res: Response) => {
       error: error instanceof Error ? error.message : 'Unknown error',
     });
   }
-}
+};

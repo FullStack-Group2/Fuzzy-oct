@@ -49,7 +49,9 @@ export const updateVendor = async (req: Request, res: Response) => {
     if (businessName) {
       const existingVendor = await VendorModel.findOne({ businessName });
       if (existingVendor && existingVendor.id.toString() !== id) {
-        return res.status(409).json({ message: 'Business name already exists.' });
+        return res
+          .status(409)
+          .json({ message: 'Business name already exists.' });
       }
       updateData.businessName = businessName;
     }
@@ -58,7 +60,9 @@ export const updateVendor = async (req: Request, res: Response) => {
     if (businessAddress) {
       const existingVendor = await VendorModel.findOne({ businessAddress });
       if (existingVendor && existingVendor.id.toString() !== id) {
-        return res.status(409).json({ message: 'Business address already exists.' });
+        return res
+          .status(409)
+          .json({ message: 'Business address already exists.' });
       }
       updateData.businessAddress = businessAddress;
     }
@@ -89,4 +93,3 @@ export const updateVendor = async (req: Request, res: Response) => {
     });
   }
 };
-

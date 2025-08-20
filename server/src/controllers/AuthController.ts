@@ -7,15 +7,22 @@ import { ShipperModel } from '../models/Shipper';
 import { UserRole } from '../models/UserRole';
 import { UserServices } from '../services/UserServices';
 import { signJWT } from '../utils/SignHelper';
-import twilio from "twilio";
-import { deleteResetToken, generateResetToken, verifyResetToken } from '../utils/ResetTokenStore';
+import twilio from 'twilio';
+import {
+  deleteResetToken,
+  generateResetToken,
+  verifyResetToken,
+} from '../utils/ResetTokenStore';
 
 interface TokenPayload {
   userId: string;
   username: string;
   role: UserRole;
 }
-const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+const client = twilio(
+  process.env.TWILIO_ACCOUNT_SID,
+  process.env.TWILIO_AUTH_TOKEN,
+);
 // Register Vendor
 export const registerVendor = async (req: Request, res: Response) => {
   try {
@@ -88,7 +95,8 @@ export const registerVendor = async (req: Request, res: Response) => {
 // Register Customer
 export const registerCustomer = async (req: Request, res: Response) => {
   try {
-    const { username, email, password, name, address, profilePicture } = req.body;
+    const { username, email, password, name, address, profilePicture } =
+      req.body;
 
     if (!username || !email || !password || !name || !address) {
       return res.status(400).json({
@@ -304,83 +312,89 @@ export const forgotPassword = async (req: Request, res: Response) => {
   try {
     const { email } = req.body;
     if (!email) {
-      return res.status(400).json({ message: "Email is required." });
+      return res.status(400).json({ message: 'Email is required.' });
     }
 
     // Check if user exists in your DB
     const user = await UserServices.findByEmail(email);
     if (!user) {
-      return res.status(404).json({ message: "Email is not registered." });
+      return res.status(404).json({ message: 'Email is not registered.' });
     }
 
     // Send OTP via Twilio Verify
     const result = await client.verify.v2
       .services(process.env.TWILIO_VERIFY_SERVICE_SID!)
       .verifications.create({
-      channel: "email",
-      channelConfiguration: {
-        template_id: "d-2a11adc42d924c07b8ca411243c19913",
-        from: "huygiasg004@gmail.com",
-        from_name: "Fuzzy Support",
-      },
-      to: email,
-    });
-    console.log("Verification result:", result);
+        channel: 'email',
+        channelConfiguration: {
+          template_id: 'd-2a11adc42d924c07b8ca411243c19913',
+          from: 'huygiasg004@gmail.com',
+          from_name: 'Fuzzy Support',
+        },
+        to: email,
+      });
+    console.log('Verification result:', result);
 
-    res.status(200).json({ status: "Verification code sent successfully" });
+    res.status(200).json({ status: 'Verification code sent successfully' });
   } catch (error) {
-    console.error("Forgot Password Error:", error);
-    res.status(500).json({ message: "Internal server error" });
+    console.error('Forgot Password Error:', error);
+    res.status(500).json({ message: 'Internal server error' });
   }
 };
 export const verifyResetCode = async (req: Request, res: Response) => {
   try {
     const { email, code } = req.body;
     if (!email || !code) {
-      return res.status(400).json({ message: "Email and code are required." });
+      return res.status(400).json({ message: 'Email and code are required.' });
     }
 
     const check = await client.verify.v2
       .services(process.env.TWILIO_VERIFY_SERVICE_SID!)
       .verificationChecks.create({ to: email, code });
 
-    if (check.status !== "approved") {
-      return res.status(400).json({ message: "Invalid or expired verification code." });
+    if (check.status !== 'approved') {
+      return res
+        .status(400)
+        .json({ message: 'Invalid or expired verification code.' });
     }
 
     const resetToken = generateResetToken(email);
-    console.log("Generated reset token:", resetToken);
+    console.log('Generated reset token:', resetToken);
 
     res.status(200).json({
-      status: "Code verified successfully",
+      status: 'Code verified successfully',
       resetToken,
     });
-    res.status(200).json({ status: "Code verified successfully" });
+    res.status(200).json({ status: 'Code verified successfully' });
   } catch (error) {
-    console.error("Verify Code Error:", error);
-    res.status(500).json({ message: "Internal server error" });
+    console.error('Verify Code Error:', error);
+    res.status(500).json({ message: 'Internal server error' });
   }
 };
 
 export const resetForgotPassword = async (req: Request, res: Response) => {
   try {
-    const { email, newPassword,resetToken } = req.body;
+    const { email, newPassword, resetToken } = req.body;
     if (!email || !newPassword) {
-      return res.status(400).json({ message: "Email and new password are required." });
+      return res
+        .status(400)
+        .json({ message: 'Email and new password are required.' });
     }
     // Verify the reset token
     if (!verifyResetToken(email, resetToken)) {
-      return res.status(400).json({ message: "Invalid or expired reset token." });
+      return res
+        .status(400)
+        .json({ message: 'Invalid or expired reset token.' });
     }
     const result = await UserServices.updatePassword(email, newPassword);
 
-    console.log("Password reset result:", result);
+    console.log('Password reset result:', result);
     //  Delete token so it can't be reused
     deleteResetToken(email);
-    res.status(200).json({ status: "Password reset successful" });
+    res.status(200).json({ status: 'Password reset successful' });
   } catch (error) {
-    console.error("Reset Password Error:", error);
-    res.status(500).json({ message: "Internal server error" });
+    console.error('Reset Password Error:', error);
+    res.status(500).json({ message: 'Internal server error' });
   }
 };
 
@@ -388,27 +402,36 @@ export const changePassword = async (req: Request, res: Response) => {
   try {
     const { email, currentPassword, newPassword } = req.body;
     if (!email || !currentPassword || !newPassword) {
-      return res.status(400).json({ message: "Email, current password, and new password are required." });
+      return res
+        .status(400)
+        .json({
+          message: 'Email, current password, and new password are required.',
+        });
     }
 
     // Find user by email
     const user = await UserServices.findByEmail(email);
     if (!user) {
-      return res.status(404).json({ message: "User not found." });
+      return res.status(404).json({ message: 'User not found.' });
     }
 
     // Verify current password
-    const isPasswordValid = await bcrypt.compare(currentPassword, user.password);
+    const isPasswordValid = await bcrypt.compare(
+      currentPassword,
+      user.password,
+    );
     if (!isPasswordValid) {
-      return res.status(401).json({ message: "Current password is incorrect." });
+      return res
+        .status(401)
+        .json({ message: 'Current password is incorrect.' });
     }
-    
+
     // Update password in database
     await UserServices.updatePassword(email, newPassword);
 
-    res.status(200).json({ message: "Password reset successful." });
+    res.status(200).json({ message: 'Password reset successful.' });
   } catch (error) {
-    console.error("Reset Password Error:", error);
-    res.status(500).json({ message: "Internal server error" });
+    console.error('Reset Password Error:', error);
+    res.status(500).json({ message: 'Internal server error' });
   }
 };

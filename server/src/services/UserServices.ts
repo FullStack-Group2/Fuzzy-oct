@@ -101,8 +101,8 @@ export class UserServices {
       console.error('Error finding user by ID:', error);
       throw new Error('Failed to find user');
     }
-  } 
-   // Check if username already exists
+  }
+  // Check if username already exists
   static async usernameExists(username: string): Promise<boolean> {
     try {
       const user = await UserModel.findOne({ username });
@@ -125,15 +125,20 @@ export class UserServices {
 
       // Check if new password matches the old hashed password
       if (existingUser.password) {
-        const isSamePassword = await bcrypt.compare(newPassword, existingUser.password);
+        const isSamePassword = await bcrypt.compare(
+          newPassword,
+          existingUser.password,
+        );
         if (isSamePassword) {
-          throw new Error('New password cannot be the same as the current password');
+          throw new Error(
+            'New password cannot be the same as the current password',
+          );
         }
       }
 
       // Simple similarity check for plain text comparison
       const newPasswordLower = newPassword.toLowerCase();
-      
+
       // Basic similarity checks
       if (newPasswordLower.length < 6) {
         throw new Error('New password must be at least 6 characters long');
@@ -151,7 +156,9 @@ export class UserServices {
       return user;
     } catch (error) {
       console.error('Error updating password:', error);
-      throw new Error(error instanceof Error ? error.message : 'Failed to update password');
-    } 
+      throw new Error(
+        error instanceof Error ? error.message : 'Failed to update password',
+      );
+    }
   }
 }

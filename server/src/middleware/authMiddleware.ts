@@ -27,10 +27,10 @@ export const authMiddleware = async (
         message: 'Server configuration error.',
       });
     }
-    console.log("jwt secret", JWT_SECRET);
+    console.log('jwt secret', JWT_SECRET);
 
     const authHeader = req.headers.authorization;
-    console.log("auth header", authHeader);
+    console.log('auth header', authHeader);
 
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return res.status(401).json({
@@ -38,7 +38,7 @@ export const authMiddleware = async (
       });
     }
 
-    const token = authHeader.split(" ")[1]; // Remove 'Bearer ' prefix
+    const token = authHeader.split(' ')[1]; // Remove 'Bearer ' prefix
 
     try {
       const decoded = jwt.verify(token, JWT_SECRET) as {
@@ -82,4 +82,3 @@ export const authMiddleware = async (
     return res.status(500).json({ message: 'Internal server error.' });
   }
 };
-

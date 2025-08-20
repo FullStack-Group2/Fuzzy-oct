@@ -6,6 +6,7 @@ import {
   createOrderFromItem,
   deleteItemByProduct,
   getCustomerCart,
+  getCustomerCartByObjectId,
 } from '../services/CustomerServices';
 import { Schema, Types } from 'mongoose';
 
@@ -68,7 +69,7 @@ export const createOrder = async (req: AuthenticatedRequest, res: Response) => {
     }
     res
       .status(200)
-      .json({ message: 'Item not found or access denied.', order });
+      .json({ message: 'Create order successfully', order });
   } catch (error) {
     console.error('Error fetching vendor:', error);
     res.status(500).json({
@@ -90,7 +91,7 @@ export const removeItemFromCart = async (
 
     // Cart validate
 
-    const cartItems: ICartItem[] = await getCustomerCart(userId);
+    const cartItems: ICartItem[] = await getCustomerCartByObjectId(userId);    
     const targetItem = cartItems.find(
       (p) => (p.product as Schema.Types.ObjectId).toString() === productId,
     );

@@ -1,15 +1,22 @@
-import { Types } from 'mongoose';
+import mongoose, { Types } from 'mongoose';
 import CartItem, { ICartItem } from '../models/CartItem';
 import { OrderStatus } from '../models/OrderStatus';
 import OrderItem, { IOrderItem } from '../models/OrderItem';
 import Order, { IOrder } from '../models/Order';
 import { orderBilling } from '../utils/OrderBilling';
 import { getTotalPrice } from '../utils/TotalPrice';
-
+import { ProductModel } from '../models/Product';
 export const getCustomerCart = async (userId: string) => {
-  return CartItem.find({ customer: userId }).populate('product').exec();
+  console.log(mongoose.modelNames());
+
+  return CartItem.find({ customer: userId })
+    .populate({ path: 'product', model: ProductModel })
+    .exec();
 };
 
+export const getCustomerCartByObjectId = async (userId: string) => {
+  return CartItem.find({ customer: userId });
+};
 export const deleteItemByProduct = async (
   userId: string,
   productId: string,
@@ -18,7 +25,7 @@ export const deleteItemByProduct = async (
 };
 
 export const deleteAllItem = async (userId: string) => {
-  return CartItem.deleteMany({ userId });
+  return CartItem.deleteMany({ customer: userId });
 };
 
 export const addItemToCart = async ({
@@ -44,8 +51,8 @@ export const addItemToCart = async ({
 export const createOrderFromItem = async (userId: string) => {
   const customer = userId;
   const orderDate = new Date();
-  const status = OrderStatus.ACTIVE;
-  const hub = null;
+  const status = OrderStatus.DELIVERED;
+  const hub = '68a0a96ad24f3fdeb3eec4a9';
 
   const cartItem = await getCustomerCart(userId);
   if (checkStock(cartItem)) {
@@ -64,7 +71,7 @@ export const createOrderFromItem = async (userId: string) => {
     order.totalPrice = totalPrice;
     await order.save();
 
-    // insert 
+    // insert
     await OrderItem.insertMany(orderItems);
 
     // Clear all item in the cart
@@ -98,7 +105,5 @@ lỡ đặt 3 hàng mà shop thiếu hàng thì sao
 */
 
 
-// Vendor add item to hub 
-export const addItemToHub = () =>{
-
-}
+// Vendor add item to hub
+export const addItemToHub = () => {};

@@ -20,13 +20,13 @@ router.get(
 );
 router.post('/add', authMiddleware, requireVendor, vendorController.addProduct);
 router.get(
-  '/orders',
+  '/:vendorId/orders',
   authMiddleware,
   requireVendor,
   vendorController.getActiveOrders,
 );
 router.get(
-  '/order-history',
+  '/:vendorId/order-history',
   authMiddleware,
   requireVendor,
   vendorController.getOrderHistory,

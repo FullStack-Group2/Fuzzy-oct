@@ -48,8 +48,8 @@ export const getVendorOrders = async (vendorId: string) => {
     {
       $lookup: {
         from: 'orderitems',
-        localField: 'orderItems',
-        foreignField: '_id',
+        localField: '_id',
+        foreignField: 'order',
         as: 'orderItems',
       },
     },
@@ -69,8 +69,8 @@ export const getVendorOrderHistory = async (vendorId: string) => {
     {
       $lookup: {
         from: 'orderitems',
-        localField: 'orderItems',
-        foreignField: '_id',
+        localField: '_id',
+        foreignField: 'order',
         as: 'orderItems',
       },
     },

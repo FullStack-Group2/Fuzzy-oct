@@ -158,8 +158,8 @@ export const getActiveOrders = async (
   res: Response,
 ) => {
   try {
-    const { userId } = req.user!;
-    const orders = await getVendorOrders(userId);
+    const { vendorId } = req.params;
+    const orders = await getVendorOrders(vendorId);
     res
       .status(200)
       .json({ message: 'Active orders fetched successfully.', orders });
@@ -177,8 +177,8 @@ export const getOrderHistory = async (
   res: Response,
 ) => {
   try {
-    const { userId } = req.user!;
-    const orders = await getVendorOrderHistory(userId);
+    const { vendorId } = req.params;
+    const orders = await getVendorOrderHistory(vendorId);
     res
       .status(200)
       .json({ message: 'Past orders fetched successfully.', orders });

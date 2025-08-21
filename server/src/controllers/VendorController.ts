@@ -5,11 +5,13 @@ import { VendorModel } from '../models/Vendor';
 import { IProduct } from '../models/Product';
 import {
   createProduct,
+  getOneProduct,
   getVendorProducts,
   editProduct,
   deleteProduct,
   getVendorOrders,
   getVendorOrderHistory,
+  getProductSalesCount,
 } from '../services/VendorService';
 
 // Get vendor with profile picture
@@ -186,6 +188,39 @@ export const getOrderHistory = async (
     console.error('Error fetching past orders:', error);
     res.status(500).json({
       message: 'Failed to fetch past orders.',
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
+};
+
+export const getProductSales = async (
+  req: AuthenticatedRequest,
+  res: Response,
+) => {
+  try {
+    const { productId } = req.params;
+    const totalSold = await getProductSalesCount(productId);
+    res
+      .status(200)
+      .json({ message: 'Product sales fetched successfully.', totalSold });
+  } catch (error) {
+    console.error('Error fetching product sales:', error);
+    res.status(500).json({
+      message: 'Failed to fetch product sales.',
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
+};
+
+export const getProduct = async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { productId } = req.params;
+    const product = await getOneProduct(productId);
+    res.status(200).json({ message: 'Product fetched successfully', product });
+  } catch (error) {
+    console.error('Error fetching product:', error);
+    res.status(500).json({
+      message: 'Failed to fetch product.',
       error: error instanceof Error ? error.message : 'Unknown error',
     });
   }

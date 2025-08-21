@@ -13,6 +13,12 @@ router.get(
   vendorController.getAllProducts,
 );
 router.get(
+  '/:productId',
+  authMiddleware,
+  requireVendor,
+  vendorController.getProduct,
+);
+router.get(
   '/:vendorId',
   authMiddleware,
   requireVendor,
@@ -42,6 +48,12 @@ router.delete(
   authMiddleware,
   requireVendor,
   vendorController.deleteOneProduct,
+);
+router.get(
+  '/:productId/sales',
+  authMiddleware,
+  requireVendor,
+  vendorController.getProductSales,
 );
 // router.post/(‘/orders’, authMiddleware, requireVendor, vendorController.cancelOrder)
 

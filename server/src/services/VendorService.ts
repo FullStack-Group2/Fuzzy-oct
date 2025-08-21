@@ -2,6 +2,8 @@ import { IVendor, VendorModel } from '../models/Vendor';
 import Product, { IProduct } from '../models/Product';
 import Order from '../models/Order';
 import { OrderStatus } from '../models/OrderStatus';
+import OrderItem from '../models/OrderItem';
+import mongoose from 'mongoose';
 
 // Check if a username already exists
 export const findVendorByUsername = async (username: string) => {
@@ -24,6 +26,10 @@ export const createProduct = async (productData: Partial<IProduct>) => {
   const newProduct = new Product(productData);
   await newProduct.save();
   return newProduct;
+};
+
+export const getOneProduct = async (productId: string) => {
+  return Product.findById(productId);
 };
 
 export const getVendorProducts = async (vendorId: string) => {
@@ -54,8 +60,35 @@ export const getVendorOrders = async (vendorId: string) => {
       },
     },
     {
+      $addFields: {
+        orderItems: {
+          $filter: {
+            input: '$orderItems',
+            as: 'item',
+            cond: { $in: ['$$item.product', productIds] },
+          },
+        },
+      },
+    },
+    {
+      $addFields: {
+        totalVendorPrice: {
+          $reduce: {
+            input: '$orderItems',
+            initialValue: 0,
+            in: {
+              $add: [
+                '$$value',
+                { $multiply: ['$$this.priceAtPurchase', '$$this.quantity'] },
+              ],
+            },
+          },
+        },
+      },
+    },
+    {
       $match: {
-        'orderItems.product': { $in: productIds },
+        'orderItems.0': { $exists: true }, // Ensure there are orderItems after filtering
         status: OrderStatus.ACTIVE,
       },
     },
@@ -75,10 +108,55 @@ export const getVendorOrderHistory = async (vendorId: string) => {
       },
     },
     {
+      $addFields: {
+        orderItems: {
+          $filter: {
+            input: '$orderItems',
+            as: 'item',
+            cond: { $in: ['$$item.product', productIds] },
+          },
+        },
+      },
+    },
+    {
+      $addFields: {
+        totalVendorPrice: {
+          $reduce: {
+            input: '$orderItems',
+            initialValue: 0,
+            in: {
+              $add: [
+                '$$value',
+                { $multiply: ['$$this.priceAtPurchase', '$$this.quantity'] },
+              ],
+            },
+          },
+        },
+      },
+    },
+    {
       $match: {
-        'orderItems.product': { $in: productIds },
+        'orderItems.0': { $exists: true }, // Ensure there are orderItems after filtering
         status: { $in: [OrderStatus.CANCELED, OrderStatus.DELIVERED] },
       },
     },
   ]);
+};
+
+export const getProductSalesCount = async (productId: string) => {
+  const result = await OrderItem.aggregate([
+    {
+      $match: {
+        product: new mongoose.Types.ObjectId(productId),
+      },
+    },
+    {
+      $group: {
+        _id: '$product',
+        totalSold: { $sum: '$quantity' },
+      },
+    },
+  ]);
+
+  return result.length > 0 ? result[0].totalSold : 0;
 };

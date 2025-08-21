@@ -12,7 +12,7 @@ export default function Navbar() {
   return (
     <nav className="w-full bg-white border-b">
       <div className=" mx-auto flex items-center justify-between px-4 py-3 md:py-4">
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-4 pr-2">
           <Logo />
           {authRole && <Menu role={authRole} />}
         </div>
@@ -26,7 +26,11 @@ export default function Navbar() {
           {authRole && <Icons role={authRole} />}
           {/* Mobile toggle */}
           <button className="md:hidden" onClick={() => setIsOpen(!isOpen)}>
-            <img src="src/assets/icon/menu-hamburger.svg" alt="Menu" className="h-auto min-w-5 w-5" />
+            <img
+              src="src/assets/icon/menu-hamburger.svg"
+              alt="Menu"
+              className="h-auto min-w-5 w-5"
+            />
           </button>
         </div>
       </div>
@@ -46,7 +50,7 @@ export default function Navbar() {
 function Logo() {
   return (
     <Link to="/" className="flex items-center">
-      <img src="/logo.png" alt="Logo" className="h-auto min-w-8 w-8" />
+      <img src="/logo.png" alt="Logo" className="h-auto min-w-14 w-14" />
     </Link>
   );
 }
@@ -71,7 +75,7 @@ function Menu({ role }: { role: Exclude<Role, null> }) {
         <Link
           key={item.name}
           to={item.path}
-          className="text-gray-700 hover:text-green-600"
+          className="text-gray-700 hover:text-green-600 hidden md:block"
         >
           {item.name}
         </Link>
@@ -104,13 +108,17 @@ function SearchBar() {
         ref={inputRef}
         type="text"
         placeholder="Enter keyword ..."
-        className="border rounded-full pl-3 pr-10 py-1 text-sm w-[30vw] sm:w-[40vw]"
+        className="border rounded-full pl-3 pr-10 py-1 text-sm w-[45vw]"
       />
       <button
         type="submit" // ✅ pressing Enter or clicking this triggers handleSearch
         className="absolute right-2 top-1/2 -translate-y-1/2"
       >
-        <img src="src/assets/icon/search.svg" alt="search" className="h-4 w-4" />
+        <img
+          src="src/assets/icon/search.svg"
+          alt="search"
+          className="h-4 w-4"
+        />
       </button>
     </form>
   );
@@ -160,7 +168,11 @@ function Icons({ role }: { role: Exclude<Role, null> }) {
     <div className="flex items-center space-x-4 relative">
       {role === 'customer' && (
         <button>
-          <img src="/src/assets/icon/cart.svg" alt="Cart" className="h-auto min-w-5 w-5 cursor-pointer" />
+          <img
+            src="/src/assets/icon/cart.svg"
+            alt="Cart"
+            className="h-auto min-w-5 w-5 cursor-pointer"
+          />
         </button>
       )}
       <ProfileDropdown />

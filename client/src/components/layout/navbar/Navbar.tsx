@@ -10,7 +10,7 @@ export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <nav className="w-full bg-white border-b">
+    <nav className="w-full bg-white border-b sticky left-0 top-0 z-40">
       <div className=" mx-auto flex items-center justify-between px-4 py-3 md:py-4">
         <div className="flex items-center space-x-4 pr-2">
           <Logo />

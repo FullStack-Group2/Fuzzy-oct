@@ -6,6 +6,7 @@ import { CustomerModel } from '../models/Customer';
 import { ShipperModel } from '../models/Shipper';
 import { UserRole } from '../models/UserRole';
 import { UserServices } from '../services/UserServices';
+import { createVendor } from '../services/VendorService';
 import { signJWT } from '../utils/SignHelper';
 
 interface TokenPayload {
@@ -33,7 +34,7 @@ export const registerVendor = async (req: Request, res: Response) => {
     }
 
     // Check if username already exists
-    const existingUser = await VendorModel.findOne({ username });
+    const existingUser = await UserServices.findByUserName(username);
     if (existingUser) {
       return res.status(409).json({ message: 'Username already exists.' });
     }
@@ -42,7 +43,7 @@ export const registerVendor = async (req: Request, res: Response) => {
     const hashedPassword = await bcrypt.hash(password, 12);
 
     // Create vendor
-    const vendor = new VendorModel({
+    const vendor = await createVendor({
       username: username.trim(),
       password: hashedPassword,
       role: UserRole.VENDOR,
@@ -50,8 +51,6 @@ export const registerVendor = async (req: Request, res: Response) => {
       businessAddress: businessAddress.trim(),
       profilePicture: profilePicture || '',
     });
-
-    await vendor.save();
 
     // Generate JWT token
     const tokenPayload: TokenPayload = {

@@ -27,7 +27,7 @@ export default function Navbar() {
           {/* Mobile toggle */}
           <button className="md:hidden" onClick={() => setIsOpen(!isOpen)}>
             <img
-              src="src/assets/icon/menu-hamburger.svg"
+              src="/src/assets/icon/menu-hamburger.svg"
               alt="Menu"
               className="h-auto min-w-5 w-5"
             />
@@ -115,7 +115,7 @@ function SearchBar() {
         className="absolute right-2 top-1/2 -translate-y-1/2"
       >
         <img
-          src="src/assets/icon/search.svg"
+          src="/src/assets/icon/search.svg"
           alt="search"
           className="h-4 w-4"
         />
@@ -133,7 +133,7 @@ function ProfileDropdown() {
       {/* Person icon */}
       <button onClick={() => setOpen(!open)}>
         <img
-          src="src/assets/icon/profile.svg"
+          src="/src/assets/icon/profile.svg"
           alt="Profile"
           className="h-auto min-w-5 w-5 cursor-pointer"
         />

@@ -4,19 +4,19 @@ import { Outlet } from 'react-router-dom';
 
 export default function Layout() {
   return (
-    <div className="flex flex-col min-h-screen">
+    <section className="flex flex-col min-h-screen w-screen">
       {/* Navbar always visible */}
       <div className="sticky top-0 z-50">
         <Navbar />
       </div>
 
       {/* Main Content fills space */}
-      <main className="flex-1">
+      <main className="w-screen">
         <Outlet />
       </main>
 
       {/* Footer only appears after content ends */}
       <Footer />
-    </div>
+    </section>
   );
 }

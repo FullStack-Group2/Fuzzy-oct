@@ -1,21 +1,19 @@
 // models/Shipper.ts
-import { Schema, Types } from 'mongoose';
-import { UserModel, IUser } from './User';
-import { UserRole } from './UserRole';
+import { Schema, Types, model } from 'mongoose';
+import { IUser } from './User';
 
 export interface IShipper extends IUser {
-  assignedHub: Types.ObjectId;
+  user: Types.ObjectId;
+  distributionHub: Types.ObjectId;
 }
 
-const shipperSchema = new Schema<IShipper>({
-  assignedHub: {
-    type: Schema.Types.ObjectId,
-    ref: 'DistributionHub',
-    required: true,
+const shipperSchema = new Schema<IShipper>(
+  {
+    user: { type: Schema.Types.ObjectId, ref: "User", required: true, unique: true },
+    distributionHub: { type: Schema.Types.ObjectId, ref: "DistributionHub", required: true },
   },
-});
-
-export const ShipperModel = UserModel.discriminator<IShipper>(
-  UserRole.SHIPPER,
-  shipperSchema,
+  { timestamps: true }
 );
+
+
+export const ShipperModel = model<IShipper>("Shipper", shipperSchema);

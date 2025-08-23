@@ -12,6 +12,7 @@ export interface AuthenticatedRequest extends Request {
     userId: string;
     username: string;
     role: UserRole;
+    hubId?: string;
   };
 }
 
@@ -22,64 +23,64 @@ export const authMiddleware = async (
 ) => {
   try {
     if (!JWT_SECRET) {
-      console.error('JWT_SECRET is not defined in environment variables');
-      return res.status(500).json({
-        message: 'Server configuration error.',
-      });
+      console.error('JWT_SECRET is not defined');
+      return res.status(500).json({ message: 'Server configuration error.' });
     }
 
     const authHeader = req.headers.authorization;
-
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return res.status(401).json({
-        message: 'Access denied. No token provided or invalid format.',
-      });
+    if (!authHeader?.startsWith('Bearer ')) {
+      return res.status(401).json({ message: 'Access denied. No token provided or invalid format.' });
     }
 
-    const token = authHeader.substring(7); // Remove 'Bearer ' prefix
-
+    const token = authHeader.substring(7);
+    let decoded: { userId: string; username: string; role: UserRole };
     try {
-      const decoded = jwt.verify(token, JWT_SECRET) as {
-        userId: string;
-        username: string;
-        role: UserRole;
-      };
-
-      // Verify user still exists in database
-      let user = null;
-      switch (decoded.role) {
-        case UserRole.VENDOR:
-          user = await VendorModel.findById(decoded.userId);
-          break;
-        case UserRole.CUSTOMER:
-          user = await CustomerModel.findById(decoded.userId);
-          break;
-        case UserRole.SHIPPER:
-          user = await ShipperModel.findById(decoded.userId);
-          break;
-        default:
-          return res.status(401).json({ message: 'Invalid user role.' });
-      }
-
-      if (!user) {
-        return res.status(401).json({ message: 'User no longer exists.' });
-      }
-
-      req.user = {
-        userId: decoded.userId,
-        username: decoded.username,
-        role: decoded.role,
-      };
-
-      next();
-    } catch (jwtError) {
+      decoded = jwt.verify(token, JWT_SECRET) as any;
+    } catch {
       return res.status(401).json({ message: 'Invalid token.' });
     }
-  } catch (error) {
-    console.error('Auth middleware error:', error);
+
+    let roleDoc: any = null;
+    switch (decoded.role) {
+      case UserRole.VENDOR:
+        roleDoc = await VendorModel.findById(decoded.userId).lean();
+        break;
+      case UserRole.CUSTOMER:
+        roleDoc = await CustomerModel.findById(decoded.userId).lean();
+        break;
+      case UserRole.SHIPPER: {
+        const shipper = await ShipperModel.findOne({ user: decoded.userId }).lean();
+        if (!shipper) return res.status(401).json({ message: "User no longer exists." });
+
+        const raw = shipper.distributionHub;
+        const hubId = raw && typeof raw === "object" && "toString" in raw ? raw.toString() : (raw as any);
+
+        req.user = {
+          userId: decoded.userId,         // users._id
+          username: decoded.username,
+          role: decoded.role,
+          hubId,                          // controllers use this
+        };
+        return next();
+      }
+      default:
+        return res.status(401).json({ message: 'Invalid user role.' });
+    }
+
+    if (!roleDoc) return res.status(401).json({ message: 'User no longer exists.' });
+
+    req.user = {
+      userId: decoded.userId,
+      username: decoded.username,
+      role: decoded.role,
+    };
+    next();
+  } catch (err) {
+    console.error('Auth middleware error:', err);
     return res.status(500).json({ message: 'Internal server error.' });
   }
 };
+
 
 // Role-based middleware
 export const requireRole = (roles: UserRole[]) => {

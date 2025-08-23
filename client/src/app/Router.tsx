@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import authRole from '@/stores/authStore';
 
 import NotFound from './pages/NotFound';
@@ -15,6 +15,9 @@ import Logout from './pages/auth/Logout';
 import ForgotPassword from './pages/auth/ForgotPassword';
 import Register from './pages/auth/Register';
 import Layout from './Layout';
+import ShipperOrders from "./pages/shipper/ShipperOrders";
+import ShipperOrderDetail from "./pages/shipper/ShipperOrderDetails";
+import ShipperCancelOrder from "./pages/shipper/ShipperCancelOrder";
 
 export default function AppRouter() {
   return (
@@ -48,6 +51,12 @@ export default function AppRouter() {
           <Route path="/auth/forgot-password" element={<ForgotPassword />} />
           <Route path="*" element={<NotFound />} />
         </Route>
+
+        <Route path="/shipper/orders" element={<ShipperOrders />} />
+        <Route path="/shipper/orders/:orderId" element={<ShipperOrderDetail />} />
+        <Route path="/shipper/orders/:orderId/cancel" element={<ShipperCancelOrder />} />
+        <Route path="*" element={<Navigate to="/shipper/orders" replace />} />
+
       </Routes>
     </BrowserRouter>
   );

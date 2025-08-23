@@ -1,10 +1,12 @@
 import { Request, Response } from 'express';
 import bcrypt from 'bcrypt';
+import { Types } from 'mongoose';
 
 import { VendorModel } from '../models/Vendor';
 import { CustomerModel } from '../models/Customer';
 import { ShipperModel } from '../models/Shipper';
 import { UserRole } from '../models/UserRole';
+import { UserModel } from '../models/User';
 import { UserServices } from '../services/UserServices';
 import { signJWT } from '../utils/SignHelper';
 
@@ -117,22 +119,24 @@ export const registerCustomer = async (req: Request, res: Response) => {
     const hashedPassword = await bcrypt.hash(password, 12);
 
     // Create customer
-    const customer = new CustomerModel({
+    const user = await UserModel.create({
       username: username.trim(),
       password: hashedPassword,
       role: UserRole.CUSTOMER,
-      name: name.trim(),
-      address: address.trim(),
       profilePicture: profilePicture || '',
     });
 
-    await customer.save();
+    const customer = await CustomerModel.create({
+      user: user._id,
+      name: name.trim(),
+      address: address.trim(),
+    });
 
     // Generate JWT token
     const tokenPayload: TokenPayload = {
-      userId: customer.id.toString(),
-      username: customer.username,
-      role: customer.role,
+      userId: user.id.toString(),
+      username: user.username,
+      role: UserRole.CUSTOMER,
     };
 
     const token = signJWT(tokenPayload);
@@ -141,11 +145,11 @@ export const registerCustomer = async (req: Request, res: Response) => {
       message: 'Customer registered successfully',
       customer: {
         id: customer._id,
-        username: customer.username,
+        username: user.username,
         name: customer.name,
         address: customer.address,
-        profilePicture: customer.profilePicture,
-        role: customer.role,
+        profilePicture: user.profilePicture,
+        role: user.role,
       },
       token,
     });
@@ -170,16 +174,20 @@ export const registerCustomer = async (req: Request, res: Response) => {
 // Register Shipper
 export const registerShipper = async (req: Request, res: Response) => {
   try {
-    const { username, password, assignedHub, profilePicture } = req.body;
+    const { username, password, profilePicture} = req.body;
+    const hubRaw = req.body.distributionHub ?? req.body.assignedHub ?? req.body.hub;
 
-    if (!username || !password || !assignedHub) {
-      return res.status(400).json({
-        message: 'Username, password, and assigned hub are required.',
-      });
+    if (!username) return res.status(400).json({ message: 'Username is required.' });
+    if (!password) return res.status(400).json({ message: 'Password is required.' });
+    if (!hubRaw)   return res.status(400).json({ message: 'Assigned hub is required.' });
+
+    if (!Types.ObjectId.isValid(hubRaw)) {
+      return res.status(400).json({ message: 'Assigned hub must be a valid ObjectId.' });
     }
+    const distributionHub = new Types.ObjectId(hubRaw);
 
     // Check if username already exists
-    const existingUser = await ShipperModel.findOne({ username });
+    const existingUser = await UserModel.findOne({ username });
     if (existingUser) {
       return res.status(409).json({ message: 'Username already exists.' });
     }
@@ -188,21 +196,23 @@ export const registerShipper = async (req: Request, res: Response) => {
     const hashedPassword = await bcrypt.hash(password, 12);
 
     // Create shipper
-    const shipper = new ShipperModel({
+    const user = await UserModel.create({
       username: username.trim(),
       password: hashedPassword,
       role: UserRole.SHIPPER,
-      assignedHub,
-      profilePicture: profilePicture || '',
+      profilePicture: profilePicture || ''
     });
 
-    await shipper.save();
+    const shipper = await ShipperModel.create({
+      user: user._id,
+      distributionHub,
+    });
 
     // Generate JWT token
     const tokenPayload: TokenPayload = {
-      userId: shipper.id.toString(),
-      username: shipper.username,
-      role: shipper.role,
+      userId: user.id.toString(),
+      username: user.username,
+      role: UserRole.SHIPPER,
     };
 
     const token = signJWT(tokenPayload);
@@ -211,10 +221,10 @@ export const registerShipper = async (req: Request, res: Response) => {
       message: 'Shipper registered successfully',
       shipper: {
         id: shipper._id,
-        username: shipper.username,
-        assignedHub: shipper.assignedHub,
-        profilePicture: shipper.profilePicture,
-        role: shipper.role,
+        username: user.username,
+        distributionHub: shipper.distributionHub,
+        profilePicture: user.profilePicture,
+        role: user.role,
       },
       token,
     });
@@ -240,35 +250,23 @@ export const registerShipper = async (req: Request, res: Response) => {
 export const login = async (req: Request, res: Response) => {
   try {
     const { username, password } = req.body;
-
-    if (!username || !password) {
-      return res.status(400).json({
-        message: 'Username and password are required.',
-      });
-    }
+    if (!username || !password)
+      return res.status(400).json({ message: "Username and password are required." });
 
     const user = await UserServices.findByUserName(username);
-    if (!user) {
-      res.status(401).json({ message: 'Invalid credentials' });
-      return;
-    }
-    // Verify password
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) {
-      res.status(401).json({ message: 'Invalid credentials.' });
-      return;
-    }
+    if (!user) return res.status(401).json({ message: "Invalid credentials" });
 
-    // Generate JWT token
+    const ok = await bcrypt.compare(password, user.password);
+    if (!ok)   return res.status(401).json({ message: "Invalid credentials." });
+
+    // Create token using USERS id (not role id)
     const tokenPayload: TokenPayload = {
       userId: user.id.toString(),
       username: user.username,
       role: user.role,
     };
-
     const token = signJWT(tokenPayload);
 
-    // Prepare user data (without password)
     const userData: Record<string, unknown> = {
       id: user._id,
       username: user.username,
@@ -276,43 +274,16 @@ export const login = async (req: Request, res: Response) => {
       profilePicture: user.profilePicture,
     };
 
-    // Fetch role-specific data
-    switch (user.role) {
-      case UserRole.VENDOR: {
-        const vendor = await VendorModel.findById(user._id);
-        if (vendor) {
-          userData.businessName = vendor.businessName;
-          userData.businessAddress = vendor.businessAddress;
-        }
-        break;
-      }
-      case UserRole.CUSTOMER: {
-        const customer = await CustomerModel.findById(user._id);
-        if (customer) {
-          userData.name = customer.name;
-          userData.address = customer.address;
-        }
-        break;
-      }
-      case UserRole.SHIPPER: {
-        const shipper = await ShipperModel.findById(user._id).populate(
-          'assignedHub',
-        );
-        if (shipper) {
-          userData.assignedHub = shipper.assignedHub;
-        }
-        break;
-      }
+    if (user.role === UserRole.SHIPPER) {
+      const shipper = await ShipperModel.findOne({ user: user._id }).populate("distributionHub");
+      if (shipper) userData.distributionHub = shipper.distributionHub;
     }
+    // (Do similar lookups for Vendor/Customer if you have separate collections for them)
 
-    return res.status(200).json({
-      message: 'Login successful',
-      user: userData,
-      token,
-    });
-  } catch (error) {
-    console.error('Login Error:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    return res.status(200).json({ message: "Login successful", user: userData, token });
+  } catch (err) {
+    console.error("Login Error:", err);
+    return res.status(500).json({ message: "Internal server error" });
   }
 };
 

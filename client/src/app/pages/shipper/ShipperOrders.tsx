@@ -39,6 +39,7 @@ export default function ShipperOrders() {
           <table className="min-w-full text-left">
             <thead className="bg-gray-50 text-gray-700 text-sm">
               <tr>
+                <th className="px-4 py-3">Order Number</th>
                 <th className="px-4 py-3">Order ID</th>
                 <th className="px-4 py-3">Total Price</th>
                 <th className="px-4 py-3">Customer Name</th>
@@ -46,15 +47,17 @@ export default function ShipperOrders() {
               </tr>
             </thead>
             <tbody className="divide-y">
-              {orders.map((o) => (
+              {orders.map((o, index) => (
                 <tr key={o.id} className="text-sm">
+                  <td className="px-4 py-3 font-medium">{index + 1}</td>
                   <td className="px-4 py-3 font-mono">{o.id}</td>
                   <td className="px-4 py-3">${o.totalPrice.toFixed(2)}</td>
                   <td className="px-4 py-3">{o.customerName}</td>
                   <td className="px-4 py-3">
                     <Link
                       to={`/shipper/orders/${o.id}`}
-                      className="inline-flex items-center rounded-md border px-3 py-1.5 text-sm hover:bg-gray-50"
+                      state={{ orderIndex: index + 1 }}
+                      className="inline-flex items-center rounded-md bg-black text-white px-3 py-1.5 text-sm hover:bg-black/85 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2"
                     >
                       View →
                     </Link>

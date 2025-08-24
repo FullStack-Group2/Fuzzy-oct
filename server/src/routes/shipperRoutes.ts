@@ -17,7 +17,7 @@ async function attachShipperHub(req: AuthenticatedRequest, res: Response, next: 
     }
 
     // Load the shipper doc to get assigned hub
-    const shipper = await ShipperModel.findOne({user: req.user.userId}).select("distributionHub").lean();
+    const shipper = await ShipperModel.findById(req.user.userId).select("distributionHub").lean();
     if (!shipper?.distributionHub) {
       return res.status(403).json({ message: "Shipper hub not found." });
     }
@@ -31,7 +31,7 @@ async function attachShipperHub(req: AuthenticatedRequest, res: Response, next: 
     }
 
     // (b) Ensure controllers that read user.hub can still work
-    (req as any).user = { ...(req.user as any), hub: hubIdStr };
+    (req as any).user = { ...(req.user as any), hubId: hubIdStr };
 
     // Optional: expose a specific field if you prefer using req.shipperHubId in controllers
     (req as any).shipperHubId = hubIdStr;

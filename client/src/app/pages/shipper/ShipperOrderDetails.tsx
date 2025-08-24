@@ -1,27 +1,44 @@
 // src/pages/shipper/ShipperOrderDetail.tsx
 import { useEffect, useState } from "react";
-import { useNavigate, useParams, Link } from "react-router-dom";
-import type { OrderDetailDTO } from "../../../models/ShipperDTO";
-import { apiGetOrderDetail, apiPatchOrderStatus } from "../../../api/ShipperAPI";
+import { useLocation, useNavigate, useParams, Link } from "react-router-dom";
+import type { OrderDetailDTO, OrderListDTO } from "../../../models/ShipperDTO";
+import { apiGetOrderDetail, apiPatchOrderStatus, apiGetActiveOrders } from "../../../api/ShipperAPI";
+
+type LocationState = { orderIndex?: number };
 
 export default function ShipperOrderDetail() {
   const { orderId } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
+  const state = (location.state || {}) as LocationState;
+
   const [order, setOrder] = useState<OrderDetailDTO | null>(null);
+  const [orderIndex, setOrderIndex] = useState<number | null>(state.orderIndex ?? null);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState<"deliver" | "cancel" | null>(null);
 
+
   useEffect(() => {
     let alive = true;
+
     async function load() {
       try {
         if (!orderId) {
           setLoading(false);
           return;
         }
+
         const data = await apiGetOrderDetail(orderId);
         if (!alive) return;
         setOrder(data);
+
+        if (state.orderIndex == null) {
+          const list: OrderListDTO[] = await apiGetActiveOrders();
+          if (!alive) return;
+          const pos = list.findIndex((o) => o.id === orderId);
+          if (pos >= 0) setOrderIndex(pos + 1);
+          else setOrderIndex(null); // not found (maybe inactive now)
+        }
       } catch (err) {
         console.error("Failed to fetch order detail:", err);
         if (alive) setOrder(null);
@@ -33,7 +50,7 @@ export default function ShipperOrderDetail() {
     return () => {
       alive = false;
     };
-  }, [orderId]);
+  }, [orderId, state.orderIndex]);
 
   async function handleDeliver() {
     if (!orderId) return;
@@ -45,7 +62,7 @@ export default function ShipperOrderDetail() {
 
   function handleCancel() {
     if (!orderId) return;
-    navigate(`/shipper/orders/${orderId}/cancel`, { replace: true });
+    navigate(`/shipper/orders/${orderId}/cancel`, { replace: true, state: { orderIndex }, });
   }
 
   if (loading) return <main className="p-6">Loading…</main>;
@@ -70,17 +87,20 @@ export default function ShipperOrderDetail() {
         </button>
       </div>
 
-      <h1 className="text-2xl font-semibold mb-2">Order {order.id}</h1>
-      <p className="text-sm text-gray-600">
-        <strong>Customer:</strong> {order.customerName} &middot;{" "}
-        <strong>Address:</strong> {order.customerAddress}
+      <h1 className="text-2xl font-semibold">
+        Order {orderIndex != null ? `#${orderIndex}` : `(ID ${order.id})`}
+      </h1>
+      <p className="text-sm text-black">
+        <strong>Customer Name:</strong> {order.customerName} &middot;{" "}
+        <br></br>
+        <strong>Customer Address:</strong> {order.customerAddress}
       </p>
 
       <div className="mt-6 overflow-x-auto rounded-lg border">
         <table className="min-w-full text-left">
           <thead className="bg-gray-50 text-gray-700 text-sm">
             <tr>
-              <th className="px-4 py-3">Product</th>
+              <th className="px-4 py-3">Product Name</th>
               <th className="px-4 py-3">Price</th>
               <th className="px-4 py-3">Qty</th>
               <th className="px-4 py-3">Subtotal</th>
@@ -107,8 +127,10 @@ export default function ShipperOrderDetail() {
           </tbody>
           <tfoot className="bg-gray-50">
             <tr>
-              <td className="px-4 py-3 font-medium" colSpan={3}>
-                Total
+              <td></td>
+              <td></td>
+              <td className="px-4 py-3 font-medium">
+                Total price
               </td>
               <td className="px-4 py-3 font-semibold">
                 ${order.totalPrice.toFixed(2)}
@@ -118,18 +140,18 @@ export default function ShipperOrderDetail() {
         </table>
       </div>
 
-      <div className="mt-6 flex gap-3">
+      <div className="mt-6 flex gap-3 justify-center">
         <button
           onClick={handleDeliver}
           disabled={updating === "deliver"}
-          className="rounded-md bg-green-600 px-4 py-2 text-white hover:bg-green-700 disabled:opacity-60"
+          className="w-32 rounded-md bg-green-600 px-4 py-2 text-white hover:bg-green-700 disabled:opacity-60"
         >
           {updating === "deliver" ? "Delivering…" : "Deliver"}
         </button>
         <button
           onClick={handleCancel}
           disabled={updating === "cancel"}
-          className="rounded-md bg-red-600 px-4 py-2 text-white hover:bg-red-700 disabled:opacity-60"
+          className="w-32 rounded-md bg-red-600 px-4 py-2 text-white hover:bg-red-700 disabled:opacity-60"
         >
           Cancel
         </button>

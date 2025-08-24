@@ -4,6 +4,7 @@ import { VendorModel } from '../models/Vendor';
 import { CustomerModel } from '../models/Customer';
 import { ShipperModel } from '../models/Shipper';
 import { UserRole } from '../models/UserRole';
+import { UserModel } from '../models/User';
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
@@ -49,7 +50,7 @@ export const authMiddleware = async (
         roleDoc = await CustomerModel.findById(decoded.userId).lean();
         break;
       case UserRole.SHIPPER: {
-        const shipper = await ShipperModel.findOne({ user: decoded.userId }).lean();
+        const shipper = await ShipperModel.findById(decoded.userId).select('distributionHub').lean();
         if (!shipper) return res.status(401).json({ message: "User no longer exists." });
 
         const raw = shipper.distributionHub;

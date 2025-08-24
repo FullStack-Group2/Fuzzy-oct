@@ -30,6 +30,7 @@ export async function listActiveOrders(req: Request, res: Response) {
       .populate({ path: "customer", select: "name address" })
       .lean();
 
+    /*
     if (!orders.length) {
       return res.json([]); // keep prod behavior
     }
@@ -45,11 +46,11 @@ export async function listActiveOrders(req: Request, res: Response) {
       if (!itemsByOrder.has(k)) itemsByOrder.set(k, []);
       itemsByOrder.get(k)!.push(it);
     }
+      */
 
     const dto = orders.map(o => ({
       id: String(o._id),
       status: String(o.status ?? "").toUpperCase(),
-      // support both "totalprice" and "totalPrice" field names
       totalPrice: Number((o as any).totalprice ?? (o as any).totalPrice ?? 0),
       customerName: (o as any).customer?.name ?? "Unknown",
     }));
@@ -61,69 +62,13 @@ export async function listActiveOrders(req: Request, res: Response) {
   }
 }
 
-/**
- * GET /api/shipper/orders/:id
- * Returns details for a single order in the shipper’s hub
- */
-/*
-export async function getOrderDetail(req: Request, res: Response) {
-  try {
-    const { id } = req.params;
-
-    const order: any = await OrderModel
-      .findById(id)
-      .populate({ path: "customer", select: "name address" })
-      .populate({ path: "orderItems", populate: { path: "product", select: "name imageUrl" } })
-      .lean();
-
-    if (!order) return res.status(404).json({ error: "Order not found" });
-
-    const hubId = (req as any).user?.hubId as string | undefined;
-    if (hubId && String(order.distributionHub) !== String(hubId)) {
-      return res.status(403).json({ error: "Not allowed to view this order" });
-    }
-
-    const items =
-      order.orderItems?.map((it: any) => {
-        const subtotal = Math.round(it.priceAtPurchase * it.quantity * 100) / 100;
-        return {
-          id: String(it._id),
-          productName: it.product?.name ?? "Unknown Product",
-          imageUrl: it.product?.imageUrl ?? "",
-          priceAtPurchase: it.priceAtPurchase,
-          quantity: it.quantity,
-          subtotal,
-        };
-      }) ?? [];
-
-    const total = items.reduce((sum: number, it: any) => sum + it.subtotal, 0);
-
-    const dto = {
-      id: String(order._id),
-      status: order.status, // uppercase
-      orderDate: new Date(order.orderDate).toISOString(),
-      totalPrice: Math.round(total * 100) / 100,
-      hubId: String(order.distributionHub),
-      customerName: order.customer?.name ?? "Unknown",
-      customerAddress: order.customer?.address ?? "Unknown",
-      items,
-    };
-
-    res.json(dto);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Failed to load order" });
-  }
-}
-*/
-
 export async function getOrderDetail(req: AuthenticatedRequest, res: Response) {
   try {
     const { id } = req.params;
     if (!Types.ObjectId.isValid(id)) {
       return res.status(400).json({ error: "Invalid order id" });
     }
-    
+
     const orderId = new Types.ObjectId(id);
 
     const hubIdStr = req.user?.hubId;
@@ -132,13 +77,13 @@ export async function getOrderDetail(req: AuthenticatedRequest, res: Response) {
         ? { distributionHub: new Types.ObjectId(hubIdStr) }
         : {};
 
-        
+
     // 1) Order header (scoped to hub)
     const order: any = await OrderModel.findOne({ _id: orderId, ...hubFilter })
       .populate({ path: "customer", select: "name address" })
       .lean()
       .exec();
-      console.log(5);
+    console.log(5);
     if (!order) return res.status(404).json({ error: "Order not found" });
 
     // 2) Items (no populate)
@@ -158,9 +103,9 @@ export async function getOrderDetail(req: AuthenticatedRequest, res: Response) {
     ).map(id => new Types.ObjectId(id));
     const products = validProductIds.length
       ? await ProductModel.find({ _id: { $in: validProductIds } })
-          .select("name imageUrl price")
-          .lean()
-          .exec()
+        .select("name imageUrl price")
+        .lean()
+        .exec()
       : [];
     const productMap = new Map(products.map(p => [String(p._id), p]));
     // 4) Map + totals
@@ -201,44 +146,6 @@ export async function getOrderDetail(req: AuthenticatedRequest, res: Response) {
   }
 }
 
-
-/**
- * PATCH /api/shipper/orders/:id/status
- * Body: { status: 'DELIVERED' | 'CANCELED', reason?: string }
- * Only ACTIVE → (DELIVERED|CANCELED)
- */
-/*
-export async function patchOrderStatus(req: Request, res: Response) {
-  try {
-    const { id } = req.params;
-    const desired = String((req.body as any)?.status || "");
-
-    if (!ALLOWED_TARGET.includes(desired as AllowedTarget)) {
-      return res.status(400).json({ error: "Invalid status" });
-    }
-
-    const order: any = await OrderModel.findById(id);
-    if (!order) return res.status(404).json({ error: "Order not found" });
-
-    if (order.status !== "ACTIVE") {
-      return res.status(409).json({ error: "Order is not ACTIVE" });
-    }
-
-    const hubId = (req as any).user?.hubId as string | undefined;
-    if (hubId && String(order.distributionHub) !== String(hubId)) {
-      return res.status(403).json({ error: "Not allowed to update this order" });
-    }
-
-    order.status = desired; // store uppercase
-    await order.save();
-
-    res.json({ ok: true });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Failed to update status" });
-  }
-}
-*/
 export async function patchOrderStatus(req: AuthenticatedRequest, res: Response) {
   try {
     // 0) AuthZ: must be a SHIPPER

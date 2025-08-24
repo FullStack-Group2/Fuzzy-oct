@@ -14,6 +14,7 @@ interface TokenPayload {
   userId: string;
   username: string;
   role: UserRole;
+  hubId?: string;
 }
 
 // Register Vendor
@@ -119,24 +120,22 @@ export const registerCustomer = async (req: Request, res: Response) => {
     const hashedPassword = await bcrypt.hash(password, 12);
 
     // Create customer
-    const user = await UserModel.create({
+    const customer = new CustomerModel({
       username: username.trim(),
       password: hashedPassword,
       role: UserRole.CUSTOMER,
+      name: name.trim(),
+      address: address.trim(),
       profilePicture: profilePicture || '',
     });
 
-    const customer = await CustomerModel.create({
-      user: user._id,
-      name: name.trim(),
-      address: address.trim(),
-    });
+    await customer.save();
 
     // Generate JWT token
     const tokenPayload: TokenPayload = {
-      userId: user.id.toString(),
-      username: user.username,
-      role: UserRole.CUSTOMER,
+      userId: customer.id.toString(),
+      username: customer.username,
+      role: customer.role,
     };
 
     const token = signJWT(tokenPayload);
@@ -145,11 +144,11 @@ export const registerCustomer = async (req: Request, res: Response) => {
       message: 'Customer registered successfully',
       customer: {
         id: customer._id,
-        username: user.username,
+        username: customer.username,
         name: customer.name,
         address: customer.address,
-        profilePicture: user.profilePicture,
-        role: user.role,
+        profilePicture: customer.profilePicture,
+        role: customer.role,
       },
       token,
     });
@@ -174,12 +173,12 @@ export const registerCustomer = async (req: Request, res: Response) => {
 // Register Shipper
 export const registerShipper = async (req: Request, res: Response) => {
   try {
-    const { username, password, profilePicture} = req.body;
+    const { username, password, profilePicture } = req.body;
     const hubRaw = req.body.distributionHub ?? req.body.assignedHub ?? req.body.hub;
 
     if (!username) return res.status(400).json({ message: 'Username is required.' });
     if (!password) return res.status(400).json({ message: 'Password is required.' });
-    if (!hubRaw)   return res.status(400).json({ message: 'Assigned hub is required.' });
+    if (!hubRaw) return res.status(400).json({ message: 'Assigned hub is required.' });
 
     if (!Types.ObjectId.isValid(hubRaw)) {
       return res.status(400).json({ message: 'Assigned hub must be a valid ObjectId.' });
@@ -196,23 +195,20 @@ export const registerShipper = async (req: Request, res: Response) => {
     const hashedPassword = await bcrypt.hash(password, 12);
 
     // Create shipper
-    const user = await UserModel.create({
+    const shipper = await ShipperModel.create({
       username: username.trim(),
       password: hashedPassword,
       role: UserRole.SHIPPER,
-      profilePicture: profilePicture || ''
-    });
-
-    const shipper = await ShipperModel.create({
-      user: user._id,
-      distributionHub,
+      profilePicture: profilePicture || '',
+      distributionHub
     });
 
     // Generate JWT token
     const tokenPayload: TokenPayload = {
-      userId: user.id.toString(),
-      username: user.username,
+      userId: shipper.id.toString(),
+      username: shipper.username,
       role: UserRole.SHIPPER,
+      hubId: shipper.distributionHub.toString()
     };
 
     const token = signJWT(tokenPayload);
@@ -221,10 +217,10 @@ export const registerShipper = async (req: Request, res: Response) => {
       message: 'Shipper registered successfully',
       shipper: {
         id: shipper._id,
-        username: user.username,
+        username: shipper.username,
         distributionHub: shipper.distributionHub,
-        profilePicture: user.profilePicture,
-        role: user.role,
+        profilePicture: shipper.profilePicture,
+        role: shipper.role,
       },
       token,
     });
@@ -257,13 +253,19 @@ export const login = async (req: Request, res: Response) => {
     if (!user) return res.status(401).json({ message: "Invalid credentials" });
 
     const ok = await bcrypt.compare(password, user.password);
-    if (!ok)   return res.status(401).json({ message: "Invalid credentials." });
+    if (!ok) return res.status(401).json({ message: "Invalid credentials." });
+
+    const isShipper = user.role === UserRole.SHIPPER;
+    const hubId = isShipper && (user as any).distributionHub
+      ? (user as any).distributionHub.toString()
+      : undefined;
 
     // Create token using USERS id (not role id)
     const tokenPayload: TokenPayload = {
       userId: user.id.toString(),
       username: user.username,
       role: user.role,
+      ...(hubId ? { hubId } : {})
     };
     const token = signJWT(tokenPayload);
 
@@ -275,10 +277,8 @@ export const login = async (req: Request, res: Response) => {
     };
 
     if (user.role === UserRole.SHIPPER) {
-      const shipper = await ShipperModel.findOne({ user: user._id }).populate("distributionHub");
-      if (shipper) userData.distributionHub = shipper.distributionHub;
+      userData.distributionHub = (user as any).distributionHub;
     }
-    // (Do similar lookups for Vendor/Customer if you have separate collections for them)
 
     return res.status(200).json({ message: "Login successful", user: userData, token });
   } catch (err) {

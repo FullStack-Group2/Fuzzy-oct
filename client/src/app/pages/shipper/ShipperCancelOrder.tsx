@@ -1,20 +1,47 @@
-import { FormEvent, useState } from "react";
-import { useNavigate, useParams, Link } from "react-router-dom";
-import { apiPatchOrderStatus } from "../../../api/ShipperAPI";
+import { FormEvent, useState, useEffect } from "react";
+import { useNavigate, useParams, Link, useLocation } from "react-router-dom";
+import { apiPatchOrderStatus, apiGetActiveOrders  } from "../../../api/ShipperAPI";
 
 const REASONS = [
-  "Customer unreachable",
-  "Incorrect address",
-  "Damaged at hub",
-  "Other",
+  "Delivery address is incomplete or invalid.",
+  "Customer was not available to receive the order.",
+  "Shipment was delayed due to unexpected logistics issues.",
+  "Package was damaged before delivery",
+  "Shipping route unavailable due to external conditions",
+  "Other"
 ];
+
+type LocationState = { orderIndex?: number };
 
 export default function ShipperCancelOrder() {
   const { orderId } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
+  const state = (location.state || {}) as LocationState;
+
+  const [orderIndex, setOrderIndex] = useState<number | null>(state.orderIndex ?? null);
   const [reason, setReason] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let alive = true;
+    async function computeIndex() {
+      if (orderIndex != null || !orderId) return;
+      try {
+        const list = await apiGetActiveOrders();
+        if (!alive) return;
+        const pos = list.findIndex((o) => o.id === orderId);
+        setOrderIndex(pos >= 0 ? pos + 1 : null);
+      } catch {
+        // silent fail -> keep null
+      }
+    }
+    computeIndex();
+    return () => {
+      alive = false;
+    };
+  }, [orderIndex, orderId]);
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
@@ -42,9 +69,11 @@ export default function ShipperCancelOrder() {
         </Link>
       </div>
 
-      <h1 className="text-2xl font-semibold mb-3">Cancel Order {orderId}</h1>
+      <h1 className="text-2xl font-semibold mb-3">
+        Cancel Order {orderIndex != null ? `#${orderIndex}` : `(ID ${orderId})`}
+      </h1>
       <p className="text-sm text-gray-600 mb-4">
-        Please select a reason for cancellation.
+        Please select a reason for cancellation. Choose one only
       </p>
 
       {error && <p className="mb-3 text-sm text-red-600">{error}</p>}

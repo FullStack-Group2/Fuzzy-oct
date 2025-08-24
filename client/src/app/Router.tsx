@@ -15,6 +15,7 @@ import Logout from './pages/auth/Logout';
 import ForgotPassword from './pages/auth/ForgotPassword';
 import Register from './pages/auth/Register';
 import Layout from './Layout';
+import MyAccount from './pages/auth/MyAccount';
 
 export default function AppRouter() {
   return (
@@ -47,6 +48,10 @@ export default function AppRouter() {
           <Route path="/auth/logout" element={<Logout />} />
           <Route path="/auth/forgot-password" element={<ForgotPassword />} />
           <Route path="*" element={<NotFound />} />
+
+
+          {/* My account */}
+          <Route path = "/my-account" element = {<MyAccount role = {authRole}/>}/>
         </Route>
       </Routes>
     </BrowserRouter>

@@ -19,7 +19,32 @@ const Shop = () => {
       <section className="w-[90vw] mx-auto mb-5 flex flex-col md:flex-row md:justify-between gap-5">
         <FilterBar />
 
-        <div className="w-full h-auto md:w-[73%] flex flex-col sm:flex-row sm:flex-wrap sm:justify-between gap-y-14">
+        <div className="w-full h-auto grid grid-cols-1 gap-14 md:w-[73%] sm:grid-cols-2 md:grid-cols-3">
+          <ShopCardItem
+            imgSrc="/verona-seat.png"
+            itemName="Verona Seat"
+            itemPrice="950.000"
+          />
+          <ShopCardItem
+            imgSrc="/verona-seat.png"
+            itemName="Verona Seat"
+            itemPrice="950.000"
+          />
+          <ShopCardItem
+            imgSrc="/verona-seat.png"
+            itemName="Verona Seat"
+            itemPrice="950.000"
+          />
+          <ShopCardItem
+            imgSrc="/verona-seat.png"
+            itemName="Verona Seat"
+            itemPrice="950.000"
+          />
+          <ShopCardItem
+            imgSrc="/verona-seat.png"
+            itemName="Verona Seat"
+            itemPrice="950.000"
+          />
           <ShopCardItem
             imgSrc="/verona-seat.png"
             itemName="Verona Seat"

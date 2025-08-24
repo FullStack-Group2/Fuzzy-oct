@@ -13,7 +13,7 @@ const ShopCardItem: React.FC<ShopCartItemProps> = ({
   itemPrice,
 }) => {
   return (
-    <div className="group w-full hover:shadow-2xl rounded-md aspect-[17/25] p-3 flex flex-col justify-between sm:w-[45%] md:w-[26%]">
+    <div className="group w-full hover:shadow-2xl rounded-md aspect-[17/25] p-3 flex flex-col justify-between">
       <div className="relative h-[80%] w-full bg-[#EEF1F1] flex items-center justify-center">
         <img
           src={imgSrc}

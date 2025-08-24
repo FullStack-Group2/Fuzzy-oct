@@ -1,6 +1,15 @@
 import { useState } from 'react';
 import Slider from '@/components/ui/slider/slider';
-export default function PriceSlider({value, setValue, step, max}) {
+import React from 'react';
+
+interface PriceSliderProps {
+    value: Array<number>,
+    setValue: any,
+    step: number,
+    max: number,
+}
+
+const PriceSlider: React.FC<PriceSliderProps> = ({value, setValue, step, max}) => {
   const [from, to] = value;
 
   return (
@@ -19,3 +28,4 @@ export default function PriceSlider({value, setValue, step, max}) {
     </div>
   );
 }
+export default PriceSlider;

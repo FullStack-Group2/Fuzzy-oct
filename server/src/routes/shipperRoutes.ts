@@ -1,6 +1,6 @@
 import { Router } from 'express';
 
-import * as shipperController from '../controllers/ShiperController';
+import * as shipperController from '../controllers/ShipperController';
 import { authMiddleware } from '../middleware/authMiddleware';
 import { requireShipper } from '../middleware/roleMiddleware';
 

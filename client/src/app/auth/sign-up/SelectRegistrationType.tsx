@@ -70,7 +70,7 @@ export const SelectRegistrationType: React.FC<SelectRegistrationTypeProps> = ({
                   ${
                     isSelected
                       ? 'bg-emerald-600 text-white shadow-lg'
-                      : 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'
+                      : 'bg-lime-200 text-emerald-700 hover:bg-emerald-200'
                   }
                 `}
               >

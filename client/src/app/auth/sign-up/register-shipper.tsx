@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,6 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Link } from 'react-router-dom';
 
 // Zod schema for shipper registration validation
 const shipperRegistrationSchema = z.object({
@@ -21,28 +22,31 @@ const shipperRegistrationSchema = z.object({
       /^[a-zA-Z0-9_]+$/,
       'Username can only contain letters, numbers, and underscores',
     ),
+  email: z
+    .string()
+    .email('Please enter a valid email address')
+    .min(1, 'Email is required'),
   password: z
     .string()
     .min(6, 'Password must be at least 6 characters long')
     .max(100, 'Password must be less than 100 characters'),
-  assignedHub: z.enum(['south-hub', 'north-hub', 'east-hub'], {
-    message: 'Please select an assigned hub',
-  }),
+  assignedHub: z.string(),
   profilePicture: z.string().optional(),
 });
 
-type DistributionHub = 'south-hub' | 'north-hub' | 'east-hub';
 
 interface ShipperRegistrationData {
   username: string;
+  email: string;
   password: string;
-  assignedHub?: DistributionHub; // Allow undefined for initial state
+  assignedHub?: string; // Allow undefined for initial state
   profilePicture?: string;
 }
 
 export interface RegisteredShipper {
   id: string;
   username: string;
+  email: string;
   assignedHub?: string;
   profilePicture: string;
   role: string;
@@ -55,10 +59,10 @@ interface RegisterShipperProps {
 
 export const RegisterShipper: React.FC<RegisterShipperProps> = ({
   onRegistrationSuccess,
-  onSwitchToLogin,
 }) => {
   const [formData, setFormData] = useState<ShipperRegistrationData>({
     username: '',
+    email: '',
     password: '',
     assignedHub: undefined, // Start with undefined to show placeholder
     profilePicture: '',
@@ -66,6 +70,20 @@ export const RegisterShipper: React.FC<RegisterShipperProps> = ({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>('');
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [hubs, setHubs] = useState<{ _id: string; hubName: string; hubLocation: string }[]>([]);
+
+  useEffect(() => {
+    fetch("http://localhost:5001/api/hubs")
+      .then((res) => res.json())
+      .then((data) => {
+        // Sort hubs alphabetically by hubName for consistent ordering
+        const sortedHubs = data.hubs.sort((a: { hubName: string }, b: { hubName: string }) => 
+          a.hubName.localeCompare(b.hubName)
+        );
+        setHubs(sortedHubs);
+      })
+      .catch((err) => console.error("Failed to load hubs:", err));
+  }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -83,12 +101,12 @@ export const RegisterShipper: React.FC<RegisterShipperProps> = ({
     }
   };
 
-  const handleSelectChange = (value: DistributionHub) => {
+  const handleSelectChange = (value: string) => {
     setFormData((prev) => ({
       ...prev,
       assignedHub: value,
     }));
-    // Clear general error and field-specific error when user makes a selection
+    // Clear general error and field-specific error when user selects
     if (error) setError('');
     if (fieldErrors.assignedHub) {
       setFieldErrors((prev) => ({
@@ -97,6 +115,7 @@ export const RegisterShipper: React.FC<RegisterShipperProps> = ({
       }));
     }
   };
+
 
   const validateForm = (): boolean => {
     try {
@@ -152,8 +171,9 @@ export const RegisterShipper: React.FC<RegisterShipperProps> = ({
     try {
       const registrationData = {
         username: formData.username,
+        email: formData.email,
         password: formData.password,
-        assignedHub: formData.assignedHub!, // Non-null assertion since validation passed
+        assignedHubId: formData.assignedHub!, // Send as assignedHubId to match backend expectation
         profilePicture: formData.profilePicture,
       };
 
@@ -235,6 +255,25 @@ export const RegisterShipper: React.FC<RegisterShipperProps> = ({
               )}
             </div>
 
+            {/* Email Field */}
+            <div className="space-y-2">
+              <Label htmlFor="email">Email *</Label>
+              <Input
+                type="email"
+                id="email"
+                name="email"
+                value={formData.email}
+                onChange={handleInputChange}
+                placeholder="Enter your email"
+                disabled={loading}
+                className={`w-full ${fieldErrors.email ? 'border-red-500' : ''}`}
+                required
+              />
+              {fieldErrors.email && (
+                <p className="text-red-500 text-sm">{fieldErrors.email}</p>
+              )}
+            </div>
+
             {/* Assigned Distribution Hub Field */}
             <div className="space-y-2">
               <Label htmlFor="assignedHub">Assigned distribution hub *</Label>
@@ -250,15 +289,11 @@ export const RegisterShipper: React.FC<RegisterShipperProps> = ({
                   <SelectValue placeholder="Select your assigned hub" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="south-hub">
-                    Sai Gon Distribution Hub
-                  </SelectItem>
-                  <SelectItem value="north-hub">
-                    Ha Noi Distribution Hub
-                  </SelectItem>
-                  <SelectItem value="east-hub">
-                    Da Nang Distribution Hub
-                  </SelectItem>
+                  {hubs.map((hub) => (
+                    <SelectItem key={hub._id} value={hub._id}>
+                      {hub.hubName} - {hub.hubLocation}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
               {fieldErrors.assignedHub && (
@@ -300,14 +335,12 @@ export const RegisterShipper: React.FC<RegisterShipperProps> = ({
             <div className="text-center">
               <p className="text-sm text-gray-600">
                 Already have an account?{' '}
-                <Button
-                  variant="link"
-                  type="button"
-                  onClick={onSwitchToLogin}
-                  className="font-medium"
+                <Link
+                  to="/login"
+                  className="font-medium text-green-700 hover:text-green-800"
                 >
                   Login
-                </Button>
+                </Link>
               </p>
             </div>
           </form>

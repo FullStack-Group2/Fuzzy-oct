@@ -1,3 +1,4 @@
+import { Button } from '@/components/ui/button';
 import React, { useState } from 'react';
 
 interface LoggedInUser {
@@ -57,7 +58,7 @@ export const Logout: React.FC<LogoutProps> = ({ user, onLogoutSuccess }) => {
           </div>
         </div>
 
-        <button
+        <Button
           onClick={handleLogout}
           disabled={loading}
           className={`px-4 py-2 rounded-lg font-medium text-sm ${
@@ -67,7 +68,7 @@ export const Logout: React.FC<LogoutProps> = ({ user, onLogoutSuccess }) => {
           } text-white`}
         >
           {loading ? 'Logging out...' : 'Logout'}
-        </button>
+        </Button>
       </div>
     </div>
   );

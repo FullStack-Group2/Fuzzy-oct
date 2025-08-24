@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ArrowLeft, Eye, EyeOff, Check } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 // Zod schema for password validation
 const passwordSchema = z
@@ -36,7 +37,6 @@ export const SetNewPassword: React.FC<SetNewPasswordProps> = ({
   email,
   otp,
   onPasswordReset,
-  onBackToLogin,
 }) => {
   const [formData, setFormData] = useState({
     password: '',
@@ -47,7 +47,6 @@ export const SetNewPassword: React.FC<SetNewPasswordProps> = ({
   const [error, setError] = useState<string>('');
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   // Password validation checks
   const passwordChecks = {
@@ -179,8 +178,9 @@ export const SetNewPassword: React.FC<SetNewPasswordProps> = ({
                 />
                 <Button
                   type="button"
+                  variant={"ghost"}
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center hover:bg-transparent"
                   disabled={loading}
                 >
                   {showPassword ? (
@@ -275,51 +275,7 @@ export const SetNewPassword: React.FC<SetNewPasswordProps> = ({
               </div>
             </div>
 
-            {/* Confirm Password Field */}
-            <div className="space-y-2">
-              <Label
-                htmlFor="confirmPassword"
-                className="text-sm font-medium text-gray-700"
-              >
-                Confirm password
-              </Label>
-              <div className="relative">
-                <Input
-                  id="confirmPassword"
-                  type={showConfirmPassword ? 'text' : 'password'}
-                  value={formData.confirmPassword}
-                  onChange={(e) =>
-                    handleInputChange('confirmPassword', e.target.value)
-                  }
-                  disabled={loading}
-                  className={`pr-10 ${
-                    fieldErrors.confirmPassword
-                      ? 'border-red-500'
-                      : 'border-gray-300'
-                  }`}
-                  placeholder="••••••••"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                  disabled={loading}
-                >
-                  {showConfirmPassword ? (
-                    <EyeOff className="h-4 w-4 text-gray-400" />
-                  ) : (
-                    <Eye className="h-4 w-4 text-gray-400" />
-                  )}
-                </button>
-              </div>
-
-              {fieldErrors.confirmPassword && (
-                <p className="text-red-500 text-sm">
-                  {fieldErrors.confirmPassword}
-                </p>
-              )}
-            </div>
-
+            
             {/* Reset Password Button */}
             <Button
               type="submit"
@@ -331,15 +287,13 @@ export const SetNewPassword: React.FC<SetNewPasswordProps> = ({
 
             {/* Back to Login Link */}
             <div className="text-center">
-              <Button
-                variant="link"
-                type="button"
-                onClick={onBackToLogin}
+              <Link
+                to="/login"
                 className="text-sm text-gray-600 hover:text-gray-800 inline-flex items-center gap-2"
               >
                 <ArrowLeft size={16} />
                 Back to log in
-              </Button>
+              </Link>
             </div>
           </form>
         </div>

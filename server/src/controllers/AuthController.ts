@@ -13,6 +13,7 @@ import {
   generateResetToken,
   verifyResetToken,
 } from '../utils/ResetTokenStore';
+import DistributionHub from '../models/DistributionHub';
 
 interface TokenPayload {
   userId: string;
@@ -38,14 +39,14 @@ export const registerVendor = async (req: Request, res: Response) => {
     if (!username || !email || !password || !businessName || !businessAddress) {
       return res.status(400).json({
         message:
-          'Username, email, password, business name, and business address are required.',
+          'Username, email, password, business name, and business address are required',
       });
     }
 
     // Check if username already exists
     const existingUser = await UserServices.usernameExists(username);
     if (existingUser) {
-      return res.status(409).json({ message: 'Username already exists.' });
+      return res.status(409).json({ message: 'Username already exists' });
     }
 
     // Hash password
@@ -100,14 +101,14 @@ export const registerCustomer = async (req: Request, res: Response) => {
 
     if (!username || !email || !password || !name || !address) {
       return res.status(400).json({
-        message: 'Username, email, password, name, and address are required.',
+        message: 'Username, email, password, name, and address are required',
       });
     }
 
     // Check if username already exists
     const existingUser = await UserServices.usernameExists(username);
     if (existingUser) {
-      return res.status(409).json({ message: 'Username already exists.' });
+      return res.status(409).json({ message: 'Username already exists' });
     }
 
     // Hash password
@@ -158,20 +159,24 @@ export const registerCustomer = async (req: Request, res: Response) => {
 // Register Shipper
 export const registerShipper = async (req: Request, res: Response) => {
   try {
-    const { username, email, password, assignedHub, profilePicture } = req.body;
+    const { username, email, password, assignedHubId, profilePicture } = req.body;
 
-    if (!username || !email || !password || !assignedHub) {
+    if (!username || !email || !password || !assignedHubId) {
       return res.status(400).json({
-        message: 'Username, email, password, and assigned hub are required.',
+        message: 'Username, email, password, and assigned hub are required',
       });
     }
 
     // Check if username already exists
     const existingUser = await UserServices.usernameExists(username);
     if (existingUser) {
-      return res.status(409).json({ message: 'Username already exists.' });
+      return res.status(409).json({ message: 'Username already exists' });
     }
-
+    const hub = await DistributionHub.findById(assignedHubId);
+    if (!hub) {
+      return res.status(404).json({ message: "Assigned hub not found" });
+    }
+    
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 12);
 
@@ -181,11 +186,14 @@ export const registerShipper = async (req: Request, res: Response) => {
       email: email.trim().toLowerCase(),
       password: hashedPassword,
       role: UserRole.SHIPPER,
-      assignedHub,
+      assignedHub: hub._id,
       profilePicture: profilePicture || '',
     });
 
     await shipper.save();
+
+    // Populate hub details for response
+    await shipper.populate('assignedHub', 'hubName hubLocation');
 
     // Generate JWT token
     const tokenPayload: TokenPayload = {
@@ -221,7 +229,7 @@ export const login = async (req: Request, res: Response) => {
 
     if (!username || !password) {
       return res.status(400).json({
-        message: 'Username and password are required.',
+        message: 'Username and password are required',
       });
     }
 
@@ -233,7 +241,7 @@ export const login = async (req: Request, res: Response) => {
     // Verify password
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
-      res.status(401).json({ message: 'Invalid credentials.' });
+      res.status(401).json({ message: 'Invalid credentials' });
       return;
     }
 
@@ -276,6 +284,7 @@ export const login = async (req: Request, res: Response) => {
       case UserRole.SHIPPER: {
         const shipper = await ShipperModel.findById(user._id).populate(
           'assignedHub',
+          'hubName hubLocation'
         );
         if (shipper) {
           userData.assignedHub = shipper.assignedHub;
@@ -312,50 +321,127 @@ export const forgotPassword = async (req: Request, res: Response) => {
   try {
     const { email } = req.body;
     if (!email) {
-      return res.status(400).json({ message: 'Email is required.' });
+      return res.status(400).json({ message: 'Email is required' });
     }
 
     // Check if user exists in your DB
     const user = await UserServices.findByEmail(email);
     if (!user) {
-      return res.status(404).json({ message: 'Email is not registered.' });
+      return res.status(404).json({ message: 'Email is not registered' });
     }
 
-    // Send OTP via Twilio Verify
-    const result = await client.verify.v2
-      .services(process.env.TWILIO_VERIFY_SERVICE_SID!)
-      .verifications.create({
-        channel: 'email',
-        channelConfiguration: {
-          template_id: 'd-2a11adc42d924c07b8ca411243c19913',
-          from: 'huygiasg004@gmail.com',
-          from_name: 'Fuzzy Support',
-        },
-        to: email,
-      });
-    console.log('Verification result:', result);
+    console.log(`Sending OTP to email: ${email}`);
 
-    res.status(200).json({ status: 'Verification code sent successfully' });
+    // Send OTP via Twilio Verify with timeout
+    try {
+      const verificationPromise = client.verify.v2
+        .services(process.env.TWILIO_VERIFY_SERVICE_SID!)
+        .verifications.create({
+          channel: 'email',
+          channelConfiguration: {
+            template_id: 'd-2a11adc42d924c07b8ca411243c19913',
+            from: 'huygiasg004@gmail.com',
+            from_name: 'Fuzzy Support',
+          },
+          to: email,
+        });
+
+      const timeoutPromise = new Promise<never>((_, reject) => 
+        setTimeout(() => reject(new Error('OTP send timeout')), 15000)
+      );
+
+      const result = await Promise.race([
+        verificationPromise,
+        timeoutPromise
+      ]);
+
+      console.log('OTP send result:', result);
+      res.status(200).json({ status: 'Verification code sent successfully' });
+    } catch (twilioError: unknown) {
+      console.error('Twilio OTP send error:', twilioError);
+      const error = twilioError as TwilioError;
+      
+      if (error.message === 'OTP send timeout' || error.code === 'ECONNABORTED') {
+        return res.status(408).json({ 
+          message: 'Failed to send verification code. Please try again' 
+        });
+      }
+      
+      return res.status(500).json({ 
+        message: 'Failed to send verification code. Please try again later' 
+      });
+    }
   } catch (error) {
     console.error('Forgot Password Error:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
 };
+interface TwilioError {
+  message?: string;
+  code?: string | number;
+}
+
+interface TwilioVerificationCheck {
+  status: string;
+  sid?: string;
+}
+
 export const verifyResetCode = async (req: Request, res: Response) => {
   try {
     const { email, code } = req.body;
     if (!email || !code) {
-      return res.status(400).json({ message: 'Email and code are required.' });
+      return res.status(400).json({ message: 'Email and code are required' });
     }
 
-    const check = await client.verify.v2
-      .services(process.env.TWILIO_VERIFY_SERVICE_SID!)
-      .verificationChecks.create({ to: email, code });
+    console.log(`Attempting to verify OTP for email: ${email}, code: ${code}`);
 
-    if (check.status !== 'approved') {
-      return res
-        .status(400)
-        .json({ message: 'Invalid or expired verification code.' });
+    // Add timeout and retry logic
+    let verificationCheck: TwilioVerificationCheck;
+    try {
+      const verificationPromise = client.verify.v2
+        .services(process.env.TWILIO_VERIFY_SERVICE_SID!)
+        .verificationChecks.create({ 
+          to: email, 
+          code: code.toString() // Ensure code is string
+        });
+
+      const timeoutPromise = new Promise<never>((_, reject) => 
+        setTimeout(() => reject(new Error('Verification timeout')), 15000)
+      );
+
+      verificationCheck = await Promise.race([
+        verificationPromise,
+        timeoutPromise
+      ]);
+    } catch (twilioError: unknown) {
+      console.error('Twilio verification error:', twilioError);
+      
+      const error = twilioError as TwilioError;
+      
+      // Handle specific Twilio errors
+      if (error.code === 20404) {
+        return res.status(400).json({ 
+          message: 'Verification code has expired or is invalid' 
+        });
+      }
+      
+      if (error.message === 'Verification timeout' || error.code === 'ECONNABORTED') {
+        return res.status(408).json({ 
+          message: 'Verification service is temporarily unavailable. Please try again' 
+        });
+      }
+      
+      return res.status(500).json({ 
+        message: 'Failed to verify code. Please try again or request a new code' 
+      });
+    }
+
+    console.log('Verification check result:', verificationCheck);
+
+    if (verificationCheck.status !== 'approved') {
+      return res.status(400).json({ 
+        message: 'Invalid or expired verification code' 
+      });
     }
 
     const resetToken = generateResetToken(email);
@@ -365,10 +451,11 @@ export const verifyResetCode = async (req: Request, res: Response) => {
       status: 'Code verified successfully',
       resetToken,
     });
-    res.status(200).json({ status: 'Code verified successfully' });
   } catch (error) {
     console.error('Verify Code Error:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    res.status(500).json({ 
+      message: 'Internal server error. Please try again later' 
+    });
   }
 };
 
@@ -378,13 +465,13 @@ export const resetForgotPassword = async (req: Request, res: Response) => {
     if (!email || !newPassword) {
       return res
         .status(400)
-        .json({ message: 'Email and new password are required.' });
+        .json({ message: 'Email and new password are required' });
     }
     // Verify the reset token
     if (!verifyResetToken(email, resetToken)) {
       return res
         .status(400)
-        .json({ message: 'Invalid or expired reset token.' });
+        .json({ message: 'Invalid or expired reset token' });
     }
     const result = await UserServices.updatePassword(email, newPassword);
 
@@ -403,14 +490,14 @@ export const changePassword = async (req: Request, res: Response) => {
     const { email, currentPassword, newPassword } = req.body;
     if (!email || !currentPassword || !newPassword) {
       return res.status(400).json({
-        message: 'Email, current password, and new password are required.',
+        message: 'Email, current password, and new password are required',
       });
     }
 
     // Find user by email
     const user = await UserServices.findByEmail(email);
     if (!user) {
-      return res.status(404).json({ message: 'User not found.' });
+      return res.status(404).json({ message: 'User not found' });
     }
 
     // Verify current password
@@ -421,13 +508,13 @@ export const changePassword = async (req: Request, res: Response) => {
     if (!isPasswordValid) {
       return res
         .status(401)
-        .json({ message: 'Current password is incorrect.' });
+        .json({ message: 'Current password is incorrect' });
     }
 
     // Update password in database
     await UserServices.updatePassword(email, newPassword);
 
-    res.status(200).json({ message: 'Password reset successful.' });
+    res.status(200).json({ message: 'Password reset successful' });
   } catch (error) {
     console.error('Reset Password Error:', error);
     res.status(500).json({ message: 'Internal server error' });

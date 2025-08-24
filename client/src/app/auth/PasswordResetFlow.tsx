@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ForgotPassword } from './ForgotPassword';
 import { PasswordRequest } from './PasswordRequest';
 import { SetNewPassword } from './SetNewPassword';
@@ -10,14 +11,11 @@ type PasswordResetStep =
   | 'reset-complete';
 
 interface PasswordResetFlowProps {
-  onBackToLogin?: () => void;
-  onPasswordResetComplete?: () => void;
+  // No props needed since we use React Router for navigation
 }
 
-export const PasswordResetFlow: React.FC<PasswordResetFlowProps> = ({
-  onBackToLogin,
-  onPasswordResetComplete,
-}) => {
+export const PasswordResetFlow: React.FC<PasswordResetFlowProps> = () => {
+  const navigate = useNavigate();
   const [currentStep, setCurrentStep] =
     useState<PasswordResetStep>('forgot-password');
   const [email, setEmail] = useState<string>('');
@@ -35,8 +33,12 @@ export const PasswordResetFlow: React.FC<PasswordResetFlowProps> = ({
     setCurrentStep('reset-complete');
     // Show success message for 2 seconds then redirect to login
     setTimeout(() => {
-      onPasswordResetComplete?.();
+      navigate('/login');
     }, 2000);
+  };
+
+  const handleBackToLogin = () => {
+    navigate('/login');
   };
 
   const handleBackToForgotPassword = () => {
@@ -107,7 +109,7 @@ export const PasswordResetFlow: React.FC<PasswordResetFlowProps> = ({
       <SetNewPassword
         email={email}
         onPasswordReset={handlePasswordReset}
-        onBackToLogin={onBackToLogin}
+        onBackToLogin={handleBackToLogin}
       />
     );
   }
@@ -126,6 +128,6 @@ export const PasswordResetFlow: React.FC<PasswordResetFlowProps> = ({
 
   // Show forgot password step (default)
   return (
-    <ForgotPassword onOtpSent={handleOtpSent} onBackToLogin={onBackToLogin} />
+    <ForgotPassword onOtpSent={handleOtpSent} onBackToLogin={handleBackToLogin} />
   );
 };

@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ArrowLeft } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 // Zod schema for OTP validation
 const otpSchema = z.object({
@@ -22,7 +23,6 @@ interface PasswordRequestProps {
 export const PasswordRequest: React.FC<PasswordRequestProps> = ({
   email,
   onOtpVerified,
-  onBackToForgotPassword,
   onResendOtp,
 }) => {
   const [otp, setOtp] = useState<string[]>(['', '', '', '', '', '']);
@@ -105,6 +105,9 @@ export const PasswordRequest: React.FC<PasswordRequestProps> = ({
     setError('');
 
     try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 20000); // 20 second timeout
+
       const response = await fetch(
         'http://localhost:5001/api/auth/verify-otp',
         {
@@ -114,23 +117,38 @@ export const PasswordRequest: React.FC<PasswordRequestProps> = ({
           },
           body: JSON.stringify({
             email: email,
-            otp: otp.join(''),
+            code: otp.join(''), // Backend expects 'code', not 'otp'
           }),
+          signal: controller.signal,
         },
       );
 
+      clearTimeout(timeoutId);
       const data = await response.json();
 
       if (response.ok) {
         console.log('OTP verification successful:', data);
         onOtpVerified?.();
       } else {
-        setError(data.message || 'Invalid OTP code');
+        // Handle specific error codes
+        if (response.status === 408) {
+          setError('Verification service is temporarily unavailable. Please try again.');
+        } else if (response.status === 400) {
+          setError(data.message || 'Invalid or expired verification code.');
+        } else {
+          setError(data.message || 'Failed to verify code. Please try again.');
+        }
         console.error('OTP verification failed:', data);
       }
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Error during OTP verification:', error);
-      setError('Network error. Please try again.');
+      
+      const err = error as { name?: string };
+      if (err.name === 'AbortError') {
+        setError('Request timed out. Please check your connection and try again.');
+      } else {
+        setError('Network error. Please check your connection and try again.');
+      }
     } finally {
       setLoading(false);
     }
@@ -159,9 +177,10 @@ export const PasswordRequest: React.FC<PasswordRequestProps> = ({
         <div className="w-full max-w-md p-8">
           {/* Header */}
           <div className="mb-8 text-center">
-            <h1 className="text-3xl font-normal text-gray-900 mb-2">
+            <h1 className="text-4xl font-normal mb-2">
               Password request
             </h1>
+            <p className='text-gray-600 text-sm'>We have sent a code to your email!</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -227,15 +246,13 @@ export const PasswordRequest: React.FC<PasswordRequestProps> = ({
 
             {/* Back to Forgot Password Link */}
             <div className="text-center">
-              <Button
-                variant="link"
-                type="button"
-                onClick={onBackToForgotPassword}
-                className="text-sm inline-flex items-center gap-2"
+              <Link
+                to="/login"
+                className="text-sm inline-flex items-center text-gray-600 hover:text-gray-800 gap-2"
               >
                 <ArrowLeft size={16} />
-                Back to log in
-              </Button>
+                Back to login
+              </Link>
             </div>
           </form>
         </div>

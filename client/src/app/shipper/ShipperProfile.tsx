@@ -1,80 +1,92 @@
 import { Button } from '@/components/ui/button';
 import React, { useState, useCallback } from 'react';
 
-interface VendorData {
+interface ShipperData {
   id: string;
   username: string;
   email: string;
-  businessName: string;
-  businessAddress: string;
+  assignedHub?: {
+    _id: string;
+    hubName: string;
+    hubLocation: string;
+  } | string; // Can be either populated object or just ID string
   profilePicture: string;
 }
 
-interface VendorProfileProps {
-  vendorId?: string;
-  initialVendor?: VendorData;
+interface ShipperProfileProps {
+  shipperId?: string;
+  initialShipper?: ShipperData;
 }
 
-export const VendorProfile: React.FC<VendorProfileProps> = ({
-  vendorId,
-  initialVendor,
+export const ShipperProfile: React.FC<ShipperProfileProps> = ({
+  shipperId,
+  initialShipper,
 }) => {
-  const [vendor, setVendor] = useState<VendorData | null>(
-    initialVendor || null,
+  const [shipper, setShipper] = useState<ShipperData | null>(
+    initialShipper || null,
   );
   const [loading, setLoading] = useState(false);
   const [updating, setUpdating] = useState(false);
-  const [inputVendorId, setInputVendorId] = useState(vendorId || '');
+  const [inputShipperId, setInputShipperId] = useState(shipperId || '');
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState({
     username: '',
     email: '',
-    businessName: '',
-    businessAddress: '',
   });
 
-  // Fetch vendor data
-  const fetchVendor = useCallback(
+  // Fetch shipper data
+  const fetchShipper = useCallback(
     async (id?: string) => {
-      const targetId = id || inputVendorId;
+      const targetId = id || inputShipperId;
       if (!targetId) return;
 
       setLoading(true);
       try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          alert('Authentication required. Please log in again.');
+          return;
+        }
+
         const response = await fetch(
-          `http://localhost:5001/api/vendors/${targetId}`,
+          `http://localhost:5001/api/shippers/${targetId}`,
+          {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+            },
+          }
         );
-        console.log(`Fetching vendor with ID: ${targetId}`);
+        console.log(`Fetching shipper with ID: ${targetId}`);
         console.log('Response status:', response.status);
         if (response.ok) {
           const data = await response.json();
-          setVendor(data.vendor);
+          setShipper(data.shipper);
         } else {
-          console.error('Failed to fetch vendor');
-          alert('Vendor not found or failed to load');
-          setVendor(null);
+          console.error('Failed to fetch shipper');
+          alert('Shipper not found or failed to load');
+          setShipper(null);
         }
       } catch (error) {
-        console.error('Error fetching vendor:', error);
-        alert('Error fetching vendor data');
-        setVendor(null);
+        console.error('Error fetching shipper:', error);
+        alert('Error fetching shipper data');
+        setShipper(null);
       } finally {
         setLoading(false);
       }
     },
-    [inputVendorId],
+    [inputShipperId],
   );
 
-  const handleSearchVendor = (e: React.FormEvent) => {
+  const handleSearchShipper = (e: React.FormEvent) => {
     e.preventDefault();
-    if (inputVendorId.trim()) {
-      fetchVendor(inputVendorId.trim());
+    if (inputShipperId.trim()) {
+      fetchShipper(inputShipperId.trim());
     }
   };
 
-  // Update vendor data
-  const updateVendor = useCallback(async () => {
-    if (!vendor) return;
+  // Update shipper data
+  const updateShipper = useCallback(async () => {
+    if (!shipper) return;
 
     setUpdating(true);
     try {
@@ -86,18 +98,16 @@ export const VendorProfile: React.FC<VendorProfileProps> = ({
         return;
       }
 
-      console.log('Making PUT request to update vendor:', vendor.id);
-      const response = await fetch(`http://localhost:5001/api/vendors/${vendor.id}`, {
+      console.log('Making PUT request to update shipper:', shipper.id);
+      const response = await fetch(`http://localhost:5001/api/shippers/${shipper.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify({
-          username: editData.username || vendor.username,
-          email: editData.email || vendor.email,
-          businessName: editData.businessName || vendor.businessName,
-          businessAddress: editData.businessAddress || vendor.businessAddress,
+          username: editData.username || shipper.username,
+          email: editData.email || shipper.email,
         }),
       });
 
@@ -106,7 +116,7 @@ export const VendorProfile: React.FC<VendorProfileProps> = ({
       if (response.ok) {
         const data = await response.json();
         console.log('Update successful:', data);
-        setVendor(data.vendor);
+        setShipper(data.shipper);
         setIsEditing(false);
         alert('Profile updated successfully!');
       } else {
@@ -115,21 +125,19 @@ export const VendorProfile: React.FC<VendorProfileProps> = ({
         alert(errorData.message || 'Failed to update profile');
       }
     } catch (error) {
-      console.error('Error updating vendor:', error);
+      console.error('Error updating shipper:', error);
       alert('Error updating profile');
     } finally {
       setUpdating(false);
     }
-  }, [vendor, editData]);
+  }, [shipper, editData]);
 
   // Initialize edit data when editing starts
   const startEditing = () => {
-    if (vendor) {
+    if (shipper) {
       setEditData({
-        username: vendor.username,
-        email: vendor.email,
-        businessName: vendor.businessName,
-        businessAddress: vendor.businessAddress,
+        username: shipper.username,
+        email: shipper.email,
       });
       setIsEditing(true);
     }
@@ -141,31 +149,29 @@ export const VendorProfile: React.FC<VendorProfileProps> = ({
     setEditData({
       username: '',
       email: '',
-      businessName: '',
-      businessAddress: '',
     });
   };
 
-  // Load vendor data on component mount if vendorId is provided
+  // Load shipper data on component mount if shipperId is provided
   React.useEffect(() => {
-    if (vendorId && !initialVendor) {
-      fetchVendor(vendorId);
+    if (shipperId && !initialShipper) {
+      fetchShipper(shipperId);
     }
-  }, [vendorId, initialVendor, fetchVendor]);
+  }, [shipperId, initialShipper, fetchShipper]);
 
   return (
     <div className="m-12 bg-white rounded-lg shadow-md p-6">
-      <h2 className="text-center text-2xl font-bold mb-4 text-gray-800">Vendor Profile</h2>
+      <h2 className="text-center text-2xl font-bold mb-4 text-gray-800">Shipper Profile</h2>
 
-      {/* Vendor ID Search Form */}
-      {!vendorId && (
-        <form onSubmit={handleSearchVendor} className="mb-6">
+      {/* Shipper ID Search Form */}
+      {!shipperId && (
+        <form onSubmit={handleSearchShipper} className="mb-6">
           <div className="flex gap-2">
             <input
               type="text"
-              value={inputVendorId}
-              onChange={(e) => setInputVendorId(e.target.value)}
-              placeholder="Enter Vendor ID"
+              value={inputShipperId}
+              onChange={(e) => setInputShipperId(e.target.value)}
+              placeholder="Enter Shipper ID"
               className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             <button
@@ -185,15 +191,15 @@ export const VendorProfile: React.FC<VendorProfileProps> = ({
 
       {loading && (
         <div className="text-center py-8">
-          <div className="text-gray-600">Loading vendor profile...</div>
+          <div className="text-gray-600">Loading shipper profile...</div>
         </div>
       )}
 
-      {!loading && !vendor && inputVendorId && (
+      {!loading && !shipper && inputShipperId && (
         <div className="text-center py-8">
-          <div className="text-gray-600 mb-4">Vendor not found.</div>
+          <div className="text-gray-600 mb-4">Shipper not found.</div>
           <Button
-            onClick={() => fetchVendor()}
+            onClick={() => fetchShipper()}
             className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
           >
             Try Again
@@ -201,13 +207,13 @@ export const VendorProfile: React.FC<VendorProfileProps> = ({
         </div>
       )}
 
-      {!loading && !vendor && !inputVendorId && !vendorId && (
+      {!loading && !shipper && !inputShipperId && !shipperId && (
         <div className="text-center py-8 text-gray-600">
-          Enter a vendor ID to view profile
+          Enter a shipper ID to view profile
         </div>
       )}
 
-      {vendor && (
+      {shipper && (
         <div className="space-y-6">
           {/* Profile Image Section */}
           <div>
@@ -216,16 +222,16 @@ export const VendorProfile: React.FC<VendorProfileProps> = ({
             </label>
             <div className="bg-gray-50 p-6 rounded-lg flex flex-col items-center">
               <div className="relative">
-                {vendor.profilePicture ? (
+                {shipper.profilePicture ? (
                   <img
-                    src={vendor.profilePicture}
-                    alt={`${vendor.businessName} profile`}
+                    src={shipper.profilePicture}
+                    alt={`${shipper.username} profile`}
                     className="w-24 h-24 rounded-lg object-cover"
                   />
                 ) : (
                   <div className="w-24 h-24 rounded-lg bg-gray-300 flex items-center justify-center">
                     <span className="text-gray-600 text-2xl font-semibold">
-                      {vendor.businessName.charAt(0).toUpperCase()}
+                      {shipper.username.charAt(0).toUpperCase()}
                     </span>
                   </div>
                 )}
@@ -250,7 +256,7 @@ export const VendorProfile: React.FC<VendorProfileProps> = ({
               />
             ) : (
               <div className="bg-gray-50 p-3 rounded-lg border">
-                <p className="text-gray-900">{vendor.username}</p>
+                <p className="text-gray-900">{shipper.username}</p>
               </div>
             )}
           </div>
@@ -269,47 +275,26 @@ export const VendorProfile: React.FC<VendorProfileProps> = ({
               />
             ) : (
               <div className="bg-gray-50 p-3 rounded-lg border">
-                <p className="text-gray-900">{vendor.email}</p>
+                <p className="text-gray-900">{shipper.email}</p>
               </div>
             )}
           </div>
 
-          {/* Business Name Section */}
+          {/* Assigned Hub Section */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Business name
+              Assigned Hub
             </label>
-            {isEditing ? (
-              <input
-                type="text"
-                value={editData.businessName}
-                onChange={(e) => setEditData({ ...editData, businessName: e.target.value })}
-                className="w-full bg-white p-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            ) : (
-              <div className="bg-gray-50 p-3 rounded-lg border">
-                <p className="text-gray-900">{vendor.businessName}</p>
-              </div>
-            )}
-          </div>
-
-          {/* Business Address Section */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Business address
-            </label>
-            {isEditing ? (
-              <input
-                type="text"
-                value={editData.businessAddress}
-                onChange={(e) => setEditData({ ...editData, businessAddress: e.target.value })}
-                className="w-full bg-white p-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            ) : (
-              <div className="bg-gray-50 p-3 rounded-lg border">
-                <p className="text-gray-900">{vendor.businessAddress}</p>
-              </div>
-            )}
+            <div className="bg-gray-50 p-3 rounded-lg border">
+              <p className="text-gray-900">
+                {shipper.assignedHub 
+                  ? typeof shipper.assignedHub === 'string' 
+                    ? shipper.assignedHub 
+                    : `${shipper.assignedHub.hubName} - ${shipper.assignedHub.hubLocation}`
+                  : 'Not assigned'
+                }
+              </p>
+            </div>
           </div>
 
           {/* Password Section */}
@@ -337,7 +322,7 @@ export const VendorProfile: React.FC<VendorProfileProps> = ({
                   Cancel
                 </Button>
                 <Button 
-                  onClick={updateVendor}
+                  onClick={updateShipper}
                   disabled={updating}
                   className="rounded-lg font-medium px-6 py-2 bg-green-600 hover:bg-green-700 text-white"
                 >

@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Link } from 'react-router-dom';
 
 // Zod schema for vendor registration validation
 const vendorRegistrationSchema = z
@@ -15,11 +16,14 @@ const vendorRegistrationSchema = z
         /^[a-zA-Z0-9_]+$/,
         'Username can only contain letters, numbers, and underscores',
       ),
+    email: z
+      .string()
+      .email('Please enter a valid email address')
+      .min(1, 'Email is required'),
     password: z
       .string()
       .min(6, 'Password must be at least 6 characters long')
       .max(100, 'Password must be less than 100 characters'),
-    confirmPassword: z.string().min(1, 'Please confirm your password'),
     businessName: z
       .string()
       .min(2, 'Business name must be at least 2 characters long')
@@ -30,10 +34,6 @@ const vendorRegistrationSchema = z
       .max(200, 'Business address must be less than 200 characters'),
     profilePicture: z.string().optional(),
   })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: 'Passwords do not match',
-    path: ['confirmPassword'],
-  });
 
 type VendorRegistrationData = z.infer<typeof vendorRegistrationSchema>;
 
@@ -53,12 +53,11 @@ interface RegisterVendorProps {
 
 export const RegisterVendor: React.FC<RegisterVendorProps> = ({
   onRegistrationSuccess,
-  onSwitchToLogin,
 }) => {
   const [formData, setFormData] = useState<VendorRegistrationData>({
     username: '',
+    email: '',
     password: '',
-    confirmPassword: '',
     businessName: '',
     businessAddress: '',
     profilePicture: '',
@@ -126,6 +125,7 @@ export const RegisterVendor: React.FC<RegisterVendorProps> = ({
     try {
       const registrationData = {
         username: formData.username,
+        email: formData.email,
         password: formData.password,
         businessName: formData.businessName,
         businessAddress: formData.businessAddress,
@@ -208,6 +208,25 @@ export const RegisterVendor: React.FC<RegisterVendorProps> = ({
               )}
             </div>
 
+            {/* Email Field */}
+            <div className="space-y-2">
+              <Label htmlFor="email">Email *</Label>
+              <Input
+                type="email"
+                id="email"
+                name="email"
+                value={formData.email}
+                onChange={handleInputChange}
+                placeholder="Enter your email"
+                disabled={loading}
+                className={`w-full ${fieldErrors.email ? 'border-red-500' : ''}`}
+                required
+              />
+              {fieldErrors.email && (
+                <p className="text-red-500 text-sm">{fieldErrors.email}</p>
+              )}
+            </div>
+
             {/* Business Name Field */}
             <div className="space-y-2">
               <Label htmlFor="businessName">Business Name *</Label>
@@ -280,14 +299,12 @@ export const RegisterVendor: React.FC<RegisterVendorProps> = ({
             <div className="text-center">
               <p className="text-sm text-gray-600">
                 Already have an account?{' '}
-                <Button
-                  variant="link"
-                  type="button"
-                  onClick={onSwitchToLogin}
-                  className="font-medium"
+                <Link
+                  to="/login"
+                  className="font-medium text-green-700 hover:text-green-800"
                 >
                   Login
-                </Button>
+                </Link>
               </p>
             </div>
           </form>

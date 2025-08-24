@@ -16,6 +16,7 @@ export const getVendorById = async (req: Request, res: Response) => {
       vendor: {
         id: vendor._id,
         username: vendor.username,
+        email: vendor.email,
         role: vendor.role,
         businessName: vendor.businessName,
         businessAddress: vendor.businessAddress,
@@ -67,7 +68,7 @@ export const updateVendor = async (req: Request, res: Response) => {
       updateData.businessAddress = businessAddress;
     }
 
-    // ✅ Update vendor
+    // Update vendor
     const vendor = await VendorModel.findByIdAndUpdate(id, updateData, {
       new: true,
       runValidators: true,
@@ -81,8 +82,11 @@ export const updateVendor = async (req: Request, res: Response) => {
       vendor: {
         id: vendor._id,
         username: vendor.username,
+        email: vendor.email,
         businessName: vendor.businessName,
         businessAddress: vendor.businessAddress,
+        profilePicture: vendor.profilePicture,
+        role: vendor.role,
       },
     });
   } catch (error) {

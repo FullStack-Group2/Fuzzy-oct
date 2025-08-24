@@ -1,16 +1,18 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { Login, LoggedInUser } from './app/auth/Login';
 import {
   RegistrationFlow,
   RegisteredUser,
 } from './app/auth/sign-up/RegistrationFlow';
 import { PasswordResetFlow } from './app/auth/PasswordResetFlow';
+import { VendorProfile } from './app/vendor/VendorProfile';
+import { CustomerProfile } from './app/customer/CustomerProfile';
+import { ShipperProfile } from './app/shipper/ShipperProfile';
 
-type AuthView = 'login' | 'register' | 'forgot-password';
 type User = LoggedInUser | RegisteredUser | null;
 
 function App() {
-  const [currentView, setCurrentView] = useState<AuthView>('login');
   const [user, setUser] = useState<User>(null);
 
   const handleLoginSuccess = (loggedInUser: LoggedInUser) => {
@@ -23,68 +25,127 @@ function App() {
     console.log('User registered:', registeredUser);
   };
 
-  const switchToRegister = () => {
-    setCurrentView('register');
-  };
-
-  const switchToLogin = () => {
-    setCurrentView('login');
-  };
-
-  const switchToForgotPassword = () => {
-    setCurrentView('forgot-password');
-  };
-
-  const handleForgotPasswordSuccess = () => {
-    // Redirect to login after successful password reset
-    setCurrentView('login');
-  };
-
-  // If user is logged in, show a simple dashboard
+  // If user is logged in, show appropriate profile based on role
   if (user) {
+    const renderProfileComponent = () => {
+      // Check user role and render appropriate profile component
+      const userRole = (user as LoggedInUser & { role?: string }).role;
+      console.log('Rendering profile for role:', userRole);
+      
+      switch (userRole) {
+        case 'VENDOR':
+          return (
+            <VendorProfile 
+              vendorId={user.id} 
+              initialVendor={{
+                id: user.id,
+                username: user.username,
+                email: (user as LoggedInUser & { email?: string }).email || 'N/A',
+                businessName: (user as LoggedInUser & { businessName?: string }).businessName || 'N/A',
+                businessAddress: (user as LoggedInUser & { businessAddress?: string }).businessAddress || 'N/A',
+                profilePicture: (user as LoggedInUser & { profilePicture?: string }).profilePicture || '',
+              }}
+            />
+          );
+        
+        case 'CUSTOMER':
+          return (
+            <CustomerProfile 
+              customerId={user.id} 
+              initialCustomer={{
+                id: user.id,
+                username: user.username,
+                email: (user as LoggedInUser & { email?: string }).email || 'N/A',
+                name: (user as LoggedInUser & { name?: string }).name || 'N/A',
+                address: (user as LoggedInUser & { address?: string }).address || 'N/A',
+                profilePicture: (user as LoggedInUser & { profilePicture?: string }).profilePicture || '',
+              }}
+            />
+          );
+        
+        case 'SHIPPER':
+          return (
+            <ShipperProfile 
+              shipperId={user.id} 
+              initialShipper={{
+                id: user.id,
+                username: user.username,
+                email: (user as LoggedInUser & { email?: string }).email || 'N/A',
+                assignedHub: (user as LoggedInUser & { assignedHub?: string }).assignedHub || undefined,
+                profilePicture: (user as LoggedInUser & { profilePicture?: string }).profilePicture || '',
+              }}
+            />
+          );
+        
+        default:
+          // Fallback to vendor profile if role is not recognized
+          return (
+            <VendorProfile 
+              vendorId={user.id} 
+              initialVendor={{
+                id: user.id,
+                username: user.username,
+                email: (user as LoggedInUser & { email?: string }).email || 'N/A',
+                businessName: (user as LoggedInUser & { businessName?: string }).businessName || 'N/A',
+                businessAddress: (user as LoggedInUser & { businessAddress?: string }).businessAddress || 'N/A',
+                profilePicture: (user as LoggedInUser & { profilePicture?: string }).profilePicture || '',
+              }}
+            />
+          );
+      }
+    };
+
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <h1 className="text-3xl font-bold text-gray-800 mb-4">
-            Welcome to Fuzzy!
-          </h1>
-          <p className="text-gray-600 mb-6">You have successfully logged in.</p>
-          <button
-            onClick={() => setUser(null)}
-            className="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-lg"
-          >
-            Logout
-          </button>
+      <div className="min-h-screen bg-gray-50 py-8">
+        <div className="max-w-4xl mx-auto px-4">
+          {/* Header with Logout */}
+          <div className="flex justify-between items-center mb-6">
+            <h1 className="text-3xl font-bold text-gray-800">
+              Welcome, {user.username}!
+            </h1>
+            <button
+              onClick={() => setUser(null)}
+              className="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-lg"
+            >
+              Logout
+            </button>
+          </div>
+
+          {/* Profile Component based on user role */}
+          {renderProfileComponent()}
         </div>
       </div>
     );
   }
 
-  // Show login or registration based on current view
-  if (currentView === 'login') {
-    return (
-      <Login
-        onLoginSuccess={handleLoginSuccess}
-        onSwitchToRegister={switchToRegister}
-        onForgotPassword={switchToForgotPassword}
-      />
-    );
-  }
-
-  if (currentView === 'forgot-password') {
-    return (
-      <PasswordResetFlow
-        onPasswordResetComplete={handleForgotPasswordSuccess}
-        onBackToLogin={switchToLogin}
-      />
-    );
-  }
-
+  // Show routes for authentication
   return (
-    <RegistrationFlow
-      onRegistrationSuccess={handleRegistrationSuccess}
-      onSwitchToLogin={switchToLogin}
-    />
+    <Routes>
+      <Route 
+        path="/" 
+        element={<Navigate to="/login" replace />} 
+      />
+      <Route 
+        path="/login" 
+        element={
+          <Login
+            onLoginSuccess={handleLoginSuccess}
+          />
+        } 
+      />
+      <Route 
+        path="/register" 
+        element={
+          <RegistrationFlow
+            onRegistrationSuccess={handleRegistrationSuccess}
+          />
+        } 
+      />
+      <Route 
+        path="/forgot-password" 
+        element={<PasswordResetFlow />} 
+      />
+    </Routes>
   );
 }
 

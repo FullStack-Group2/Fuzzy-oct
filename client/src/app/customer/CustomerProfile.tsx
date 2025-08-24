@@ -1,80 +1,91 @@
 import { Button } from '@/components/ui/button';
 import React, { useState, useCallback } from 'react';
 
-interface VendorData {
+interface CustomerData {
   id: string;
   username: string;
   email: string;
-  businessName: string;
-  businessAddress: string;
+  name: string;
+  address: string;
   profilePicture: string;
 }
 
-interface VendorProfileProps {
-  vendorId?: string;
-  initialVendor?: VendorData;
+interface CustomerProfileProps {
+  customerId?: string;
+  initialCustomer?: CustomerData;
 }
 
-export const VendorProfile: React.FC<VendorProfileProps> = ({
-  vendorId,
-  initialVendor,
+export const CustomerProfile: React.FC<CustomerProfileProps> = ({
+  customerId,
+  initialCustomer,
 }) => {
-  const [vendor, setVendor] = useState<VendorData | null>(
-    initialVendor || null,
+  const [customer, setCustomer] = useState<CustomerData | null>(
+    initialCustomer || null,
   );
   const [loading, setLoading] = useState(false);
   const [updating, setUpdating] = useState(false);
-  const [inputVendorId, setInputVendorId] = useState(vendorId || '');
+  const [inputCustomerId, setInputCustomerId] = useState(customerId || '');
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState({
     username: '',
     email: '',
-    businessName: '',
-    businessAddress: '',
+    name: '',
+    address: '',
   });
 
-  // Fetch vendor data
-  const fetchVendor = useCallback(
+  // Fetch customer data
+  const fetchCustomer = useCallback(
     async (id?: string) => {
-      const targetId = id || inputVendorId;
+      const targetId = id || inputCustomerId;
       if (!targetId) return;
 
       setLoading(true);
       try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          alert('Authentication required. Please log in again.');
+          return;
+        }
+
         const response = await fetch(
-          `http://localhost:5001/api/vendors/${targetId}`,
+          `http://localhost:5001/api/customers/${targetId}`,
+          {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+            },
+          }
         );
-        console.log(`Fetching vendor with ID: ${targetId}`);
+        console.log(`Fetching customer with ID: ${targetId}`);
         console.log('Response status:', response.status);
         if (response.ok) {
           const data = await response.json();
-          setVendor(data.vendor);
+          setCustomer(data.customer);
         } else {
-          console.error('Failed to fetch vendor');
-          alert('Vendor not found or failed to load');
-          setVendor(null);
+          console.error('Failed to fetch customer');
+          alert('Customer not found or failed to load');
+          setCustomer(null);
         }
       } catch (error) {
-        console.error('Error fetching vendor:', error);
-        alert('Error fetching vendor data');
-        setVendor(null);
+        console.error('Error fetching customer:', error);
+        alert('Error fetching customer data');
+        setCustomer(null);
       } finally {
         setLoading(false);
       }
     },
-    [inputVendorId],
+    [inputCustomerId],
   );
 
-  const handleSearchVendor = (e: React.FormEvent) => {
+  const handleSearchCustomer = (e: React.FormEvent) => {
     e.preventDefault();
-    if (inputVendorId.trim()) {
-      fetchVendor(inputVendorId.trim());
+    if (inputCustomerId.trim()) {
+      fetchCustomer(inputCustomerId.trim());
     }
   };
 
-  // Update vendor data
-  const updateVendor = useCallback(async () => {
-    if (!vendor) return;
+  // Update customer data
+  const updateCustomer = useCallback(async () => {
+    if (!customer) return;
 
     setUpdating(true);
     try {
@@ -86,18 +97,18 @@ export const VendorProfile: React.FC<VendorProfileProps> = ({
         return;
       }
 
-      console.log('Making PUT request to update vendor:', vendor.id);
-      const response = await fetch(`http://localhost:5001/api/vendors/${vendor.id}`, {
+      console.log('Making PUT request to update customer:', customer.id);
+      const response = await fetch(`http://localhost:5001/api/customers/${customer.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify({
-          username: editData.username || vendor.username,
-          email: editData.email || vendor.email,
-          businessName: editData.businessName || vendor.businessName,
-          businessAddress: editData.businessAddress || vendor.businessAddress,
+          username: editData.username || customer.username,
+          email: editData.email || customer.email,
+          name: editData.name || customer.name,
+          address: editData.address || customer.address,
         }),
       });
 
@@ -106,7 +117,7 @@ export const VendorProfile: React.FC<VendorProfileProps> = ({
       if (response.ok) {
         const data = await response.json();
         console.log('Update successful:', data);
-        setVendor(data.vendor);
+        setCustomer(data.customer);
         setIsEditing(false);
         alert('Profile updated successfully!');
       } else {
@@ -115,21 +126,21 @@ export const VendorProfile: React.FC<VendorProfileProps> = ({
         alert(errorData.message || 'Failed to update profile');
       }
     } catch (error) {
-      console.error('Error updating vendor:', error);
+      console.error('Error updating customer:', error);
       alert('Error updating profile');
     } finally {
       setUpdating(false);
     }
-  }, [vendor, editData]);
+  }, [customer, editData]);
 
   // Initialize edit data when editing starts
   const startEditing = () => {
-    if (vendor) {
+    if (customer) {
       setEditData({
-        username: vendor.username,
-        email: vendor.email,
-        businessName: vendor.businessName,
-        businessAddress: vendor.businessAddress,
+        username: customer.username,
+        email: customer.email,
+        name: customer.name,
+        address: customer.address,
       });
       setIsEditing(true);
     }
@@ -141,31 +152,31 @@ export const VendorProfile: React.FC<VendorProfileProps> = ({
     setEditData({
       username: '',
       email: '',
-      businessName: '',
-      businessAddress: '',
+      name: '',
+      address: '',
     });
   };
 
-  // Load vendor data on component mount if vendorId is provided
+  // Load customer data on component mount if customerId is provided
   React.useEffect(() => {
-    if (vendorId && !initialVendor) {
-      fetchVendor(vendorId);
+    if (customerId && !initialCustomer) {
+      fetchCustomer(customerId);
     }
-  }, [vendorId, initialVendor, fetchVendor]);
+  }, [customerId, initialCustomer, fetchCustomer]);
 
   return (
     <div className="m-12 bg-white rounded-lg shadow-md p-6">
-      <h2 className="text-center text-2xl font-bold mb-4 text-gray-800">Vendor Profile</h2>
+      <h2 className="text-center text-2xl font-bold mb-4 text-gray-800">Customer Profile</h2>
 
-      {/* Vendor ID Search Form */}
-      {!vendorId && (
-        <form onSubmit={handleSearchVendor} className="mb-6">
+      {/* Customer ID Search Form */}
+      {!customerId && (
+        <form onSubmit={handleSearchCustomer} className="mb-6">
           <div className="flex gap-2">
             <input
               type="text"
-              value={inputVendorId}
-              onChange={(e) => setInputVendorId(e.target.value)}
-              placeholder="Enter Vendor ID"
+              value={inputCustomerId}
+              onChange={(e) => setInputCustomerId(e.target.value)}
+              placeholder="Enter Customer ID"
               className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             <button
@@ -185,15 +196,15 @@ export const VendorProfile: React.FC<VendorProfileProps> = ({
 
       {loading && (
         <div className="text-center py-8">
-          <div className="text-gray-600">Loading vendor profile...</div>
+          <div className="text-gray-600">Loading customer profile...</div>
         </div>
       )}
 
-      {!loading && !vendor && inputVendorId && (
+      {!loading && !customer && inputCustomerId && (
         <div className="text-center py-8">
-          <div className="text-gray-600 mb-4">Vendor not found.</div>
+          <div className="text-gray-600 mb-4">Customer not found.</div>
           <Button
-            onClick={() => fetchVendor()}
+            onClick={() => fetchCustomer()}
             className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
           >
             Try Again
@@ -201,13 +212,13 @@ export const VendorProfile: React.FC<VendorProfileProps> = ({
         </div>
       )}
 
-      {!loading && !vendor && !inputVendorId && !vendorId && (
+      {!loading && !customer && !inputCustomerId && !customerId && (
         <div className="text-center py-8 text-gray-600">
-          Enter a vendor ID to view profile
+          Enter a customer ID to view profile
         </div>
       )}
 
-      {vendor && (
+      {customer && (
         <div className="space-y-6">
           {/* Profile Image Section */}
           <div>
@@ -216,16 +227,16 @@ export const VendorProfile: React.FC<VendorProfileProps> = ({
             </label>
             <div className="bg-gray-50 p-6 rounded-lg flex flex-col items-center">
               <div className="relative">
-                {vendor.profilePicture ? (
+                {customer.profilePicture ? (
                   <img
-                    src={vendor.profilePicture}
-                    alt={`${vendor.businessName} profile`}
+                    src={customer.profilePicture}
+                    alt={`${customer.name} profile`}
                     className="w-24 h-24 rounded-lg object-cover"
                   />
                 ) : (
                   <div className="w-24 h-24 rounded-lg bg-gray-300 flex items-center justify-center">
                     <span className="text-gray-600 text-2xl font-semibold">
-                      {vendor.businessName.charAt(0).toUpperCase()}
+                      {customer.name.charAt(0).toUpperCase()}
                     </span>
                   </div>
                 )}
@@ -250,7 +261,7 @@ export const VendorProfile: React.FC<VendorProfileProps> = ({
               />
             ) : (
               <div className="bg-gray-50 p-3 rounded-lg border">
-                <p className="text-gray-900">{vendor.username}</p>
+                <p className="text-gray-900">{customer.username}</p>
               </div>
             )}
           </div>
@@ -269,45 +280,45 @@ export const VendorProfile: React.FC<VendorProfileProps> = ({
               />
             ) : (
               <div className="bg-gray-50 p-3 rounded-lg border">
-                <p className="text-gray-900">{vendor.email}</p>
+                <p className="text-gray-900">{customer.email}</p>
               </div>
             )}
           </div>
 
-          {/* Business Name Section */}
+          {/* Name Section */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Business name
+              Name
             </label>
             {isEditing ? (
               <input
                 type="text"
-                value={editData.businessName}
-                onChange={(e) => setEditData({ ...editData, businessName: e.target.value })}
+                value={editData.name}
+                onChange={(e) => setEditData({ ...editData, name: e.target.value })}
                 className="w-full bg-white p-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             ) : (
               <div className="bg-gray-50 p-3 rounded-lg border">
-                <p className="text-gray-900">{vendor.businessName}</p>
+                <p className="text-gray-900">{customer.name}</p>
               </div>
             )}
           </div>
 
-          {/* Business Address Section */}
+          {/* Address Section */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Business address
+              Address
             </label>
             {isEditing ? (
               <input
                 type="text"
-                value={editData.businessAddress}
-                onChange={(e) => setEditData({ ...editData, businessAddress: e.target.value })}
+                value={editData.address}
+                onChange={(e) => setEditData({ ...editData, address: e.target.value })}
                 className="w-full bg-white p-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             ) : (
               <div className="bg-gray-50 p-3 rounded-lg border">
-                <p className="text-gray-900">{vendor.businessAddress}</p>
+                <p className="text-gray-900">{customer.address}</p>
               </div>
             )}
           </div>
@@ -337,7 +348,7 @@ export const VendorProfile: React.FC<VendorProfileProps> = ({
                   Cancel
                 </Button>
                 <Button 
-                  onClick={updateVendor}
+                  onClick={updateCustomer}
                   disabled={updating}
                   className="rounded-lg font-medium px-6 py-2 bg-green-600 hover:bg-green-700 text-white"
                 >

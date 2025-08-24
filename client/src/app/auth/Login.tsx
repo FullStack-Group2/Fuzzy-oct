@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Link } from 'react-router-dom';
+
 
 interface LoginData {
   username: string;
@@ -15,14 +17,10 @@ export interface LoggedInUser {
 
 interface LoginProps {
   onLoginSuccess?: (user: LoggedInUser) => void;
-  onSwitchToRegister?: () => void;
-  onForgotPassword?: () => void;
 }
 
 export const Login: React.FC<LoginProps> = ({
   onLoginSuccess,
-  onSwitchToRegister,
-  onForgotPassword,
 }) => {
   const [formData, setFormData] = useState<LoginData>({
     username: '',
@@ -63,8 +61,9 @@ export const Login: React.FC<LoginProps> = ({
       if (response.ok) {
         console.log('Login successful:', data);
 
-        // Store user data in localStorage (you might want to use a more secure method)
+        // Store user data and token in localStorage
         localStorage.setItem('user', JSON.stringify(data.user));
+        localStorage.setItem('token', data.token);
 
         onLoginSuccess?.(data.user);
         alert('Login successful!');
@@ -98,7 +97,7 @@ export const Login: React.FC<LoginProps> = ({
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-4">
             {/* Error Message */}
             {error && (
               <div className="px-4 py-3 rounded-lg text-sm">{error}</div>
@@ -148,14 +147,12 @@ export const Login: React.FC<LoginProps> = ({
 
             {/* Forgot Password */}
             <div className="text-right">
-              <Button
-                variant="link"
-                type="button"
+              <Link
+                to="/forgot-password"
                 className="text-sm text-gray-600 hover:text-gray-800"
-                onClick={onForgotPassword}
               >
                 Forgot password
-              </Button>
+              </Link>
             </div>
 
             {/* Sign In Button */}
@@ -168,17 +165,15 @@ export const Login: React.FC<LoginProps> = ({
             </Button>
 
             {/* Sign Up Link */}
-            <div className="text-center ">
+            <div className="text-center mt-2">
               <p className="text-sm text-gray-600">
                 Don&apos;t have an account?{' '}
-                <Button
-                  variant="link"
-                  type="button"
-                  onClick={onSwitchToRegister}
-                  className="font-medium"
+                <Link
+                  to="/register"
+                  className="font-medium text-green-700 hover:text-green-800"
                 >
                   Sign up
-                </Button>
+                </Link>
               </p>
             </div>
           </form>

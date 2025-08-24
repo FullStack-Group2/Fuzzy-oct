@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Link } from 'react-router-dom';
 
 // Zod schema for customer registration validation
 const customerRegistrationSchema = z.object({
@@ -14,6 +15,14 @@ const customerRegistrationSchema = z.object({
       /^[a-zA-Z0-9_]+$/,
       'Username can only contain letters, numbers, and underscores',
     ),
+  email: z
+    .string()
+    .email('Please enter a valid email address')
+    .min(1, 'Email is required'),
+  name: z
+    .string()
+    .min(2, 'Name must be at least 2 characters long')
+    .max(100, 'Name must be less than 100 characters'),
   password: z
     .string()
     .min(6, 'Password must be at least 6 characters long')
@@ -29,7 +38,9 @@ type CustomerRegistrationData = z.infer<typeof customerRegistrationSchema>;
 
 export interface RegisteredCustomer {
   id: string;
+  email: string;
   username: string;
+  name: string;
   address: string;
   profilePicture: string;
   role: string;
@@ -42,10 +53,11 @@ interface RegisterCustomerProps {
 
 export const RegisterCustomer: React.FC<RegisterCustomerProps> = ({
   onRegistrationSuccess,
-  onSwitchToLogin,
 }) => {
   const [formData, setFormData] = useState<CustomerRegistrationData>({
     username: '',
+    email: '',
+    name: '',
     password: '',
     address: '',
     profilePicture: '',
@@ -113,13 +125,15 @@ export const RegisterCustomer: React.FC<RegisterCustomerProps> = ({
     try {
       const registrationData = {
         username: formData.username,
+        email: formData.email,
+        name: formData.name,
         password: formData.password,
         address: formData.address,
         profilePicture: formData.profilePicture,
       };
 
       const response = await fetch(
-        'http://localhost:5001/api/auth/register/Customer',
+        'http://localhost:5001/api/auth/register/customer',
         {
           method: 'POST',
           headers: {
@@ -196,6 +210,44 @@ export const RegisterCustomer: React.FC<RegisterCustomerProps> = ({
               )}
             </div>
 
+            {/* Email Field */}
+            <div className="space-y-2">
+              <Label htmlFor="email">Email *</Label>
+              <Input
+                type="email"
+                id="email"
+                name="email"
+                value={formData.email}
+                onChange={handleInputChange}
+                placeholder="Enter your email"
+                disabled={loading}
+                className={`w-full ${fieldErrors.email ? 'border-red-500' : ''}`}
+                required
+              />
+              {fieldErrors.email && (
+                <p className="text-red-500 text-sm">{fieldErrors.email}</p>
+              )}
+            </div>
+
+            {/* Name Field */}
+            <div className="space-y-2">
+              <Label htmlFor="name">Name *</Label>
+              <Input
+                type="text"
+                id="name"
+                name="name"
+                value={formData.name}
+                onChange={handleInputChange}
+                placeholder="Enter your full name"
+                disabled={loading}
+                className={`w-full ${fieldErrors.name ? 'border-red-500' : ''}`}
+                required
+              />
+              {fieldErrors.name && (
+                <p className="text-red-500 text-sm">{fieldErrors.name}</p>
+              )}
+            </div>
+
             {/* Address Field */}
             <div className="space-y-2">
               <Label htmlFor="address">Address *</Label>
@@ -247,14 +299,12 @@ export const RegisterCustomer: React.FC<RegisterCustomerProps> = ({
             <div className="text-center">
               <p className="text-sm text-gray-600">
                 Already have an account?{' '}
-                <Button
-                  variant="link"
-                  type="button"
-                  onClick={onSwitchToLogin}
-                  className="font-medium"
+                <Link
+                  to="/login"
+                  className="font-medium text-green-700 hover:text-green-800"
                 >
                   Login
-                </Button>
+                </Link>
               </p>
             </div>
           </form>

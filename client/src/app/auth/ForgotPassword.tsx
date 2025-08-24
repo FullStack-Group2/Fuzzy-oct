@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ArrowLeft } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 // Zod schema for forgot password validation
 const forgotPasswordSchema = z.object({
@@ -22,7 +23,7 @@ interface ForgotPasswordProps {
 
 export const ForgotPassword: React.FC<ForgotPasswordProps> = ({
   onOtpSent,
-  onBackToLogin,
+
 }) => {
   const [formData, setFormData] = useState<ForgotPasswordData>({
     email: '',
@@ -187,15 +188,13 @@ export const ForgotPassword: React.FC<ForgotPasswordProps> = ({
 
             {/* Back to Login Link */}
             <div className="text-center">
-              <Button
-                variant="link"
-                type="button"
-                onClick={onBackToLogin}
+              <Link
+                to="/login"
                 className="text-sm inline-flex items-center gap-2"
               >
                 <ArrowLeft size={16} />
                 Back to log in
-              </Button>
+              </Link>
             </div>
           </form>
         </div>

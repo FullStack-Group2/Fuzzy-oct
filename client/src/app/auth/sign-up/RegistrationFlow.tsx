@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { SelectRegistrationType } from './SelectRegistrationType';
 import { RegisterVendor } from './register-vendor';
 import type { RegisteredVendor } from './register-vendor';
@@ -16,13 +17,12 @@ export type RegisteredUser =
 
 interface RegistrationFlowProps {
   onRegistrationSuccess?: (user: RegisteredUser) => void;
-  onSwitchToLogin?: () => void;
 }
 
 export const RegistrationFlow: React.FC<RegistrationFlowProps> = ({
   onRegistrationSuccess,
-  onSwitchToLogin,
 }) => {
+  const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState<'select-type' | 'register'>(
     'select-type',
   );
@@ -33,6 +33,10 @@ export const RegistrationFlow: React.FC<RegistrationFlowProps> = ({
   const handleTypeSelection = (type: RegistrationType) => {
     setSelectedType(type);
     setCurrentStep('register');
+  };
+
+  const handleBackToLogin = () => {
+    navigate('/login');
   };
 
   const handleBackToSelection = () => {
@@ -49,7 +53,7 @@ export const RegistrationFlow: React.FC<RegistrationFlowProps> = ({
     return (
       <SelectRegistrationType
         onContinue={handleTypeSelection}
-        onBack={onSwitchToLogin}
+        onBack={handleBackToLogin}
       />
     );
   }
@@ -82,7 +86,7 @@ export const RegistrationFlow: React.FC<RegistrationFlowProps> = ({
         return (
           <SelectRegistrationType
             onContinue={handleTypeSelection}
-            onBack={onSwitchToLogin}
+            onBack={handleBackToLogin}
           />
         );
     }
@@ -92,7 +96,7 @@ export const RegistrationFlow: React.FC<RegistrationFlowProps> = ({
   return (
     <SelectRegistrationType
       onContinue={handleTypeSelection}
-      onBack={onSwitchToLogin}
+      onBack={handleBackToLogin}
     />
   );
 };

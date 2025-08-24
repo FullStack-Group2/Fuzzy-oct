@@ -34,7 +34,6 @@ const shipperRegistrationSchema = z.object({
   profilePicture: z.string().optional(),
 });
 
-
 interface ShipperRegistrationData {
   username: string;
   email: string;
@@ -70,19 +69,22 @@ export const RegisterShipper: React.FC<RegisterShipperProps> = ({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>('');
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
-  const [hubs, setHubs] = useState<{ _id: string; hubName: string; hubLocation: string }[]>([]);
+  const [hubs, setHubs] = useState<
+    { _id: string; hubName: string; hubLocation: string }[]
+  >([]);
 
   useEffect(() => {
-    fetch("http://localhost:5001/api/hubs")
+    fetch('http://localhost:5001/api/hubs')
       .then((res) => res.json())
       .then((data) => {
         // Sort hubs alphabetically by hubName for consistent ordering
-        const sortedHubs = data.hubs.sort((a: { hubName: string }, b: { hubName: string }) => 
-          a.hubName.localeCompare(b.hubName)
+        const sortedHubs = data.hubs.sort(
+          (a: { hubName: string }, b: { hubName: string }) =>
+            a.hubName.localeCompare(b.hubName),
         );
         setHubs(sortedHubs);
       })
-      .catch((err) => console.error("Failed to load hubs:", err));
+      .catch((err) => console.error('Failed to load hubs:', err));
   }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -115,7 +117,6 @@ export const RegisterShipper: React.FC<RegisterShipperProps> = ({
       }));
     }
   };
-
 
   const validateForm = (): boolean => {
     try {

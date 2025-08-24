@@ -159,7 +159,8 @@ export const registerCustomer = async (req: Request, res: Response) => {
 // Register Shipper
 export const registerShipper = async (req: Request, res: Response) => {
   try {
-    const { username, email, password, assignedHubId, profilePicture } = req.body;
+    const { username, email, password, assignedHubId, profilePicture } =
+      req.body;
 
     if (!username || !email || !password || !assignedHubId) {
       return res.status(400).json({
@@ -174,9 +175,9 @@ export const registerShipper = async (req: Request, res: Response) => {
     }
     const hub = await DistributionHub.findById(assignedHubId);
     if (!hub) {
-      return res.status(404).json({ message: "Assigned hub not found" });
+      return res.status(404).json({ message: 'Assigned hub not found' });
     }
-    
+
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 12);
 
@@ -284,7 +285,7 @@ export const login = async (req: Request, res: Response) => {
       case UserRole.SHIPPER: {
         const shipper = await ShipperModel.findById(user._id).populate(
           'assignedHub',
-          'hubName hubLocation'
+          'hubName hubLocation',
         );
         if (shipper) {
           userData.assignedHub = shipper.assignedHub;
@@ -346,29 +347,29 @@ export const forgotPassword = async (req: Request, res: Response) => {
           to: email,
         });
 
-      const timeoutPromise = new Promise<never>((_, reject) => 
-        setTimeout(() => reject(new Error('OTP send timeout')), 15000)
+      const timeoutPromise = new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error('OTP send timeout')), 15000),
       );
 
-      const result = await Promise.race([
-        verificationPromise,
-        timeoutPromise
-      ]);
+      const result = await Promise.race([verificationPromise, timeoutPromise]);
 
       console.log('OTP send result:', result);
       res.status(200).json({ status: 'Verification code sent successfully' });
     } catch (twilioError: unknown) {
       console.error('Twilio OTP send error:', twilioError);
       const error = twilioError as TwilioError;
-      
-      if (error.message === 'OTP send timeout' || error.code === 'ECONNABORTED') {
-        return res.status(408).json({ 
-          message: 'Failed to send verification code. Please try again' 
+
+      if (
+        error.message === 'OTP send timeout' ||
+        error.code === 'ECONNABORTED'
+      ) {
+        return res.status(408).json({
+          message: 'Failed to send verification code. Please try again',
         });
       }
-      
-      return res.status(500).json({ 
-        message: 'Failed to send verification code. Please try again later' 
+
+      return res.status(500).json({
+        message: 'Failed to send verification code. Please try again later',
       });
     }
   } catch (error) {
@@ -400,47 +401,52 @@ export const verifyResetCode = async (req: Request, res: Response) => {
     try {
       const verificationPromise = client.verify.v2
         .services(process.env.TWILIO_VERIFY_SERVICE_SID!)
-        .verificationChecks.create({ 
-          to: email, 
-          code: code.toString() // Ensure code is string
+        .verificationChecks.create({
+          to: email,
+          code: code.toString(), // Ensure code is string
         });
 
-      const timeoutPromise = new Promise<never>((_, reject) => 
-        setTimeout(() => reject(new Error('Verification timeout')), 15000)
+      const timeoutPromise = new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error('Verification timeout')), 15000),
       );
 
       verificationCheck = await Promise.race([
         verificationPromise,
-        timeoutPromise
+        timeoutPromise,
       ]);
     } catch (twilioError: unknown) {
       console.error('Twilio verification error:', twilioError);
-      
+
       const error = twilioError as TwilioError;
-      
+
       // Handle specific Twilio errors
       if (error.code === 20404) {
-        return res.status(400).json({ 
-          message: 'Verification code has expired or is invalid' 
+        return res.status(400).json({
+          message: 'Verification code has expired or is invalid',
         });
       }
-      
-      if (error.message === 'Verification timeout' || error.code === 'ECONNABORTED') {
-        return res.status(408).json({ 
-          message: 'Verification service is temporarily unavailable. Please try again' 
+
+      if (
+        error.message === 'Verification timeout' ||
+        error.code === 'ECONNABORTED'
+      ) {
+        return res.status(408).json({
+          message:
+            'Verification service is temporarily unavailable. Please try again',
         });
       }
-      
-      return res.status(500).json({ 
-        message: 'Failed to verify code. Please try again or request a new code' 
+
+      return res.status(500).json({
+        message:
+          'Failed to verify code. Please try again or request a new code',
       });
     }
 
     console.log('Verification check result:', verificationCheck);
 
     if (verificationCheck.status !== 'approved') {
-      return res.status(400).json({ 
-        message: 'Invalid or expired verification code' 
+      return res.status(400).json({
+        message: 'Invalid or expired verification code',
       });
     }
 
@@ -453,8 +459,8 @@ export const verifyResetCode = async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error('Verify Code Error:', error);
-    res.status(500).json({ 
-      message: 'Internal server error. Please try again later' 
+    res.status(500).json({
+      message: 'Internal server error. Please try again later',
     });
   }
 };
@@ -506,9 +512,7 @@ export const changePassword = async (req: Request, res: Response) => {
       user.password,
     );
     if (!isPasswordValid) {
-      return res
-        .status(401)
-        .json({ message: 'Current password is incorrect' });
+      return res.status(401).json({ message: 'Current password is incorrect' });
     }
 
     // Update password in database

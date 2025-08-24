@@ -11,7 +11,7 @@ export const getShipperById = async (req: Request, res: Response) => {
     const shipper = await ShipperModel.findById(id)
       .select('-password')
       .populate('assignedHub', 'hubName hubLocation');
-      
+
     if (!shipper) {
       return res.status(404).json({ message: 'Shipper not found.' });
     }

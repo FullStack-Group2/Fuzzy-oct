@@ -6,34 +6,33 @@ import { Label } from '@/components/ui/label';
 import { Link } from 'react-router-dom';
 
 // Zod schema for vendor registration validation
-const vendorRegistrationSchema = z
-  .object({
-    username: z
-      .string()
-      .min(3, 'Username must be at least 3 characters long')
-      .max(50, 'Username must be less than 50 characters')
-      .regex(
-        /^[a-zA-Z0-9_]+$/,
-        'Username can only contain letters, numbers, and underscores',
-      ),
-    email: z
-      .string()
-      .email('Please enter a valid email address')
-      .min(1, 'Email is required'),
-    password: z
-      .string()
-      .min(6, 'Password must be at least 6 characters long')
-      .max(100, 'Password must be less than 100 characters'),
-    businessName: z
-      .string()
-      .min(2, 'Business name must be at least 2 characters long')
-      .max(100, 'Business name must be less than 100 characters'),
-    businessAddress: z
-      .string()
-      .min(5, 'Business address must be at least 5 characters long')
-      .max(200, 'Business address must be less than 200 characters'),
-    profilePicture: z.string().optional(),
-  })
+const vendorRegistrationSchema = z.object({
+  username: z
+    .string()
+    .min(3, 'Username must be at least 3 characters long')
+    .max(50, 'Username must be less than 50 characters')
+    .regex(
+      /^[a-zA-Z0-9_]+$/,
+      'Username can only contain letters, numbers, and underscores',
+    ),
+  email: z
+    .string()
+    .email('Please enter a valid email address')
+    .min(1, 'Email is required'),
+  password: z
+    .string()
+    .min(6, 'Password must be at least 6 characters long')
+    .max(100, 'Password must be less than 100 characters'),
+  businessName: z
+    .string()
+    .min(2, 'Business name must be at least 2 characters long')
+    .max(100, 'Business name must be less than 100 characters'),
+  businessAddress: z
+    .string()
+    .min(5, 'Business address must be at least 5 characters long')
+    .max(200, 'Business address must be less than 200 characters'),
+  profilePicture: z.string().optional(),
+});
 
 type VendorRegistrationData = z.infer<typeof vendorRegistrationSchema>;
 

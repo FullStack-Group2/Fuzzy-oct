@@ -79,30 +79,36 @@ export const VendorProfile: React.FC<VendorProfileProps> = ({
     setUpdating(true);
     try {
       const token = localStorage.getItem('token');
-      console.log('Token from localStorage:', token ? 'Token found' : 'No token found');
-      
+      console.log(
+        'Token from localStorage:',
+        token ? 'Token found' : 'No token found',
+      );
+
       if (!token) {
         alert('Authentication required. Please log in again.');
         return;
       }
 
       console.log('Making PUT request to update vendor:', vendor.id);
-      const response = await fetch(`http://localhost:5001/api/vendors/${vendor.id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
+      const response = await fetch(
+        `http://localhost:5001/api/vendors/${vendor.id}`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            username: editData.username || vendor.username,
+            email: editData.email || vendor.email,
+            businessName: editData.businessName || vendor.businessName,
+            businessAddress: editData.businessAddress || vendor.businessAddress,
+          }),
         },
-        body: JSON.stringify({
-          username: editData.username || vendor.username,
-          email: editData.email || vendor.email,
-          businessName: editData.businessName || vendor.businessName,
-          businessAddress: editData.businessAddress || vendor.businessAddress,
-        }),
-      });
+      );
 
       console.log('Update response status:', response.status);
-      
+
       if (response.ok) {
         const data = await response.json();
         console.log('Update successful:', data);
@@ -155,7 +161,9 @@ export const VendorProfile: React.FC<VendorProfileProps> = ({
 
   return (
     <div className="m-12 bg-white rounded-lg shadow-md p-6">
-      <h2 className="text-center text-2xl font-bold mb-4 text-gray-800">Vendor Profile</h2>
+      <h2 className="text-center text-2xl font-bold mb-4 text-gray-800">
+        Vendor Profile
+      </h2>
 
       {/* Vendor ID Search Form */}
       {!vendorId && (
@@ -245,7 +253,9 @@ export const VendorProfile: React.FC<VendorProfileProps> = ({
               <input
                 type="text"
                 value={editData.username}
-                onChange={(e) => setEditData({ ...editData, username: e.target.value })}
+                onChange={(e) =>
+                  setEditData({ ...editData, username: e.target.value })
+                }
                 className="w-full bg-white p-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             ) : (
@@ -264,7 +274,9 @@ export const VendorProfile: React.FC<VendorProfileProps> = ({
               <input
                 type="email"
                 value={editData.email}
-                onChange={(e) => setEditData({ ...editData, email: e.target.value })}
+                onChange={(e) =>
+                  setEditData({ ...editData, email: e.target.value })
+                }
                 className="w-full bg-white p-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             ) : (
@@ -283,7 +295,9 @@ export const VendorProfile: React.FC<VendorProfileProps> = ({
               <input
                 type="text"
                 value={editData.businessName}
-                onChange={(e) => setEditData({ ...editData, businessName: e.target.value })}
+                onChange={(e) =>
+                  setEditData({ ...editData, businessName: e.target.value })
+                }
                 className="w-full bg-white p-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             ) : (
@@ -302,7 +316,9 @@ export const VendorProfile: React.FC<VendorProfileProps> = ({
               <input
                 type="text"
                 value={editData.businessAddress}
-                onChange={(e) => setEditData({ ...editData, businessAddress: e.target.value })}
+                onChange={(e) =>
+                  setEditData({ ...editData, businessAddress: e.target.value })
+                }
                 className="w-full bg-white p-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             ) : (
@@ -318,7 +334,10 @@ export const VendorProfile: React.FC<VendorProfileProps> = ({
               Password
             </label>
             <div className="flex justify-center">
-              <Button variant="ghost" className="w-full p-3 rounded-lg border font-medium">
+              <Button
+                variant="ghost"
+                className="w-full p-3 rounded-lg border font-medium"
+              >
                 Change password
               </Button>
             </div>
@@ -328,15 +347,15 @@ export const VendorProfile: React.FC<VendorProfileProps> = ({
           <div className="flex justify-end gap-3">
             {isEditing ? (
               <>
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   onClick={cancelEditing}
                   disabled={updating}
                   className="rounded-lg font-medium px-6 py-2"
                 >
                   Cancel
                 </Button>
-                <Button 
+                <Button
                   onClick={updateVendor}
                   disabled={updating}
                   className="rounded-lg font-medium px-6 py-2 bg-green-600 hover:bg-green-700 text-white"
@@ -345,7 +364,7 @@ export const VendorProfile: React.FC<VendorProfileProps> = ({
                 </Button>
               </>
             ) : (
-              <Button 
+              <Button
                 onClick={startEditing}
                 className="rounded-lg font-medium px-6 py-2 bg-green-600 hover:bg-green-700 text-white"
               >
@@ -353,9 +372,7 @@ export const VendorProfile: React.FC<VendorProfileProps> = ({
               </Button>
             )}
           </div>
-
         </div>
-        
       )}
     </div>
   );

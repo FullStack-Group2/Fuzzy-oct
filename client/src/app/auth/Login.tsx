@@ -4,7 +4,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Link } from 'react-router-dom';
 
-
 interface LoginData {
   username: string;
   password: string;
@@ -19,9 +18,7 @@ interface LoginProps {
   onLoginSuccess?: (user: LoggedInUser) => void;
 }
 
-export const Login: React.FC<LoginProps> = ({
-  onLoginSuccess,
-}) => {
+export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
   const [formData, setFormData] = useState<LoginData>({
     username: '',
     password: '',

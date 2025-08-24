@@ -178,7 +178,7 @@ export const SetNewPassword: React.FC<SetNewPasswordProps> = ({
                 />
                 <Button
                   type="button"
-                  variant={"ghost"}
+                  variant={'ghost'}
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute inset-y-0 right-0 pr-3 flex items-center hover:bg-transparent"
                   disabled={loading}
@@ -275,7 +275,6 @@ export const SetNewPassword: React.FC<SetNewPasswordProps> = ({
               </div>
             </div>
 
-            
             {/* Reset Password Button */}
             <Button
               type="submit"

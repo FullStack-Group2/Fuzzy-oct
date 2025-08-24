@@ -31,64 +31,88 @@ function App() {
       // Check user role and render appropriate profile component
       const userRole = (user as LoggedInUser & { role?: string }).role;
       console.log('Rendering profile for role:', userRole);
-      
+
       switch (userRole) {
         case 'VENDOR':
           return (
-            <VendorProfile 
-              vendorId={user.id} 
+            <VendorProfile
+              vendorId={user.id}
               initialVendor={{
                 id: user.id,
                 username: user.username,
-                email: (user as LoggedInUser & { email?: string }).email || 'N/A',
-                businessName: (user as LoggedInUser & { businessName?: string }).businessName || 'N/A',
-                businessAddress: (user as LoggedInUser & { businessAddress?: string }).businessAddress || 'N/A',
-                profilePicture: (user as LoggedInUser & { profilePicture?: string }).profilePicture || '',
+                email:
+                  (user as LoggedInUser & { email?: string }).email || 'N/A',
+                businessName:
+                  (user as LoggedInUser & { businessName?: string })
+                    .businessName || 'N/A',
+                businessAddress:
+                  (user as LoggedInUser & { businessAddress?: string })
+                    .businessAddress || 'N/A',
+                profilePicture:
+                  (user as LoggedInUser & { profilePicture?: string })
+                    .profilePicture || '',
               }}
             />
           );
-        
+
         case 'CUSTOMER':
           return (
-            <CustomerProfile 
-              customerId={user.id} 
+            <CustomerProfile
+              customerId={user.id}
               initialCustomer={{
                 id: user.id,
                 username: user.username,
-                email: (user as LoggedInUser & { email?: string }).email || 'N/A',
+                email:
+                  (user as LoggedInUser & { email?: string }).email || 'N/A',
                 name: (user as LoggedInUser & { name?: string }).name || 'N/A',
-                address: (user as LoggedInUser & { address?: string }).address || 'N/A',
-                profilePicture: (user as LoggedInUser & { profilePicture?: string }).profilePicture || '',
+                address:
+                  (user as LoggedInUser & { address?: string }).address ||
+                  'N/A',
+                profilePicture:
+                  (user as LoggedInUser & { profilePicture?: string })
+                    .profilePicture || '',
               }}
             />
           );
-        
+
         case 'SHIPPER':
           return (
-            <ShipperProfile 
-              shipperId={user.id} 
+            <ShipperProfile
+              shipperId={user.id}
               initialShipper={{
                 id: user.id,
                 username: user.username,
-                email: (user as LoggedInUser & { email?: string }).email || 'N/A',
-                assignedHub: (user as LoggedInUser & { assignedHub?: string }).assignedHub || undefined,
-                profilePicture: (user as LoggedInUser & { profilePicture?: string }).profilePicture || '',
+                email:
+                  (user as LoggedInUser & { email?: string }).email || 'N/A',
+                assignedHub:
+                  (user as LoggedInUser & { assignedHub?: string })
+                    .assignedHub || undefined,
+                profilePicture:
+                  (user as LoggedInUser & { profilePicture?: string })
+                    .profilePicture || '',
               }}
             />
           );
-        
+
         default:
           // Fallback to vendor profile if role is not recognized
           return (
-            <VendorProfile 
-              vendorId={user.id} 
+            <VendorProfile
+              vendorId={user.id}
               initialVendor={{
                 id: user.id,
                 username: user.username,
-                email: (user as LoggedInUser & { email?: string }).email || 'N/A',
-                businessName: (user as LoggedInUser & { businessName?: string }).businessName || 'N/A',
-                businessAddress: (user as LoggedInUser & { businessAddress?: string }).businessAddress || 'N/A',
-                profilePicture: (user as LoggedInUser & { profilePicture?: string }).profilePicture || '',
+                email:
+                  (user as LoggedInUser & { email?: string }).email || 'N/A',
+                businessName:
+                  (user as LoggedInUser & { businessName?: string })
+                    .businessName || 'N/A',
+                businessAddress:
+                  (user as LoggedInUser & { businessAddress?: string })
+                    .businessAddress || 'N/A',
+                profilePicture:
+                  (user as LoggedInUser & { profilePicture?: string })
+                    .profilePicture || '',
               }}
             />
           );
@@ -121,30 +145,18 @@ function App() {
   // Show routes for authentication
   return (
     <Routes>
-      <Route 
-        path="/" 
-        element={<Navigate to="/login" replace />} 
+      <Route path="/" element={<Navigate to="/login" replace />} />
+      <Route
+        path="/login"
+        element={<Login onLoginSuccess={handleLoginSuccess} />}
       />
-      <Route 
-        path="/login" 
+      <Route
+        path="/register"
         element={
-          <Login
-            onLoginSuccess={handleLoginSuccess}
-          />
-        } 
+          <RegistrationFlow onRegistrationSuccess={handleRegistrationSuccess} />
+        }
       />
-      <Route 
-        path="/register" 
-        element={
-          <RegistrationFlow
-            onRegistrationSuccess={handleRegistrationSuccess}
-          />
-        } 
-      />
-      <Route 
-        path="/forgot-password" 
-        element={<PasswordResetFlow />} 
-      />
+      <Route path="/forgot-password" element={<PasswordResetFlow />} />
     </Routes>
   );
 }

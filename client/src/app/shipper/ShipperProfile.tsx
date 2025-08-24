@@ -5,11 +5,13 @@ interface ShipperData {
   id: string;
   username: string;
   email: string;
-  assignedHub?: {
-    _id: string;
-    hubName: string;
-    hubLocation: string;
-  } | string; // Can be either populated object or just ID string
+  assignedHub?:
+    | {
+        _id: string;
+        hubName: string;
+        hubLocation: string;
+      }
+    | string; // Can be either populated object or just ID string
   profilePicture: string;
 }
 
@@ -52,9 +54,9 @@ export const ShipperProfile: React.FC<ShipperProfileProps> = ({
           `http://localhost:5001/api/shippers/${targetId}`,
           {
             headers: {
-              'Authorization': `Bearer ${token}`,
+              Authorization: `Bearer ${token}`,
             },
-          }
+          },
         );
         console.log(`Fetching shipper with ID: ${targetId}`);
         console.log('Response status:', response.status);
@@ -91,28 +93,34 @@ export const ShipperProfile: React.FC<ShipperProfileProps> = ({
     setUpdating(true);
     try {
       const token = localStorage.getItem('token');
-      console.log('Token from localStorage:', token ? 'Token found' : 'No token found');
-      
+      console.log(
+        'Token from localStorage:',
+        token ? 'Token found' : 'No token found',
+      );
+
       if (!token) {
         alert('Authentication required. Please log in again.');
         return;
       }
 
       console.log('Making PUT request to update shipper:', shipper.id);
-      const response = await fetch(`http://localhost:5001/api/shippers/${shipper.id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
+      const response = await fetch(
+        `http://localhost:5001/api/shippers/${shipper.id}`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            username: editData.username || shipper.username,
+            email: editData.email || shipper.email,
+          }),
         },
-        body: JSON.stringify({
-          username: editData.username || shipper.username,
-          email: editData.email || shipper.email,
-        }),
-      });
+      );
 
       console.log('Update response status:', response.status);
-      
+
       if (response.ok) {
         const data = await response.json();
         console.log('Update successful:', data);
@@ -161,7 +169,9 @@ export const ShipperProfile: React.FC<ShipperProfileProps> = ({
 
   return (
     <div className="m-12 bg-white rounded-lg shadow-md p-6">
-      <h2 className="text-center text-2xl font-bold mb-4 text-gray-800">Shipper Profile</h2>
+      <h2 className="text-center text-2xl font-bold mb-4 text-gray-800">
+        Shipper Profile
+      </h2>
 
       {/* Shipper ID Search Form */}
       {!shipperId && (
@@ -251,7 +261,9 @@ export const ShipperProfile: React.FC<ShipperProfileProps> = ({
               <input
                 type="text"
                 value={editData.username}
-                onChange={(e) => setEditData({ ...editData, username: e.target.value })}
+                onChange={(e) =>
+                  setEditData({ ...editData, username: e.target.value })
+                }
                 className="w-full bg-white p-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             ) : (
@@ -270,7 +282,9 @@ export const ShipperProfile: React.FC<ShipperProfileProps> = ({
               <input
                 type="email"
                 value={editData.email}
-                onChange={(e) => setEditData({ ...editData, email: e.target.value })}
+                onChange={(e) =>
+                  setEditData({ ...editData, email: e.target.value })
+                }
                 className="w-full bg-white p-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             ) : (
@@ -287,12 +301,11 @@ export const ShipperProfile: React.FC<ShipperProfileProps> = ({
             </label>
             <div className="bg-gray-50 p-3 rounded-lg border">
               <p className="text-gray-900">
-                {shipper.assignedHub 
-                  ? typeof shipper.assignedHub === 'string' 
-                    ? shipper.assignedHub 
+                {shipper.assignedHub
+                  ? typeof shipper.assignedHub === 'string'
+                    ? shipper.assignedHub
                     : `${shipper.assignedHub.hubName} - ${shipper.assignedHub.hubLocation}`
-                  : 'Not assigned'
-                }
+                  : 'Not assigned'}
               </p>
             </div>
           </div>
@@ -303,7 +316,10 @@ export const ShipperProfile: React.FC<ShipperProfileProps> = ({
               Password
             </label>
             <div className="flex justify-center">
-              <Button variant="ghost" className="w-full p-3 rounded-lg border font-medium">
+              <Button
+                variant="ghost"
+                className="w-full p-3 rounded-lg border font-medium"
+              >
                 Change password
               </Button>
             </div>
@@ -313,15 +329,15 @@ export const ShipperProfile: React.FC<ShipperProfileProps> = ({
           <div className="flex justify-end gap-3">
             {isEditing ? (
               <>
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   onClick={cancelEditing}
                   disabled={updating}
                   className="rounded-lg font-medium px-6 py-2"
                 >
                   Cancel
                 </Button>
-                <Button 
+                <Button
                   onClick={updateShipper}
                   disabled={updating}
                   className="rounded-lg font-medium px-6 py-2 bg-green-600 hover:bg-green-700 text-white"
@@ -330,7 +346,7 @@ export const ShipperProfile: React.FC<ShipperProfileProps> = ({
                 </Button>
               </>
             ) : (
-              <Button 
+              <Button
                 onClick={startEditing}
                 className="rounded-lg font-medium px-6 py-2 bg-green-600 hover:bg-green-700 text-white"
               >
@@ -338,9 +354,7 @@ export const ShipperProfile: React.FC<ShipperProfileProps> = ({
               </Button>
             )}
           </div>
-
         </div>
-        
       )}
     </div>
   );

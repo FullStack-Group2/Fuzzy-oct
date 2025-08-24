@@ -132,7 +132,9 @@ export const PasswordRequest: React.FC<PasswordRequestProps> = ({
       } else {
         // Handle specific error codes
         if (response.status === 408) {
-          setError('Verification service is temporarily unavailable. Please try again.');
+          setError(
+            'Verification service is temporarily unavailable. Please try again.',
+          );
         } else if (response.status === 400) {
           setError(data.message || 'Invalid or expired verification code.');
         } else {
@@ -142,10 +144,12 @@ export const PasswordRequest: React.FC<PasswordRequestProps> = ({
       }
     } catch (error: unknown) {
       console.error('Error during OTP verification:', error);
-      
+
       const err = error as { name?: string };
       if (err.name === 'AbortError') {
-        setError('Request timed out. Please check your connection and try again.');
+        setError(
+          'Request timed out. Please check your connection and try again.',
+        );
       } else {
         setError('Network error. Please check your connection and try again.');
       }
@@ -177,10 +181,10 @@ export const PasswordRequest: React.FC<PasswordRequestProps> = ({
         <div className="w-full max-w-md p-8">
           {/* Header */}
           <div className="mb-8 text-center">
-            <h1 className="text-4xl font-normal mb-2">
-              Password request
-            </h1>
-            <p className='text-gray-600 text-sm'>We have sent a code to your email!</p>
+            <h1 className="text-4xl font-normal mb-2">Password request</h1>
+            <p className="text-gray-600 text-sm">
+              We have sent a code to your email!
+            </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">

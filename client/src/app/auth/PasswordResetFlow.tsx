@@ -128,6 +128,9 @@ export const PasswordResetFlow: React.FC<PasswordResetFlowProps> = () => {
 
   // Show forgot password step (default)
   return (
-    <ForgotPassword onOtpSent={handleOtpSent} onBackToLogin={handleBackToLogin} />
+    <ForgotPassword
+      onOtpSent={handleOtpSent}
+      onBackToLogin={handleBackToLogin}
+    />
   );
 };

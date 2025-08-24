@@ -23,7 +23,6 @@ interface ForgotPasswordProps {
 
 export const ForgotPassword: React.FC<ForgotPasswordProps> = ({
   onOtpSent,
-
 }) => {
   const [formData, setFormData] = useState<ForgotPasswordData>({
     email: '',

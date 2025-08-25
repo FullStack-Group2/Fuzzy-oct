@@ -7,20 +7,19 @@ import livingRoom from "../../assets/icon/living-room.png"
 import couch2 from "../../assets/icon/couch2.png"
 
 // ts-ignore
-import tri from "../../assets/icon/tri.png"
+import tri from "../../assets/icon/tri_2.png"
 
 // ts-ignore
-import marcio from "../../assets/icon/marcio.png"
+import marcio from "../../assets/icon/duy_2.png"
 
 // ts-ignore
-import rachel from "../../assets/icon/rachel.png"
+import rachel from "../../assets/icon/rachel_2.png"
 
 // ts-ignore
-import tony from "../../assets/icon/tony.png"
-
+import tony from "../../assets/icon/tony_2.png"
 
 // ts-ignore
-import huy from "../../assets/icon/huy.png"
+import huy from "../../assets/icon/huy_2.png"
 
 const About = () => {
     return <>
@@ -39,9 +38,7 @@ const About = () => {
 
             </div>
 
-
-
-            <div className={`grid grid-cols-1 md:grid-cols-2 gap-8 items-center py-12`}>
+            <div className={`grid grid-cols-1 md:grid-cols-2  items-center `}>
                 <div className="space-y-6 px-4 ">
                     <span className="text-3xl font-bold space-y-6">Our story</span>
                     <br></br>
@@ -84,26 +81,31 @@ const About = () => {
 
         </div>
 
-
-
         {/* Separate members section */}
         <div className="py-6 bg-white">
             <h2 className="text-3xl font-bold text-center mb-12">OUR MEMBERS</h2>
 
             {/* Use grid layout: 3 columns on large screens, 2 on medium, 1 on mobile */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-y-12 gap-x-8 place-items-center">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-y-12 gap-x-8 ">
                 {/* Member 1 */}
                 <div className="flex flex-col items-center text-center">
-                    <img src={tony} className="w-[150px]" />
+                    <div className="relative w-[200] h-[208px]">
+                        <div className=" absolute inset-1 bg-[#D2E4DD]  z-0"></div>
+                        <img src={tony} className="w-[200px] relative z-10" />
+
+                    </div>
                     <h3 className="mt-4 font-semibold text-lg">Pham Nhat Minh</h3>
                     <p className="w-[300px] break-words">
-                        He is ambitious and forward-thinking, always pushing boundaries with bold ideas.
-                    </p>
+                        He is ambitious and forward-thinking, always pushing boundaries with bold ideas.                    </p>
                 </div>
 
                 {/* Member 2 */}
                 <div className="flex flex-col items-center text-center">
-                    <img src={tri} className="w-[150px]" />
+                    <div className="relative w-[200] h-[208px]">
+                        <div className=" absolute inset-1 bg-[#D2E4DD]  z-0"></div>
+                        <img src={tri} className="w-[200px] relative z-10" />
+
+                    </div>
                     <h3 className="mt-4 font-semibold text-lg">Truong Quoc Tri</h3>
                     <p className="w-[300px] break-words">
                         He is calm and thoughtful, bringing balance and clarity in every situation.
@@ -112,7 +114,11 @@ const About = () => {
 
                 {/* Member 3 */}
                 <div className="flex flex-col items-center text-center">
-                    <img src={marcio} className="w-[150px]" />
+                    <div className="relative w-[200] h-[208px]">
+                        <div className=" absolute inset-1 bg-[#D2E4DD]  z-0"></div>
+                        <img src={marcio} className="w-[200px] relative z-10" />
+
+                    </div>
                     <h3 className="mt-4 font-semibold text-lg">Le Nguyen Khuong Duy</h3>
                     <p className="w-[300px] break-words">
                         He is curious and inventive, never afraid to experiment and explore new perspectives.
@@ -121,20 +127,26 @@ const About = () => {
 
                 {/* Member 4 */}
                 <div className="flex flex-col items-center text-center">
-                    <img src={rachel} className="w-[150px]" />
+                    <div className="relative w-[200] h-[208px]">
+                        <div className=" absolute inset-1 bg-[#D2E4DD]  z-0"></div>
+                        <img src={rachel} className="w-[200px] relative z-10" />
+
+                    </div>
                     <h3 className="mt-4 font-semibold text-lg">Tran Tu Tam</h3>
                     <p className="w-[300px] break-words">
                         She is creative and empathetic, with a natural gift for connecting with people.
                     </p>
                 </div>
 
-                {/* Member 5 */}
                 <div className="flex flex-col items-center text-center">
-                    <img src={huy} className="w-[150px]" />
+                    <div className="relative w-[200] h-[208px]">
+                        <div className=" absolute inset-1 bg-[#D2E4DD]  z-0"></div>
+                        <img src={huy} className="w-[200px] relative z-10" />
+
+                    </div>
                     <h3 className="mt-4 font-semibold text-lg">Pham Gia Huy</h3>
                     <p className="w-[300px] break-words">
-                        He is energetic and approachable, inspiring others with his optimism and drive.
-                    </p>
+                        He is energetic and approachable, inspiring others with his optimism and drive.                    </p>
                 </div>
             </div>
         </div>

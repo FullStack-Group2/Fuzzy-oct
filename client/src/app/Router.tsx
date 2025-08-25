@@ -15,6 +15,8 @@ import Logout from './pages/auth/Logout';
 import ForgotPassword from './pages/auth/ForgotPassword';
 import Register from './pages/auth/Register';
 import Layout from './Layout';
+import About from './pages/About';
+import FAQ from './pages/FAQ';
 
 export default function AppRouter() {
   return (
@@ -22,6 +24,8 @@ export default function AppRouter() {
       <Routes>
         <Route element={<Layout />}>
           <Route path="/" element={<Home />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/faq" element={<FAQ />} />
 
           {authRole !== null && <Route path="/orders" element={<Orders />} />}
 

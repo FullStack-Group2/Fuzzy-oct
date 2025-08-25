@@ -1,8 +1,8 @@
-import mongoose, { Types } from 'mongoose';
+import mongoose from 'mongoose';
 import CartItem, { ICartItem } from '../models/CartItem';
 import { OrderStatus } from '../models/OrderStatus';
-import OrderItem, { IOrderItem } from '../models/OrderItem';
-import Order, { IOrder } from '../models/Order';
+import OrderItem from '../models/OrderItem';
+import Order from '../models/Order';
 import { orderBilling } from '../utils/OrderBilling';
 import { getTotalPrice } from '../utils/TotalPrice';
 import { ProductModel } from '../models/Product';
@@ -37,7 +37,7 @@ export const addItemToCart = async ({
   product: string;
   quantity: number;
 }) => {
-  let item = await CartItem.findOne({ customer, product });
+  const item = await CartItem.findOne({ customer, product });
 
   // cong them quantity
   if (item) {
@@ -82,14 +82,11 @@ export const createOrderFromItem = async (userId: string) => {
   return null;
 };
 
-
 // Check quantity of the product from vendor, replace the 0 by later
 // Question on the query of the product's quantity from the shop, which route to be more efficient
 export const checkStock = (items: ICartItem[]): boolean => {
   return items.every((e) => e.quantity > 0);
 };
-
-
 
 // customer co can biet hub nao khong - doc de thi thay co ve la khong
 /*
@@ -103,7 +100,6 @@ Nut feedback driver/don hang
 
 lỡ đặt 3 hàng mà shop thiếu hàng thì sao
 */
-
 
 // Vendor add item to hub
 export const addItemToHub = () => {};

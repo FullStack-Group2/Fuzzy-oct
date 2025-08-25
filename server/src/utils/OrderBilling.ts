@@ -1,6 +1,6 @@
-import { ICartItem } from "../models/CartItem";
-import { IOrder } from "../models/Order";
-import { IOrderItem } from "../models/OrderItem";
+import { ICartItem } from '../models/CartItem';
+import { IOrder } from '../models/Order';
+import { IOrderItem } from '../models/OrderItem';
 
 export const orderBilling = (
   cartItems: ICartItem[],

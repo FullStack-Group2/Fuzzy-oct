@@ -8,7 +8,7 @@ export interface IProduct extends Document {
   imageUrl: string;
   description: string;
   vendor: mongoose.Types.ObjectId; // Reference to the User (Vendor)
-  availableStock: number; 
+  availableStock: number;
 }
 
 const ProductSchema = new Schema<IProduct>({

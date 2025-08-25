@@ -1,7 +1,8 @@
 import { Router } from 'express';
 
 import * as vendorController from '../controllers/VendorController';
-import { authMiddleware, requireVendor } from '../middleware/authMiddleware';
+import { authMiddleware } from '../middleware/authMiddleware';
+import { requireVendor } from '../middleware/roleMiddleware';
 
 const router = Router();
 
@@ -13,18 +14,23 @@ router.get(
   vendorController.getAllProducts,
 );
 router.get(
-  '/:productId',
+  '/product/:productId',
   authMiddleware,
   requireVendor,
   vendorController.getProduct,
 );
 router.get(
-  '/:vendorId',
+  '/:id',
   authMiddleware,
   requireVendor,
   vendorController.getVendorById,
 );
-router.post('/add', authMiddleware, requireVendor, vendorController.addProduct);
+router.post(
+  '/add-product',
+  authMiddleware,
+  requireVendor,
+  vendorController.addProduct,
+);
 router.get(
   '/:vendorId/orders',
   authMiddleware,
@@ -38,23 +44,29 @@ router.get(
   vendorController.getOrderHistory,
 );
 router.put(
-  '/:productId',
+  '/product/:productId',
   authMiddleware,
   requireVendor,
   vendorController.editProductDetails,
 );
 router.delete(
-  '/:productId',
+  '/product/:productId',
   authMiddleware,
   requireVendor,
   vendorController.deleteOneProduct,
 );
 router.get(
-  '/:productId/sales',
+  'product/:productId/sales',
   authMiddleware,
   requireVendor,
   vendorController.getProductSales,
 );
 // router.post/(‘/orders’, authMiddleware, requireVendor, vendorController.cancelOrder)
+router.put(
+  '/:id',
+  authMiddleware,
+  requireVendor,
+  vendorController.updateVendor,
+);
 
 export default router;

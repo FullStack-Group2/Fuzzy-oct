@@ -64,9 +64,9 @@ export default function ShipperCancelOrder() {
     <main className="mx-auto max-w-lg p-6">
       <div className="mb-4">
         {/* Back to detail; replace keeps history clean */}
-        <Link to={`/shipper/orders/${orderId}`} replace className="underline">
+        <button onClick={() => navigate(-1)} className="underline"> 
           ← Back
-        </Link>
+        </button>
       </div>
 
       <h1 className="text-2xl font-semibold mb-3">

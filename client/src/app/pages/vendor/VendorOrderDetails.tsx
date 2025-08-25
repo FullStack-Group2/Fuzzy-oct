@@ -9,6 +9,7 @@ type LocationState = { orderIndex?: number };
 export default function VendorOrderDetail() {
   const { orderId } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const { state } = useLocation();
   const orderIndex = (state as LocationState)?.orderIndex ?? null;
 
@@ -47,7 +48,7 @@ export default function VendorOrderDetail() {
   if (!order) {
     return (
       <main className="p-6">
-        <Link to="/vendor/orders" className="underline">← Back</Link>
+        <button onClick={() => navigate(-1)} className="underline">← Back</button>
         <p className="mt-2 text-sm text-red-600">Order not found.</p>
       </main>
     );
@@ -58,7 +59,7 @@ export default function VendorOrderDetail() {
   return (
     <main className="mx-auto max-w-5xl p-6">
       <div className="mb-4">
-        <Link to="/vendor/orders" className="underline">← Back</Link>
+         <button onClick={() => navigate(-1)} className="underline">← Back</button>
       </div>
 
       <div className="flex items-center justify-between gap-4">
@@ -123,7 +124,7 @@ export default function VendorOrderDetail() {
           </button>
           <Link
             to={`/vendor/orders/${order.id}/reject`}
-            state={{ orderIndex }}
+            state={{ backgroundLocation: location, orderIndex }}
             className="inline-flex items-center justify-center rounded-md bg-red-600 px-4 py-2 text-white hover:bg-red-700"
           >
             Reject

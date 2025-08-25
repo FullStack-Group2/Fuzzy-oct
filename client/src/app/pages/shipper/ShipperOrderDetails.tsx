@@ -62,7 +62,7 @@ export default function ShipperOrderDetail() {
 
   function handleCancel() {
     if (!orderId) return;
-    navigate(`/shipper/orders/${orderId}/cancel`, { replace: true, state: { orderIndex }, });
+    navigate(`/shipper/orders/${orderId}/cancel`, { replace: true, state: { backgroundLocation: location, orderIndex }, });
   }
 
   if (loading) return <main className="p-6">Loading…</main>;

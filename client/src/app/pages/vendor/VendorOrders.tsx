@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import type { VendorOrderListDTO } from "@/models/VendorDTO";
 import { apiVendorGetOrders } from "@/api/VendorAPI";
 
 export default function VendorOrders() {
   const [orders, setOrders] = useState<VendorOrderListDTO[]>([]);
   const [loading, setLoading] = useState(true);
+  const location = useLocation();
 
   useEffect(() => {
     (async () => {
@@ -50,7 +51,7 @@ export default function VendorOrders() {
                   <td className="px-4 py-3">
                     <Link
                       to={`/vendor/orders/${o.id}`}
-                      state={{ orderIndex: idx + 1 }}
+                      state={{ backgroundLocation: location, orderIndex: idx + 1 }}
                       className="inline-flex items-center rounded-md bg-black text-white px-3 py-1.5 text-sm hover:bg-black/85 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2"
                     >
                       View →

@@ -2,20 +2,27 @@ import { FormEvent, useState } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { apiVendorRejectOrder } from "@/api/VendorAPI";
 
-const REASONS = ["Out of stock", "Unable to fulfill timeline", "Pricing error", "Other"];
+const REASONS = ["A product is out of stock", "Unable to fulfill timeline", "Pricing error", "Other"];
 
 type LocationState = { orderIndex?: number };
 
 export default function VendorRejectOrder() {
   const { orderId } = useParams();
   const navigate = useNavigate();
-  const { state } = useLocation();
-  const orderIndex = (state as LocationState)?.orderIndex ?? null;
+  const location = useLocation();
+  const orderIndex = ((location.state || {}) as LocationState).orderIndex ?? null;
 
   const [reason, setReason] = useState("");
   const [notes, setNotes] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  function goBack() {
+    // Close modal if we came with a background
+    if ((location.state as any)?.backgroundLocation) navigate(-1);
+    else if (orderId) navigate(`/vendor/orders/${orderId}`, { replace: true });
+    else navigate("/vendor/orders", { replace: true });
+  }
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
@@ -35,9 +42,7 @@ export default function VendorRejectOrder() {
   return (
     <main className="mx-auto max-w-lg p-6">
       <div className="mb-4">
-        <Link to={`/vendor/orders/${orderId}`} state={{ orderIndex }} replace className="underline">
-          ← Back
-        </Link>
+        <button onClick={goBack} className="underline">← Back</button>
       </div>
 
       <h1 className="text-2xl font-semibold mb-3">

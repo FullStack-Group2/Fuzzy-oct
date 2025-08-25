@@ -8,11 +8,10 @@ const router = Router();
 // this is the main router for the API
 router.use('/auth', AuthRoutes);
 router.use('/upload', UploadRoutes);
-router.use('/vendors', VendorRoutes);
+router.use('/vendor', VendorRoutes);
 router.use('/customer', VendorRoutes);
 router.use('/products', VendorRoutes);
 router.use('/shipper', shipperRoutes);
 router.use('/distributionHub', distributionHubRoutes);
-
 
 export default router;

@@ -19,6 +19,9 @@ import ShipperOrders from "./pages/shipper/ShipperOrders";
 import ShipperOrderDetail from "./pages/shipper/ShipperOrderDetails";
 import ShipperCancelOrder from "./pages/shipper/ShipperCancelOrder";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
+import VendorOrders from './pages/vendor/VendorOrders';
+import VendorOrderDetails from './pages/vendor/VendorOrderDetails';
+import VendorCancelOrder from './pages/vendor/VendorCancelOrder';
 
 export default function AppRouter() {
   return (
@@ -51,12 +54,19 @@ export default function AppRouter() {
           <Route path="/auth/logout" element={<Logout />} />
           <Route path="/auth/forgot-password" element={<ForgotPassword />} />
           <Route path="*" element={<NotFound />} />
+
           <Route path="/shipper/orders" element={<ShipperOrders />} />
           <Route path="/shipper/orders/:orderId" element={<ShipperOrderDetail />} />
           <Route path="/shipper/orders/:orderId/cancel" element={<ShipperCancelOrder />} />
           <Route path="*" element={<Navigate to="/shipper/orders" replace />} />
 
           <Route path="/privacy" element={<PrivacyPolicy />} />
+
+
+          <Route path="/vendor/orders" element={<VendorOrders />} />
+          <Route path="/vendor/orders/:orderId" element={<VendorOrderDetails />} />
+          <Route path="/vendor/orders/:orderId/reject" element={<VendorCancelOrder />} />
+
         </Route>
 
 

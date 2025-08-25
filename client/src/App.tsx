@@ -1,210 +1,164 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import { Login, LoggedInUser } from './app/auth/Login';
+import {
+  RegistrationFlow,
+  RegisteredUser,
+} from './app/auth/sign-up/RegistrationFlow';
+import { PasswordResetFlow } from './app/auth/PasswordResetFlow';
 import { VendorProfile } from './app/vendor/VendorProfile';
-import { VendorRegistration } from './app/vendor/VendorRegistration';
-import { Login } from './app/auth/Login';
+import { CustomerProfile } from './app/customer/CustomerProfile';
+import { ShipperProfile } from './app/shipper/ShipperProfile';
 
-interface RegisteredVendor {
-  id: string;
-  username: string;
-  businessName: string;
-  businessAddress: string;
-  profilePicture: string;
-}
+type User = LoggedInUser | RegisteredUser | null;
 
-interface LoggedInUser {
-  id: string;
-  email: string;
-}
+function App() {
+  const [user, setUser] = useState<User>(null);
 
-const App: React.FC = () => {
-  const [currentView, setCurrentView] = useState<
-    'home' | 'login' | 'register' | 'profile'
-  >('home');
-  const [loggedInUser, setLoggedInUser] = useState<LoggedInUser | null>(null);
-  const [registeredVendor, setRegisteredVendor] =
-    useState<RegisteredVendor | null>(null);
+  const handleLoginSuccess = (loggedInUser: LoggedInUser) => {
+    setUser(loggedInUser);
+    console.log('User logged in:', loggedInUser);
+  };
 
-  // Check for existing user session on component mount
-  React.useEffect(() => {
-    const savedUser = localStorage.getItem('user');
-    if (savedUser) {
-      try {
-        const user = JSON.parse(savedUser);
-        setLoggedInUser(user);
-        setCurrentView('profile');
-      } catch (error) {
-        console.error('Error parsing saved user data:', error);
-        localStorage.removeItem('user');
+  const handleRegistrationSuccess = (registeredUser: RegisteredUser) => {
+    setUser(registeredUser);
+    console.log('User registered:', registeredUser);
+  };
+
+  // If user is logged in, show appropriate profile based on role
+  if (user) {
+    const renderProfileComponent = () => {
+      // Check user role and render appropriate profile component
+      const userRole = (user as LoggedInUser & { role?: string }).role;
+      console.log('Rendering profile for role:', userRole);
+
+      switch (userRole) {
+        case 'VENDOR':
+          return (
+            <VendorProfile
+              vendorId={user.id}
+              initialVendor={{
+                id: user.id,
+                username: user.username,
+                email:
+                  (user as LoggedInUser & { email?: string }).email || 'N/A',
+                businessName:
+                  (user as LoggedInUser & { businessName?: string })
+                    .businessName || 'N/A',
+                businessAddress:
+                  (user as LoggedInUser & { businessAddress?: string })
+                    .businessAddress || 'N/A',
+                profilePicture:
+                  (user as LoggedInUser & { profilePicture?: string })
+                    .profilePicture || '',
+              }}
+            />
+          );
+
+        case 'CUSTOMER':
+          return (
+            <CustomerProfile
+              customerId={user.id}
+              initialCustomer={{
+                id: user.id,
+                username: user.username,
+                email:
+                  (user as LoggedInUser & { email?: string }).email || 'N/A',
+                name: (user as LoggedInUser & { name?: string }).name || 'N/A',
+                address:
+                  (user as LoggedInUser & { address?: string }).address ||
+                  'N/A',
+                profilePicture:
+                  (user as LoggedInUser & { profilePicture?: string })
+                    .profilePicture || '',
+              }}
+            />
+          );
+
+        case 'SHIPPER':
+          return (
+            <ShipperProfile
+              shipperId={user.id}
+              initialShipper={{
+                id: user.id,
+                username: user.username,
+                email:
+                  (user as LoggedInUser & { email?: string }).email || 'N/A',
+                assignedHub:
+                  (user as LoggedInUser & { assignedHub?: string })
+                    .assignedHub || undefined,
+                profilePicture:
+                  (user as LoggedInUser & { profilePicture?: string })
+                    .profilePicture || '',
+              }}
+            />
+          );
+
+        default:
+          // Fallback to vendor profile if role is not recognized
+          return (
+            <VendorProfile
+              vendorId={user.id}
+              initialVendor={{
+                id: user.id,
+                username: user.username,
+                email:
+                  (user as LoggedInUser & { email?: string }).email || 'N/A',
+                businessName:
+                  (user as LoggedInUser & { businessName?: string })
+                    .businessName || 'N/A',
+                businessAddress:
+                  (user as LoggedInUser & { businessAddress?: string })
+                    .businessAddress || 'N/A',
+                profilePicture:
+                  (user as LoggedInUser & { profilePicture?: string })
+                    .profilePicture || '',
+              }}
+            />
+          );
       }
-    }
-  }, []);
+    };
 
-  const handleLoginSuccess = (user: LoggedInUser) => {
-    setLoggedInUser(user);
-    setCurrentView('profile');
-    console.log('User logged in:', user);
-  };
-
-  const handleRegistrationSuccess = (vendor: RegisteredVendor) => {
-    setRegisteredVendor(vendor);
-    setCurrentView('login');
-    alert('Registration successful! Please login with your credentials.');
-    console.log('Vendor registered:', vendor);
-  };
-
-  const handleLogout = () => {
-    setLoggedInUser(null);
-    setRegisteredVendor(null);
-    localStorage.removeItem('user');
-    setCurrentView('home');
-  };
-
-  return (
-    <div className="min-h-screen bg-gray-100">
-      {/* Header */}
-      <header className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-6">
-            <h1 className="text-3xl font-bold text-gray-900">
-              E-Commerce Vendor Management
+    return (
+      <div className="min-h-screen bg-gray-50 py-8">
+        <div className="max-w-4xl mx-auto px-4">
+          {/* Header with Logout */}
+          <div className="flex justify-between items-center mb-6">
+            <h1 className="text-3xl font-bold text-gray-800">
+              Welcome, {user.username}!
             </h1>
-            <div className="flex items-center space-x-4">
-              {loggedInUser && (
-                <div className="text-sm text-green-600 bg-green-50 px-3 py-1 rounded-full">
-                  Logged in: {loggedInUser.email}
-                </div>
-              )}
-              <div className="text-sm text-gray-500">
-                Vendor Registration System
-              </div>
-            </div>
+            <button
+              onClick={() => setUser(null)}
+              className="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-lg"
+            >
+              Logout
+            </button>
           </div>
+
+          {/* Profile Component based on user role */}
+          {renderProfileComponent()}
         </div>
-      </header>
+      </div>
+    );
+  }
 
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        <div className="px-4 py-6 sm:px-0">
-          {/* Home View - Show Login/Register buttons */}
-          {currentView === 'home' && (
-            <div className="text-center">
-              <div className="mb-8">
-                <h2 className="text-3xl font-bold text-gray-900 mb-4">
-                  Welcome to Vendor Portal
-                </h2>
-                <p className="text-lg text-gray-600 mb-8">
-                  Manage your vendor profile and business information
-                </p>
-              </div>
-
-              <div className="flex justify-center space-x-4">
-                <button
-                  onClick={() => setCurrentView('login')}
-                  className="bg-blue-600 text-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-blue-700 transition-colors"
-                >
-                  🔐 Login
-                </button>
-                <button
-                  onClick={() => setCurrentView('register')}
-                  className="bg-green-600 text-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-green-700 transition-colors"
-                >
-                  🏪 Register
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* Login View */}
-          {currentView === 'login' && (
-            <div>
-              <div className="text-center mb-6">
-                <button
-                  onClick={() => setCurrentView('home')}
-                  className="text-blue-600 hover:text-blue-800 mb-4 inline-flex items-center"
-                >
-                  ← Back to Home
-                </button>
-                <h2 className="text-2xl font-semibold text-gray-900">
-                  Vendor Login
-                </h2>
-              </div>
-
-              <Login
-                onLoginSuccess={handleLoginSuccess}
-                onSwitchToRegister={() => setCurrentView('register')}
-              />
-            </div>
-          )}
-
-          {/* Register View */}
-          {currentView === 'register' && (
-            <div>
-              <div className="text-center mb-6">
-                <button
-                  onClick={() => setCurrentView('home')}
-                  className="text-blue-600 hover:text-blue-800 mb-4 inline-flex items-center"
-                >
-                  ← Back to Home
-                </button>
-                <h2 className="text-2xl font-semibold text-gray-900">
-                  Vendor Registration
-                </h2>
-              </div>
-
-              <VendorRegistration
-                onRegistrationSuccess={handleRegistrationSuccess}
-              />
-
-              <div className="mt-6 text-center">
-                <p className="text-gray-600 text-sm">
-                  Already have an account?{' '}
-                  <button
-                    onClick={() => setCurrentView('login')}
-                    className="text-blue-600 hover:text-blue-800 font-medium"
-                  >
-                    Login here
-                  </button>
-                </p>
-              </div>
-            </div>
-          )}
-
-          {/* Profile View - Only accessible when logged in */}
-          {currentView === 'profile' && loggedInUser && (
-            <div>
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-semibold text-gray-900">
-                  Vendor Profile
-                </h2>
-                <button
-                  onClick={handleLogout}
-                  className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
-                >
-                  Logout
-                </button>
-              </div>
-
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Vendor Profile */}
-                <VendorProfile
-                  vendorId={loggedInUser.id}
-                  initialVendor={
-                    registeredVendor
-                      ? {
-                          ...registeredVendor,
-                          createdAt: new Date().toISOString(),
-                          updatedAt: new Date().toISOString(),
-                        }
-                      : undefined
-                  }
-                />
-              </div>
-            </div>
-          )}
-        </div>
-      </main>
-    </div>
+  // Show routes for authentication
+  return (
+    <Routes>
+      <Route path="/" element={<Navigate to="/login" replace />} />
+      <Route
+        path="/login"
+        element={<Login onLoginSuccess={handleLoginSuccess} />}
+      />
+      <Route
+        path="/register"
+        element={
+          <RegistrationFlow onRegistrationSuccess={handleRegistrationSuccess} />
+        }
+      />
+      <Route path="/forgot-password" element={<PasswordResetFlow />} />
+    </Routes>
   );
-};
+}
 
 export default App;

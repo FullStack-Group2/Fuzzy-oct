@@ -1,8 +1,8 @@
 import { Router } from 'express';
 
-import * as vendorController from '../controllers/VendorController';
+import * as shipperController from '../controllers/ShipperController';
 import { authMiddleware } from '../middleware/authMiddleware';
-import { requireVendor } from '../middleware/roleMiddleware';
+import { requireShipper } from '../middleware/roleMiddleware';
 
 const router = Router();
 
@@ -10,14 +10,14 @@ const router = Router();
 router.get(
   '/:id',
   authMiddleware,
-  requireVendor,
-  vendorController.getVendorById,
+  requireShipper,
+  shipperController.getShipperById,
 );
 router.put(
   '/:id',
   authMiddleware,
-  requireVendor,
-  vendorController.updateVendor,
+  requireShipper,
+  shipperController.updateShipper,
 );
 
 export default router;

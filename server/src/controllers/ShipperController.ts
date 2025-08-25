@@ -51,15 +51,22 @@ export const updateShipper = async (req: Request, res: Response) => {
     const shipper = await ShipperModel.findByIdAndUpdate(id, updateData, {
       new: true,
       runValidators: true,
-    }).select('-password');
+    })
+      .select('-password')
+      .populate('assignedHub', 'hubName hubLocation');
+
     if (!shipper) {
       return res.status(404).json({ message: 'Shipper not found.' });
     }
+
     res.status(200).json({
       shipper: {
         id: shipper._id,
         username: shipper.username,
         email: shipper.email,
+        assignedHub: shipper.assignedHub,
+        profilePicture: shipper.profilePicture,
+        role: shipper.role,
       },
     });
   } catch (error) {

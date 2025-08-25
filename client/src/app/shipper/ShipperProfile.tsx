@@ -1,5 +1,6 @@
 import { Button } from '@/components/ui/button';
 import React, { useState, useCallback } from 'react';
+import { ChangePassword } from '../auth/ChangePassword';
 
 interface ShipperData {
   id: string;
@@ -31,6 +32,7 @@ export const ShipperProfile: React.FC<ShipperProfileProps> = ({
   const [updating, setUpdating] = useState(false);
   const [inputShipperId, setInputShipperId] = useState(shipperId || '');
   const [isEditing, setIsEditing] = useState(false);
+  const [showChangePassword, setShowChangePassword] = useState(false);
   const [editData, setEditData] = useState({
     username: '',
     email: '',
@@ -318,6 +320,7 @@ export const ShipperProfile: React.FC<ShipperProfileProps> = ({
             <div className="flex justify-center">
               <Button
                 variant="ghost"
+                onClick={() => setShowChangePassword(true)}
                 className="w-full p-3 rounded-lg border font-medium"
               >
                 Change password
@@ -353,6 +356,22 @@ export const ShipperProfile: React.FC<ShipperProfileProps> = ({
                 Update account
               </Button>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Change Password Modal */}
+      {showChangePassword && shipper && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-xl p-0 w-full max-w-md mx-4">
+            <ChangePassword
+              userId={shipper.id}
+              onPasswordChanged={() => {
+                setShowChangePassword(false);
+                alert('Password changed successfully!');
+              }}
+              onCancel={() => setShowChangePassword(false)}
+            />
           </div>
         </div>
       )}

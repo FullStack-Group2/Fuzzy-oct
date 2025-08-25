@@ -1,6 +1,6 @@
 const resetTokenMap = new Map<string, string>(); // email -> token
 
-// Expire tokens after 10 minutes
+// Expire tokens after 10 minutes (600,000 ms)
 const TOKEN_TTL_MS = 10 * 60 * 1000;
 
 export function generateResetToken(email: string): string {

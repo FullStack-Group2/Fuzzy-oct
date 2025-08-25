@@ -1,5 +1,7 @@
 import { Router } from 'express';
 import * as authController from '../controllers/AuthController';
+import { requireAnyRole } from '../middleware/roleMiddleware';
+import { authMiddleware } from '../middleware/authMiddleware';
 
 const router = Router();
 
@@ -12,6 +14,11 @@ router.post('/logout', authController.logout);
 router.post('/forgot-password', authController.forgotPassword);
 router.post('/verify-otp', authController.verifyResetCode);
 router.post('/reset-password', authController.resetForgotPassword);
-router.post('/change-password', authController.changePassword);
+router.post(
+  '/change-password/:id',
+  authMiddleware,
+  requireAnyRole,
+  authController.changePassword,
+);
 
 export default router;

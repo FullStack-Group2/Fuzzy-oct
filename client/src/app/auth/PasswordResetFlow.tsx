@@ -19,13 +19,15 @@ export const PasswordResetFlow: React.FC<PasswordResetFlowProps> = () => {
   const [currentStep, setCurrentStep] =
     useState<PasswordResetStep>('forgot-password');
   const [email, setEmail] = useState<string>('');
+  const [resetToken, setResetToken] = useState<string>('');
 
   const handleOtpSent = (userEmail: string) => {
     setEmail(userEmail);
     setCurrentStep('verify-otp');
   };
 
-  const handleOtpVerified = () => {
+  const handleOtpVerified = (token: string) => {
+    setResetToken(token);
     setCurrentStep('set-new-password');
   };
 
@@ -108,6 +110,7 @@ export const PasswordResetFlow: React.FC<PasswordResetFlowProps> = () => {
     return (
       <SetNewPassword
         email={email}
+        resetToken={resetToken}
         onPasswordReset={handlePasswordReset}
         onBackToLogin={handleBackToLogin}
       />

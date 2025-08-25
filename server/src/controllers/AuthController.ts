@@ -468,18 +468,27 @@ export const verifyResetCode = async (req: Request, res: Response) => {
 export const resetForgotPassword = async (req: Request, res: Response) => {
   try {
     const { email, newPassword, resetToken } = req.body;
-    if (!email || !newPassword) {
+    if (!email || !newPassword || !resetToken) {
       return res
         .status(400)
-        .json({ message: 'Email and new password are required' });
+        .json({ message: 'Email, new password, and reset token are required' });
     }
+
     // Verify the reset token
     if (!verifyResetToken(email, resetToken)) {
       return res
         .status(400)
         .json({ message: 'Invalid or expired reset token' });
     }
-    const result = await UserServices.updatePassword(email, newPassword);
+
+    // Find user by email to get the userId
+    const user = await UserServices.findByEmail(email);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Update password using userId
+    const result = await UserServices.updatePassword(user.id, newPassword);
 
     console.log('Password reset result:', result);
     //  Delete token so it can't be reused
@@ -493,17 +502,27 @@ export const resetForgotPassword = async (req: Request, res: Response) => {
 
 export const changePassword = async (req: Request, res: Response) => {
   try {
-    const { email, currentPassword, newPassword } = req.body;
-    if (!email || !currentPassword || !newPassword) {
+    const userId = req.params.id;
+
+    // Find user with password field included
+    const user = await UserServices.findByIdWithPassword(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const { currentPassword, newPassword } = req.body;
+    if (!currentPassword || !newPassword) {
       return res.status(400).json({
-        message: 'Email, current password, and new password are required',
+        message: 'Current password and new password are required',
       });
     }
 
-    // Find user by email
-    const user = await UserServices.findByEmail(email);
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+    // Check if password field exists
+    if (!user.password) {
+      console.error('User password field is missing');
+      return res
+        .status(500)
+        .json({ message: 'User authentication data is corrupted' });
     }
 
     // Verify current password
@@ -511,16 +530,19 @@ export const changePassword = async (req: Request, res: Response) => {
       currentPassword,
       user.password,
     );
+    console.log('Is current password valid:', isPasswordValid);
+
     if (!isPasswordValid) {
       return res.status(401).json({ message: 'Current password is incorrect' });
     }
 
     // Update password in database
-    await UserServices.updatePassword(email, newPassword);
+    const result = await UserServices.updatePassword(userId, newPassword);
+    console.log('Password change result:', result);
 
-    res.status(200).json({ message: 'Password reset successful' });
+    res.status(200).json({ message: 'Password changed successfully' });
   } catch (error) {
-    console.error('Reset Password Error:', error);
+    console.error('Change Password Error:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
 };

@@ -7,46 +7,41 @@ import { ArrowLeft, Eye, EyeOff, Check } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 // Zod schema for password validation
-const passwordSchema = z
-  .object({
-    password: z
-      .string()
-      .min(8, 'Password must be at least 8 characters')
-      .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
-      .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
-      .regex(/\d/, 'Password must contain at least one number')
-      .regex(
-        /[!@#$%^&*(),.?":{}|<>]/,
-        'Password must contain at least one special character',
-      ),
-    confirmPassword: z.string().min(1, 'Please confirm your password'),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords don't match",
-    path: ['confirmPassword'],
-  });
+const passwordSchema = z.object({
+  password: z
+    .string()
+    .min(8, 'Password must be at least 8 characters')
+    .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
+    .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
+    .regex(/\d/, 'Password must contain at least one number')
+    .regex(
+      /[!@#$%^&*(),.?":{}|<>]/,
+      'Password must contain at least one special character',
+    ),
+});
 
 interface SetNewPasswordProps {
   email: string;
-  otp?: string;
+  resetToken?: string;
   onPasswordReset?: () => void;
   onBackToLogin?: () => void;
 }
 
 export const SetNewPassword: React.FC<SetNewPasswordProps> = ({
   email,
-  otp,
+  resetToken,
   onPasswordReset,
 }) => {
   const [formData, setFormData] = useState({
     password: '',
-    confirmPassword: '',
   });
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>('');
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
-  const [showPassword, setShowPassword] = useState(false);
+  const [showPasswords, setShowPasswords] = useState({
+    password: false,
+  });
 
   // Password validation checks
   const passwordChecks = {
@@ -58,6 +53,13 @@ export const SetNewPassword: React.FC<SetNewPasswordProps> = ({
   };
 
   const allChecksPass = Object.values(passwordChecks).every(Boolean);
+
+  const togglePasswordVisibility = (field: 'password') => {
+    setShowPasswords((prev) => ({
+      ...prev,
+      [field]: !prev[field],
+    }));
+  };
 
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -91,6 +93,14 @@ export const SetNewPassword: React.FC<SetNewPasswordProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Check if resetToken is available
+    if (!resetToken) {
+      setError(
+        'Reset token is missing. Please restart the password reset process.',
+      );
+      return;
+    }
+
     if (!validateForm()) {
       return;
     }
@@ -108,7 +118,7 @@ export const SetNewPassword: React.FC<SetNewPasswordProps> = ({
           },
           body: JSON.stringify({
             email: email,
-            otp: otp,
+            resetToken: resetToken,
             newPassword: formData.password,
           }),
         },
@@ -165,7 +175,7 @@ export const SetNewPassword: React.FC<SetNewPasswordProps> = ({
               <div className="relative">
                 <Input
                   id="password"
-                  type={showPassword ? 'text' : 'password'}
+                  type={showPasswords.password ? 'text' : 'password'}
                   value={formData.password}
                   onChange={(e) =>
                     handleInputChange('password', e.target.value)
@@ -179,11 +189,11 @@ export const SetNewPassword: React.FC<SetNewPasswordProps> = ({
                 <Button
                   type="button"
                   variant={'ghost'}
-                  onClick={() => setShowPassword(!showPassword)}
+                  onClick={() => togglePasswordVisibility('password')}
                   className="absolute inset-y-0 right-0 pr-3 flex items-center hover:bg-transparent"
                   disabled={loading}
                 >
-                  {showPassword ? (
+                  {showPasswords.password ? (
                     <EyeOff className="h-4 w-4 text-gray-400" />
                   ) : (
                     <Eye className="h-4 w-4 text-gray-400" />
@@ -278,8 +288,8 @@ export const SetNewPassword: React.FC<SetNewPasswordProps> = ({
             {/* Reset Password Button */}
             <Button
               type="submit"
-              disabled={loading || !allChecksPass || !formData.confirmPassword}
-              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-lg font-medium disabled:bg-gray-300"
+              disabled={loading || !allChecksPass || !resetToken}
+              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-lg font-medium "
             >
               {loading ? 'Resetting password...' : 'Reset password'}
             </Button>

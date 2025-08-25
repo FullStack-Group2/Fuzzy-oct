@@ -1,5 +1,6 @@
 import { Button } from '@/components/ui/button';
 import React, { useState, useCallback } from 'react';
+import { ChangePassword } from '../auth/ChangePassword';
 
 interface VendorData {
   id: string;
@@ -26,6 +27,7 @@ export const VendorProfile: React.FC<VendorProfileProps> = ({
   const [updating, setUpdating] = useState(false);
   const [inputVendorId, setInputVendorId] = useState(vendorId || '');
   const [isEditing, setIsEditing] = useState(false);
+  const [showChangePassword, setShowChangePassword] = useState(false);
   const [editData, setEditData] = useState({
     username: '',
     email: '',
@@ -336,6 +338,7 @@ export const VendorProfile: React.FC<VendorProfileProps> = ({
             <div className="flex justify-center">
               <Button
                 variant="ghost"
+                onClick={() => setShowChangePassword(true)}
                 className="w-full p-3 rounded-lg border font-medium"
               >
                 Change password
@@ -371,6 +374,22 @@ export const VendorProfile: React.FC<VendorProfileProps> = ({
                 Update account
               </Button>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Change Password Modal */}
+      {showChangePassword && vendor && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-xl p-0 w-full max-w-md mx-4">
+            <ChangePassword
+              userId={vendor.id}
+              onPasswordChanged={() => {
+                setShowChangePassword(false);
+                alert('Password changed successfully!');
+              }}
+              onCancel={() => setShowChangePassword(false)}
+            />
           </div>
         </div>
       )}

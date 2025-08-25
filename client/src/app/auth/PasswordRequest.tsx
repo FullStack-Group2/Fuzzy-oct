@@ -15,7 +15,7 @@ const otpSchema = z.object({
 
 interface PasswordRequestProps {
   email: string;
-  onOtpVerified?: () => void;
+  onOtpVerified?: (resetToken: string) => void;
   onBackToForgotPassword?: () => void;
   onResendOtp?: () => void;
 }
@@ -128,7 +128,13 @@ export const PasswordRequest: React.FC<PasswordRequestProps> = ({
 
       if (response.ok) {
         console.log('OTP verification successful:', data);
-        onOtpVerified?.();
+        // Extract resetToken from response and pass it to the callback
+        const resetToken = data.resetToken;
+        if (resetToken) {
+          onOtpVerified?.(resetToken);
+        } else {
+          setError('Reset token not received. Please try again.');
+        }
       } else {
         // Handle specific error codes
         if (response.status === 408) {

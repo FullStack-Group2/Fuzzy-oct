@@ -1,5 +1,6 @@
 import { Button } from '@/components/ui/button';
 import React, { useState, useCallback } from 'react';
+import { ChangePassword } from '../auth/ChangePassword';
 
 interface CustomerData {
   id: string;
@@ -26,6 +27,7 @@ export const CustomerProfile: React.FC<CustomerProfileProps> = ({
   const [updating, setUpdating] = useState(false);
   const [inputCustomerId, setInputCustomerId] = useState(customerId || '');
   const [isEditing, setIsEditing] = useState(false);
+  const [showChangePassword, setShowChangePassword] = useState(false);
   const [editData, setEditData] = useState({
     username: '',
     email: '',
@@ -347,6 +349,7 @@ export const CustomerProfile: React.FC<CustomerProfileProps> = ({
             <div className="flex justify-center">
               <Button
                 variant="ghost"
+                onClick={() => setShowChangePassword(true)}
                 className="w-full p-3 rounded-lg border font-medium"
               >
                 Change password
@@ -382,6 +385,22 @@ export const CustomerProfile: React.FC<CustomerProfileProps> = ({
                 Update account
               </Button>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Change Password Modal */}
+      {showChangePassword && customer && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-xl p-0 w-full max-w-md mx-4">
+            <ChangePassword
+              userId={customer.id}
+              onPasswordChanged={() => {
+                setShowChangePassword(false);
+                alert('Password changed successfully!');
+              }}
+              onCancel={() => setShowChangePassword(false)}
+            />
           </div>
         </div>
       )}

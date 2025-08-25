@@ -46,10 +46,10 @@ export const getVendorById = async (req: Request, res: Response) => {
 export const addProduct = async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { userId } = req.user!;
-    const { name, price, description, imageUrl } = req.body;
+    const { name, price, description, imageUrl, availableStock } = req.body;
 
     // Validate required fields
-    if (!name || !description || !price) {
+    if (!name || !description || !price || availableStock === undefined) {
       return res.status(400).json({ message: 'All fields are required.' });
     }
 
@@ -59,6 +59,7 @@ export const addProduct = async (req: AuthenticatedRequest, res: Response) => {
       price,
       description: description.trim(),
       imageUrl: imageUrl.trim(),
+      availableStock,
       vendor: new mongoose.Types.ObjectId(userId),
     });
 

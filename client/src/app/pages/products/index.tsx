@@ -199,7 +199,7 @@ const handleExportToPDF = () => {
                       <span className="text-left">{product.name}</span>
                     </div>
                   </TableCell>
-                  <TableCell className="text-gray-500">${product.price.toFixed(2)}</TableCell>
+                  <TableCell className="text-gray-500">{product.price.toFixed(2)} vnd</TableCell>
                   <TableCell className="text-gray-500">{product.salesCount || 0}</TableCell>
                   <TableCell className="text-gray-500">{product.availableStock}</TableCell>
                   <TableCell className="text-center">

@@ -16,11 +16,21 @@ export const EditProduct: React.FC = () => {
     imageUrl: product?.imageUrl || '',
   });
 
+  const [errors, setErrors] = useState({
+    name: '',
+    description: '',
+    price: '',
+    availableStock: '',
+  });
+
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
   ) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({ ...prevData, [name]: value }));
+
+    // Clear error message on input change
+    setErrors((prevErrors) => ({ ...prevErrors, [name]: '' }));
   };
 
   const handleDeleteImage = () => {
@@ -46,7 +56,51 @@ export const EditProduct: React.FC = () => {
     }
   };
 
+  const validateForm = () => {
+    const newErrors = {
+      name: '',
+      description: '',
+      price: '',
+      availableStock: '',
+    };
+
+    let isValid = true;
+
+    if (!formData.name) {
+      newErrors.name = 'Name is required';
+      isValid = false;
+    }
+
+    if (!formData.description) {
+      newErrors.description = 'Description is required';
+      isValid = false;
+    }
+
+    if (!formData.price) {
+      newErrors.price = 'Price is required';
+      isValid = false;
+    } else if (isNaN(Number(formData.price))) {
+      newErrors.price = 'Price must be a number';
+      isValid = false;
+    }
+
+    if (!formData.availableStock) {
+      newErrors.availableStock = 'Available stock is required';
+      isValid = false;
+    } else if (isNaN(Number(formData.availableStock))) {
+      newErrors.availableStock = 'Available stock must be a number';
+      isValid = false;
+    }
+
+    setErrors(newErrors);
+    return isValid;
+  };
+
   const handleApplyEdit = async () => {
+    if (!validateForm()) {
+      return;
+    }
+
     try {
       const response = await fetch(
         `http://localhost:5001/api/vendors/${product?._id}`,
@@ -157,22 +211,26 @@ export const EditProduct: React.FC = () => {
 
         {/* Product Details Section */}
         <div className="border-2 border-[#E8E8E9] rounded-md p-4">
+          {/* Name Field */}
           <label className="block text-gray-700 mb-2">Name</label>
           <input
             type="text"
             name="name"
             value={formData.name}
             onChange={handleInputChange}
-            className="w-full border border-gray-300 rounded-lg p-2"
+            className={`w-full border rounded-lg p-2 ${errors.name ? 'border-red-500' : 'border-gray-300'}`}
           />
+          {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
 
+          {/* Description Field */}
           <label className="block text-gray-700 mt-4 mb-2">Description</label>
           <textarea
             name="description"
             value={formData.description}
             onChange={handleInputChange}
-            className="w-full border border-gray-300 rounded-lg p-2"
+            className={`w-full border rounded-lg p-2 ${errors.description ? 'border-red-500' : 'border-gray-300'}`}
           ></textarea>
+          {errors.description && <p className="text-red-500 text-sm mt-1">{errors.description}</p>}
 
           {/* <label className="block text-gray-700 mt-4 mb-2">Categories</label>
           <select
@@ -187,23 +245,30 @@ export const EditProduct: React.FC = () => {
             <option value="Storage">Storage</option>
           </select> */}
 
+          {/* Price Field */}
           <label className="block text-gray-700 mt-4 mb-2">Price</label>
-          <input
-            type="text"
-            name="price"
-            value={formData.price}
-            onChange={handleInputChange}
-            className="w-full border border-gray-300 rounded-lg p-2"
-          />
+          <div className="relative">
+            <input
+              type="text"
+              name="price"
+              value={formData.price}
+              onChange={handleInputChange}
+              className={`w-full border rounded-lg p-2 pr-10 ${errors.price ? 'border-red-500' : 'border-gray-300'}`}
+            />
+            <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">vnd</span>
+          </div>
+          {errors.price && <p className="text-red-500 text-sm mt-1">{errors.price}</p>}
 
+          {/* Available Stock Field */}
           <label className="block text-gray-700 mt-4 mb-2">Available stock</label>
           <input
             type="text"
             name="availableStock"
             value={formData.availableStock}
             onChange={handleInputChange}
-            className="w-full border border-gray-300 rounded-lg p-2"
+            className={`w-full border rounded-lg p-2 ${errors.availableStock ? 'border-red-500' : 'border-gray-300'}`}
           />
+          {errors.availableStock && <p className="text-red-500 text-sm mt-1">{errors.availableStock}</p>}
         </div>
         <div className="col-span-1 md:col-span-2 justify-end text-right mt-4 mb-2">
             <button

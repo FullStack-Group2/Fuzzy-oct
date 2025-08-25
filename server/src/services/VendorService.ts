@@ -1,5 +1,5 @@
 import { IVendor, VendorModel } from '../models/Vendor';
-import Product, { IProduct } from '../models/Product';
+import { ProductModel as Product, IProduct } from '../models/Product';
 import Order from '../models/Order';
 import { OrderStatus } from '../models/OrderStatus';
 import OrderItem from '../models/OrderItem';

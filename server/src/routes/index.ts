@@ -1,10 +1,11 @@
 import { Router } from 'express';
-import vendorRoutes from './vendorRoutes';
+
 import authRoutes from './authRoutes';
 import uploadRoutes from './uploadRoutes';
 import shipperRoutes from './shipperRoutes';
 import hubRoutes from './hubRoutes';
-import customerRoutes from './CustomerRoutes';
+import customerRoutes from './customerRoutes';
+import vendorRoutes from './vendorRoutes';
 
 const router = Router();
 // this is the main router for the API

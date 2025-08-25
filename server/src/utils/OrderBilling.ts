@@ -1,0 +1,15 @@
+import { ICartItem } from "../models/CartItem";
+import { IOrder } from "../models/Order";
+import { IOrderItem } from "../models/OrderItem";
+
+export const orderBilling = (
+  cartItems: ICartItem[],
+  order: IOrder,
+): IOrderItem[] => {
+  return cartItems.map((e) => ({
+    order: order._id,
+    product: e.product,
+    quantity: e.quantity,
+    priceAtPurchase: (e.product as any).price * e.quantity,
+  })) as unknown as IOrderItem[];
+};

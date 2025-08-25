@@ -1,11 +1,14 @@
-import { Schema, model, Document } from 'mongoose';
+import mongoose, { Schema, model, Document } from 'mongoose';
 
 export interface IProduct extends Document {
+  _id: mongoose.Types.ObjectId;
+
   name: string;
   price: number;
   imageUrl: string;
   description: string;
-  vendor: Schema.Types.ObjectId; // Reference to the User (Vendor)
+  vendor: mongoose.Types.ObjectId; // Reference to the User (Vendor)
+  availableStock: number; 
 }
 
 const ProductSchema = new Schema<IProduct>({
@@ -27,6 +30,13 @@ const ProductSchema = new Schema<IProduct>({
     ref: 'Vendor',
     required: true,
   },
+  availableStock: {
+    type: Number,
+    required: true,
+    min: 0,
+    default: 0,
+  },
 });
 
-export default model<IProduct>('Product', ProductSchema);
+// export const ProductModel = mongoose.model<IProduct>('Product', ProductSchema);
+export const ProductModel = model<IProduct>('Product', ProductSchema);

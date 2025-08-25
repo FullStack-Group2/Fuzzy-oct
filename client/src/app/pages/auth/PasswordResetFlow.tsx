@@ -4,7 +4,6 @@ import { PasswordRequest } from './PasswordRequest';
 import { SetNewPassword } from './SetNewPassword';
 import { ForgotPassword } from './ForgotPassword';
 
-
 type PasswordResetStep =
   | 'forgot-password'
   | 'verify-otp'

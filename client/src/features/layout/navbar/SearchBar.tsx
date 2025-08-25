@@ -1,5 +1,5 @@
-import { useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export default function SearchBar() {
   const inputRef = useRef<HTMLInputElement>(null);

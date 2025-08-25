@@ -1,8 +1,7 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
 
-import { MdOutlinePerson } from "react-icons/md";
-
+import { MdOutlinePerson } from 'react-icons/md';
 
 export default function ProfileDropdown() {
   const [open, setOpen] = useState(false);

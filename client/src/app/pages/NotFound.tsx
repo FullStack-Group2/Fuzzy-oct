@@ -1,4 +1,4 @@
-const NotFound= () => {
+const NotFound = () => {
   return <>NotFound</>;
 };
 

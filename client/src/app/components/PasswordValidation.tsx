@@ -10,7 +10,10 @@ export const passwordValidationSchema = z
   .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
   .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
   .regex(/\d/, 'Password must contain at least one number')
-  .regex(/[!@#$%^&*(),.?":{}|<>]/, 'Password must contain at least one special character');
+  .regex(
+    /[!@#$%^&*(),.?":{}|<>]/,
+    'Password must contain at least one special character',
+  );
 
 // Password validation checks interface
 export interface PasswordChecks {
@@ -23,13 +26,16 @@ export interface PasswordChecks {
 
 // Hook to get password validation checks
 export const usePasswordChecks = (password: string): PasswordChecks => {
-  return useMemo(() => ({
-    length: password.length >= 8,
-    uppercase: /[A-Z]/.test(password),
-    lowercase: /[a-z]/.test(password),
-    number: /\d/.test(password),
-    special: /[!@#$%^&*(),.?":{}|<>]/.test(password),
-  }), [password]);
+  return useMemo(
+    () => ({
+      length: password.length >= 8,
+      uppercase: /[A-Z]/.test(password),
+      lowercase: /[a-z]/.test(password),
+      number: /\d/.test(password),
+      special: /[!@#$%^&*(),.?":{}|<>]/.test(password),
+    }),
+    [password],
+  );
 };
 
 // Helper function to check if all password requirements are met
@@ -65,9 +71,7 @@ export const PasswordRequirements: React.FC<PasswordRequirementsProps> = ({
           <Check
             size={16}
             className={
-              passwordChecks.length
-                ? 'text-emerald-500'
-                : 'text-gray-300'
+              passwordChecks.length ? 'text-emerald-500' : 'text-gray-300'
             }
           />
           <span
@@ -81,9 +85,7 @@ export const PasswordRequirements: React.FC<PasswordRequirementsProps> = ({
           <Check
             size={16}
             className={
-              passwordChecks.uppercase
-                ? 'text-emerald-500'
-                : 'text-gray-300'
+              passwordChecks.uppercase ? 'text-emerald-500' : 'text-gray-300'
             }
           />
           <span
@@ -97,9 +99,7 @@ export const PasswordRequirements: React.FC<PasswordRequirementsProps> = ({
           <Check
             size={16}
             className={
-              passwordChecks.lowercase
-                ? 'text-emerald-500'
-                : 'text-gray-300'
+              passwordChecks.lowercase ? 'text-emerald-500' : 'text-gray-300'
             }
           />
           <span
@@ -113,9 +113,7 @@ export const PasswordRequirements: React.FC<PasswordRequirementsProps> = ({
           <Check
             size={16}
             className={
-              passwordChecks.number
-                ? 'text-emerald-500'
-                : 'text-gray-300'
+              passwordChecks.number ? 'text-emerald-500' : 'text-gray-300'
             }
           />
           <span
@@ -129,9 +127,7 @@ export const PasswordRequirements: React.FC<PasswordRequirementsProps> = ({
           <Check
             size={16}
             className={
-              passwordChecks.special
-                ? 'text-emerald-500'
-                : 'text-gray-300'
+              passwordChecks.special ? 'text-emerald-500' : 'text-gray-300'
             }
           />
           <span
@@ -166,13 +162,13 @@ export const PasswordField: React.FC<PasswordFieldProps> = ({
   name,
   value,
   onChange,
-  placeholder = "••••••••",
+  placeholder = '••••••••',
   disabled = false,
   hasError = false,
   errorMessage,
   showRequirements = true,
   showToggle = false,
-  label = "Password *",
+  label = 'Password *',
   required = true,
 }) => {
   const [showPassword, setShowPassword] = React.useState(false);
@@ -203,26 +199,47 @@ export const PasswordField: React.FC<PasswordFieldProps> = ({
             className="absolute inset-y-0 right-0 pr-3 flex items-center"
           >
             {showPassword ? (
-              <svg className="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L12 12m0 0l3.121 3.121M12 12l-3.121-3.121m9.121 9.121L21 21" />
+              <svg
+                className="h-4 w-4 text-gray-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L12 12m0 0l3.121 3.121M12 12l-3.121-3.121m9.121 9.121L21 21"
+                />
               </svg>
             ) : (
-              <svg className="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+              <svg
+                className="h-4 w-4 text-gray-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                />
               </svg>
             )}
           </button>
         )}
       </div>
-      
-      {errorMessage && (
-        <p className="text-red-500 text-sm">{errorMessage}</p>
-      )}
-      
-      {showRequirements && (
-        <PasswordRequirements password={value} />
-      )}
+
+      {errorMessage && <p className="text-red-500 text-sm">{errorMessage}</p>}
+
+      {showRequirements && <PasswordRequirements password={value} />}
     </div>
   );
 };

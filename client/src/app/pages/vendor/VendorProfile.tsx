@@ -3,7 +3,6 @@ import React, { useState, useCallback } from 'react';
 import { ChangePassword } from '../auth/ChangePassword';
 import { useAuth } from '../../AuthProvider';
 
-
 interface VendorData {
   id: string;
   username: string;
@@ -188,10 +187,9 @@ export const VendorProfile: React.FC<VendorProfileProps> = () => {
       {!loading && !vendor && (
         <div className="text-center py-8">
           <div className="text-gray-600 mb-4">
-            {user?.role !== 'VENDOR' 
+            {user?.role !== 'VENDOR'
               ? 'Access denied. This page is only available for vendors.'
-              : 'Unable to load vendor profile.'
-            }
+              : 'Unable to load vendor profile.'}
           </div>
         </div>
       )}

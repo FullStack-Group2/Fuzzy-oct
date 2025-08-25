@@ -63,12 +63,12 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
 
         // Use AuthProvider to set user session instead of manual localStorage
         await setUserSession(data.user);
-        
+
         // Store token separately (AuthProvider handles user data)
         localStorage.setItem('token', data.token);
 
         onLoginSuccess?.(data.user);
-        navigate("/");
+        navigate('/');
         alert('Login successful!');
       } else {
         setError(data.message || 'Login failed');

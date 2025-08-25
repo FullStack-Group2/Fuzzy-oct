@@ -179,10 +179,9 @@ export const ShipperProfile: React.FC = () => {
       {!loading && !shipper && (
         <div className="text-center py-8">
           <div className="text-gray-600 mb-4">
-            {user?.role !== 'SHIPPER' 
+            {user?.role !== 'SHIPPER'
               ? 'Access denied. This page is only available for shippers.'
-              : 'Unable to load shipper profile.'
-            }
+              : 'Unable to load shipper profile.'}
           </div>
         </div>
       )}

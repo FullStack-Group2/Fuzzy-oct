@@ -1,6 +1,5 @@
+export type Role = 'customer' | 'vendor' | 'shipper' | null;
 
-export type Role = "customer" | "vendor" | "shipper" | null;
+const authRole: Role = 'customer';
 
-const authRole : Role =  'customer';
-
-export default authRole 
+export default authRole;

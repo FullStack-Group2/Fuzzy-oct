@@ -10,7 +10,7 @@ interface LogoutProps {
 export const Logout: React.FC<LogoutProps> = ({ onLogoutSuccess }) => {
   const [loading, setLoading] = useState(false);
   const { logout } = useAuth();
-    const navigate = useNavigate();
+  const navigate = useNavigate();
 
   const handleLogout = async () => {
     setLoading(true);
@@ -18,10 +18,10 @@ export const Logout: React.FC<LogoutProps> = ({ onLogoutSuccess }) => {
     try {
       // Use AuthProvider's logout method instead of manual API call
       await logout(true); // Pass true to show success toast
-    
+
       console.log('Logout successful');
       onLogoutSuccess?.();
-      navigate("/auth/login");
+      navigate('/auth/login');
       alert('Logged out successfully!');
     } catch (error) {
       console.error('Error during logout:', error);

@@ -5,11 +5,13 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import PasswordRequirements, { passwordValidationSchema } from '@/app/components/PasswordValidation';
+import PasswordRequirements, {
+  passwordValidationSchema,
+} from '@/app/components/PasswordValidation';
 
 // Zod schema for password validation
 const passwordSchema = z.object({
-  password: passwordValidationSchema
+  password: passwordValidationSchema,
 });
 
 interface SetNewPasswordProps {
@@ -197,8 +199,8 @@ export const SetNewPassword: React.FC<SetNewPasswordProps> = ({
                 <p className="text-red-500 text-sm">{fieldErrors.password}</p>
               )}
 
-                          {/* Password Requirements */}
-            <PasswordRequirements password={formData.password} />
+              {/* Password Requirements */}
+              <PasswordRequirements password={formData.password} />
             </div>
 
             {/* Reset Password Button */}

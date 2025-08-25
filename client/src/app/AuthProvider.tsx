@@ -1,10 +1,24 @@
-import { createContext, useContext, useState, useEffect, useCallback, useRef, ReactNode } from 'react';
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+  useRef,
+  ReactNode,
+} from 'react';
 import { useNavigate } from 'react-router-dom';
 
 // Constants for inactivity timeout
 const INACTIVITY_TIMEOUT_MS = 30 * 60 * 1000; // 30 minutes
 const WARNING_DIALOG_TIMEOUT_MS = 28 * 60 * 1000; // 28 minutes (2 minutes before logout)
-const ACTIVITY_EVENTS = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'];
+const ACTIVITY_EVENTS = [
+  'mousedown',
+  'mousemove',
+  'keypress',
+  'scroll',
+  'touchstart',
+];
 
 export interface AppUser {
   id: string;
@@ -66,12 +80,17 @@ const getUser = async (): Promise<AppUser | null> => {
   }
 };
 
-const setUser = async (userData: AppUser, cookiesMaxAge?: number, isRememberMe?: boolean): Promise<void> => {
+const setUser = async (
+  userData: AppUser,
+  cookiesMaxAge?: number,
+  isRememberMe?: boolean,
+): Promise<void> => {
   try {
     // Store user data based on role
-    const userKey = userData.role.charAt(0).toUpperCase() + userData.role.slice(1);
+    const userKey =
+      userData.role.charAt(0).toUpperCase() + userData.role.slice(1);
     localStorage.setItem(userKey, JSON.stringify(userData));
-    
+
     if (isRememberMe) {
       localStorage.setItem('isRememberMeSession', 'true');
     }
@@ -99,7 +118,7 @@ const logoutApi = async (): Promise<void> => {
       await fetch('http://localhost:5001/api/auth/logout', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
       });
@@ -117,7 +136,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isRememberMeSession, setIsRememberMeSession] = useState(false);
   const navigate = useNavigate();
 
-  console.log('AuthProvider rendering, user:', user, 'isAuth:', isAuth, 'isLoading:', isLoading);
+  console.log(
+    'AuthProvider rendering, user:',
+    user,
+    'isAuth:',
+    isAuth,
+    'isLoading:',
+    isLoading,
+  );
 
   const inactivityTimerRef = useRef<number | null>(null);
   const warningTimerRef = useRef<number | null>(null);
@@ -150,7 +176,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setIsAuth(false);
         setShowInactivityWarning(false);
         setIsRememberMeSession(false);
-        navigate(showSuccessToast ? '/auth/login?logout=success' : '/auth/login');
+        navigate(
+          showSuccessToast ? '/auth/login?logout=success' : '/auth/login',
+        );
       }
     },
     [
@@ -160,7 +188,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUserState,
       setIsAuth,
       setIsRememberMeSession,
-    ]
+    ],
   );
 
   const resetInactivityTimer = useCallback(() => {
@@ -228,13 +256,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (isAuth && !isLoading && !showInactivityWarning) {
       // Add event listeners only when authenticated and warning is not shown
-      ACTIVITY_EVENTS.forEach(event => {
+      ACTIVITY_EVENTS.forEach((event) => {
         window.addEventListener(event, resetInactivityTimer);
       });
       // Set timers immediately
       resetInactivityTimer();
       return () => {
-        ACTIVITY_EVENTS.forEach(event => {
+        ACTIVITY_EVENTS.forEach((event) => {
           window.removeEventListener(event, resetInactivityTimer);
         });
         // Only clear timers if user is not authenticated or is loading
@@ -247,12 +275,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       };
     } else if (isAuth && !isLoading && showInactivityWarning) {
       // Remove event listeners but do NOT clear inactivity timer when warning is shown
-      ACTIVITY_EVENTS.forEach(event => {
+      ACTIVITY_EVENTS.forEach((event) => {
         window.removeEventListener(event, resetInactivityTimer);
       });
     } else {
       // Cleanup if not authenticated
-      ACTIVITY_EVENTS.forEach(event => {
+      ACTIVITY_EVENTS.forEach((event) => {
         window.removeEventListener(event, resetInactivityTimer);
       });
       if (inactivityTimerRef.current)

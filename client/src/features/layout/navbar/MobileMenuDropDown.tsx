@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState } from 'react';
 import { IoMdMenu } from 'react-icons/io';
-import { Link } from "react-router-dom";
+import { Link } from 'react-router-dom';
 
 type Role = 'customer' | 'vendor' | 'shipper' | null;
 

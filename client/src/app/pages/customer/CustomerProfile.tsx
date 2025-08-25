@@ -3,7 +3,6 @@ import React, { useState, useCallback } from 'react';
 import { ChangePassword } from '../auth/ChangePassword';
 import { useAuth } from '../../AuthProvider';
 
-
 interface CustomerData {
   id: string;
   username: string;
@@ -85,8 +84,6 @@ export const CustomerProfile: React.FC<CustomerProfileProps> = () => {
       setLoading(false);
     }
   }, [user, logout]);
-
-
 
   // Update customer data
   const updateCustomer = useCallback(async () => {
@@ -183,8 +180,6 @@ export const CustomerProfile: React.FC<CustomerProfileProps> = () => {
       <h2 className="text-center text-2xl font-bold mb-4 text-gray-800">
         Customer Profile
       </h2>
-
-      
 
       {loading && (
         <div className="text-center py-8">

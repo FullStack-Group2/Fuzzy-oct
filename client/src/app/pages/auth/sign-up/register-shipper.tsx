@@ -11,7 +11,9 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Link } from 'react-router-dom';
-import PasswordRequirements, { passwordValidationSchema } from '@/app/components/PasswordValidation';
+import PasswordRequirements, {
+  passwordValidationSchema,
+} from '@/app/components/PasswordValidation';
 
 // Zod schema for shipper registration validation
 const shipperRegistrationSchema = z.object({

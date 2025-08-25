@@ -4,7 +4,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Link } from 'react-router-dom';
-import { PasswordRequirements, passwordValidationSchema } from '../../../components/PasswordValidation';
+import {
+  PasswordRequirements,
+  passwordValidationSchema,
+} from '../../../components/PasswordValidation';
 
 // Zod schema for customer registration validation
 const customerRegistrationSchema = z.object({

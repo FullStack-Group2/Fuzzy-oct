@@ -25,8 +25,6 @@ export default function FilterBar() {
         >
           <FaArrowLeftLong className="inline-block" /> Back
         </button>
-        
-
 
         <PriceSlider
           value={value}

@@ -8,10 +8,10 @@ interface ProtectedRouteProps {
   redirectTo?: string;
 }
 
-export function ProtectedRoute({ 
-  children, 
-  allowedRoles = [], 
-  redirectTo = '/auth/login' 
+export function ProtectedRoute({
+  children,
+  allowedRoles = [],
+  redirectTo = '/auth/login',
 }: ProtectedRouteProps) {
   const { isAuth, isLoading, user } = useAuth();
   const location = useLocation();
@@ -41,7 +41,7 @@ export function ProtectedRoute({
 // Component for routes that should only be accessible when NOT logged in (like login, register)
 export function PublicOnlyRoute({ children }: { children: ReactNode }) {
   const { isAuth, isLoading } = useAuth();
-  
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">

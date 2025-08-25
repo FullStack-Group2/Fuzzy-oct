@@ -16,25 +16,25 @@ interface CartItemProps {
 const CartItem: React.FC<CartItemProps> = ({ dataItem, cartData, setData }) => {
   const { name, imgSrc, price, quantity } = dataItem;
 
-function increase() {
-  setData((prev: DataItem[]) =>
-    prev.map((item) =>
-      item.name === dataItem.name
-        ? { ...item, quantity: item.quantity + 1 }
-        : item
-    )
-  );
-}
+  function increase() {
+    setData((prev: DataItem[]) =>
+      prev.map((item) =>
+        item.name === dataItem.name
+          ? { ...item, quantity: item.quantity + 1 }
+          : item,
+      ),
+    );
+  }
 
-function decrease() {
-  setData((prev: DataItem[]) =>
-    prev.map((item) =>
-      item.name === dataItem.name && item.quantity > 1
-        ? { ...item, quantity: item.quantity - 1 }
-        : item
-    )
-  );
-}
+  function decrease() {
+    setData((prev: DataItem[]) =>
+      prev.map((item) =>
+        item.name === dataItem.name && item.quantity > 1
+          ? { ...item, quantity: item.quantity - 1 }
+          : item,
+      ),
+    );
+  }
 
   function removeItem() {
     setData((prev: typeof cartData) => {
@@ -43,7 +43,7 @@ function decrease() {
         (item) => item.name !== dataItem.name,
       );
 
-      return (updatedProducts);
+      return updatedProducts;
     });
   }
 

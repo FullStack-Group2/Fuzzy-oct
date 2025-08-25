@@ -1,7 +1,10 @@
 import { Routes, Route } from 'react-router-dom';
 
 import { AuthProvider } from './AuthProvider';
-import { ProtectedRoute, PublicOnlyRoute } from './pages/routers/ProtectedRoute';
+import {
+  ProtectedRoute,
+  PublicOnlyRoute,
+} from './pages/routers/ProtectedRoute';
 
 import NotFound from './pages/NotFound';
 import Home from './pages';

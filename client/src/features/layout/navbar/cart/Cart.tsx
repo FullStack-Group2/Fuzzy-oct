@@ -34,7 +34,7 @@ export default function Cart() {
 
   function orderItems() {
     setIsOpen(false);
-    setData([] );
+    setData([]);
   }
 
   return (

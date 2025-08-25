@@ -4,7 +4,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Eye, EyeOff, X } from 'lucide-react';
-import PasswordRequirements, { passwordValidationSchema } from '@/app/components/PasswordValidation';
+import PasswordRequirements, {
+  passwordValidationSchema,
+} from '@/app/components/PasswordValidation';
 import { useAuth } from '../../AuthProvider';
 
 // Zod schema for change password validation
@@ -29,7 +31,7 @@ export const ChangePassword: React.FC<ChangePasswordProps> = ({
   onCancel,
 }) => {
   const { user, logout } = useAuth();
-  
+
   const [formData, setFormData] = useState({
     currentPassword: '',
     newPassword: '',
@@ -129,7 +131,9 @@ export const ChangePassword: React.FC<ChangePasswordProps> = ({
       }
 
       if (!user?.id) {
-        setError('User information not available. Please try logging in again.');
+        setError(
+          'User information not available. Please try logging in again.',
+        );
         logout();
         return;
       }
@@ -276,8 +280,8 @@ export const ChangePassword: React.FC<ChangePasswordProps> = ({
           {fieldErrors.newPassword && (
             <p className="text-red-500 text-sm">{fieldErrors.newPassword}</p>
           )}
-            {/* Password Requirements */}
-              <PasswordRequirements password={formData.newPassword} />
+          {/* Password Requirements */}
+          <PasswordRequirements password={formData.newPassword} />
         </div>
 
         {/* Confirm New Password Field */}

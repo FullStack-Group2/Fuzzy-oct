@@ -1,6 +1,6 @@
-import { Link } from "react-router-dom";
+import { Link } from 'react-router-dom';
 
-import BackToTopButton from "./BackToTopButton";
+import BackToTopButton from './BackToTopButton';
 
 export default function LinkItems() {
   return (

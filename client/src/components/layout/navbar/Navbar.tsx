@@ -43,7 +43,7 @@ export default function Navbar() {
           {authRole === 'customer' && (
             <>
               <SearchBar />
-              <Cart/>
+              <Cart />
             </>
           )}
 

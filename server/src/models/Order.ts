@@ -9,7 +9,7 @@ export interface IOrder extends Document {
   status: OrderStatus;
   totalPrice: number;
   orderItems: IOrderItem[]; // This will be a populated virtual field
-  cancelReason?: string;       // reason when vendor or shipper rejects
+  cancelReason: string;       // reason when vendor or shipper rejects
 }
 
 const orderSchema = new Schema<IOrder>(

@@ -1,5 +1,5 @@
 // shipper.controller.ts
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import OrderModel from '../models/Order';
 import OrderItemModel from '../models/OrderItem';
 import ProductModel from '../models/Product';

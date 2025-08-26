@@ -78,8 +78,7 @@ export async function getAllOrders(req: AuthenticatedRequest, res: Response) {
 
     // Exclude vendor-rejected orders
     const orders = await OrderModel.find({
-      _id: { $in: orderIds },
-      status: { $ne: OrderStatus.CANCELED },
+      _id: { $in: orderIds }
     })
       .populate({ path: "customer", select: "name address" })
       .sort({ orderDate: -1 })
@@ -88,8 +87,7 @@ export async function getAllOrders(req: AuthenticatedRequest, res: Response) {
 
     const dto = orders.map((o: any) => ({
       id: String(o._id),
-      status: String(o.status ?? "").toUpperCase(),           // ACTIVE | DELIVERED | CANCELED
-      vendorDecision: String(o.vendorDecision ?? "").toUpperCase(), // PENDING | ACCEPTED
+      status: String(o.status ?? "").toUpperCase(),
       totalPrice: Number(o.totalPrice ?? o.totalprice ?? 0),
       customerName: o.customer?.name ?? "Unknown",
     }));

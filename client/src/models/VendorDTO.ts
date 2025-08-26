@@ -1,9 +1,8 @@
-export type OrderStatus    = "PENDING" | "ACTIVE" | "DELIVERED" | "CANCELED";
+export type OrderStatus = "PENDING" | "ACTIVE" | "DELIVERED" | "CANCELED";
 
 export type VendorOrderListDTO = {
   id: string;
   status: OrderStatus;               
-  vendorDecision: Exclude<OrderStatus, "CANCELED">;
   totalPrice: number;
   customerName: string;
 };

@@ -48,7 +48,7 @@ export default function ShipperCancelOrder() {
     e.preventDefault();
     if (!orderId || !reason) return;
 
-    const mergedReason = notes ? `Shipper Cancelled: ${reason} — Notes: ${notes}` : `Shipper Cancelled: ${reason}`;
+    const mergedReason = notes ? `(Shipper) ${reason} — Notes: ${notes}` : `Shipper Cancelled: ${reason}`;
 
     setSubmitting(true);
     setError(null);

@@ -11,6 +11,8 @@ export default function VendorRejectOrder() {
   const { orderId } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
+
+  const backgroundLocation = (location.state as any)?.backgroundLocation || null;
   const orderIndex = ((location.state || {}) as LocationState).orderIndex ?? null;
 
   const [reason, setReason] = useState("");
@@ -19,12 +21,24 @@ export default function VendorRejectOrder() {
   const [error, setError] = useState<string | null>(null);
 
   function goDetails() {
-    if (orderId) navigate(`/vendor/orders/${orderId}`, { replace: true });
-    else navigate("/vendor/orders", { replace: true });
+    if (!orderId) {
+      exitAll();
+      return;
+    }
+    const state = { backgroundLocation, orderIndex };
+    navigate(`/vendor/orders/${orderId}`, { replace: true, state });
   }
 
   function exitAll() {
-    navigate("/vendor/orders", { replace: true });
+    if (backgroundLocation) {
+      const to =
+        backgroundLocation.pathname +
+        (backgroundLocation.search || "") +
+        (backgroundLocation.hash || "");
+      navigate(to, { replace: true, state: backgroundLocation.state });
+    } else {
+      navigate("/vendor/orders", { replace: true });
+    }
   }
 
   async function onSubmit(e: FormEvent) {
@@ -39,6 +53,7 @@ export default function VendorRejectOrder() {
 
       await apiVendorRejectOrder(orderId, merged);
       navigate("/vendor/orders", { replace: true });
+      exitAll();
     } catch (err: any) {
       setError(err?.message || "Failed to reject order.");
     } finally {
@@ -86,46 +101,64 @@ export default function VendorRejectOrder() {
         <div className="space-y-3">
           {REASONS.map((r) => {
             const active = reason === r;
+            const isOther = r === "Other";
+            const needsNotes = isOther && active;
+            const notesMissing = needsNotes && !notes.trim();
+
             return (
               <label
                 key={r}
-                className={`flex cursor-pointer items-start gap-3 rounded-lg border p-3 transition-colors
-                  ${active ? "border-emerald-500 bg-emerald-50" : "border-gray-300 hover:border-gray-400"}`}
+                // make the card a block so we can stack the textarea inside it
+                className={`block cursor-pointer rounded-lg border p-3 transition-colors
+          ${active ? "border-blue-500" : "border-gray-300 hover:border-gray-400"}`}
                 onClick={() => {
                   setReason(r);
-                  if (r !== "Other") setNotes("");
+                  if (!isOther) setNotes("");
                 }}
               >
-                <input
-                  type="radio"
-                  name="reason"
-                  value={r}
-                  checked={active}
-                  onChange={() => setReason(r)}
-                  className="mt-1"
-                />
-                <span>{r}</span>
+                {/* top row: radio + text (keeps your text style) */}
+                <div className="flex items-start gap-3">
+                  <input
+                    type="radio"
+                    name="reason"
+                    value={r}
+                    checked={active}
+                    onChange={() => setReason(r)}
+                    className="mt-1"
+                  />
+                  <span>{r}</span>
+                </div>
+
+                {/* notes live INSIDE the same card when "Other" is selected */}
+                {isOther && active && (
+                  <div className="mt-3">
+                    <textarea
+                      className="w-full rounded-lg border border-gray-300 p-3 placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-0"
+                      rows={3}
+                      value={notes}
+                      onChange={(e) => setNotes(e.target.value)}
+                      onClick={(e) => e.stopPropagation()} // don't toggle radio when clicking textarea
+                      placeholder="Please state your reason"
+                      required
+                      aria-required="true"
+                      aria-invalid={notesMissing ? "true" : "false"}
+                    />
+                    {notesMissing && (
+                      <p className="mt-1 text-xs text-red-600">
+                        Notes are required when selecting “Other”.
+                      </p>
+                    )}
+                  </div>
+                )}
               </label>
             );
           })}
-
-          {reason === "Other" && (
-            <label className="block">
-              <textarea
-                className="w-full rounded border p-2"
-                rows={3}
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                placeholder="Please state your reason"
-              />
-            </label>
-          )}
         </div>
 
         <div className="flex justify-center gap-3">
           <button
             type="submit"
-            disabled={!reason || submitting}
+            disabled={!reason || submitting || (reason === "Other" && !notes.trim())}
             className="rounded-md bg-red-600 px-4 py-2 text-white hover:bg-red-700 disabled:opacity-60"
           >
             {submitting ? "Canceling..." : "Cancel"}

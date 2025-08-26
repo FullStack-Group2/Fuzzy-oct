@@ -17,6 +17,22 @@ export default function VendorOrderDetail() {
   const [loading, setLoading] = useState(true);
   const [accepting, setAccepting] = useState(false);
 
+  const backgroundLocation =
+    (location.state as any)?.backgroundLocation || null;
+
+  const onClose = () => {
+    if (backgroundLocation) {
+      // preserve query/hash if any
+      const to =
+        backgroundLocation.pathname +
+        (backgroundLocation.search || "") +
+        (backgroundLocation.hash || "");
+      navigate(to, { replace: true, state: backgroundLocation.state });
+    } else {
+      navigate("/vendor/orders", { replace: true });
+    }
+  };
+
   useEffect(() => {
     (async () => {
       try {
@@ -60,7 +76,7 @@ export default function VendorOrderDetail() {
     <main className="mx-auto max-w-5xl p-6">
       <div className="mb-4">
         <button
-          onClick={() => navigate(-1)}
+          onClick={onClose}
           aria-label="Close"
           className="absolute right-4 top-4 rounded-md p-2 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2"
         >
@@ -77,9 +93,11 @@ export default function VendorOrderDetail() {
 
       </div>
 
-      <div className="mt-2 flex justify-center">
-        <OrderStatusBar status={uiStatus as any} className="w-2/3 mx-auto" />
-      </div>
+      {order.status !== "CANCELED" && (
+        <div className="mt-2 flex justify-center">
+          <OrderStatusBar status={uiStatus} className="w-2/3 mx-auto" />
+        </div>
+      )}
 
       <p className="text-sm text-black mt-1">
         <strong>Customer name:</strong> {order.customerName}<br />
@@ -138,7 +156,7 @@ export default function VendorOrderDetail() {
           </button>
           <Link
             to={`/vendor/orders/${order.id}/reject`}
-            state={{ backgroundLocation: location, orderIndex }}
+            state={{ backgroundLocation: backgroundLocation || location, orderIndex }}
             className="inline-flex items-center w-32 justify-center rounded-md bg-red-600 px-4 py-2 text-white hover:bg-red-700"
           >
             Reject
@@ -146,8 +164,22 @@ export default function VendorOrderDetail() {
         </div>
       )}
 
-      {order.status === "CANCELED" && order.cancelReason && (
-        <p className="mt-4 text-sm text-red-600">Canceled: {order.cancelReason}</p>
+      {order.status === "CANCELED" && (
+        <div className="mt-6 rounded-lg border border-red-300 bg-red-50 p-4">
+          <h2 className="mb-1 font-medium text-red-800">Order canceled</h2>
+          <p className="text-sm text-red-700 whitespace-pre-wrap">
+            {order.cancelReason || "This order was canceled."}
+          </p>
+        </div>
+      )}
+
+      {order.status === "DELIVERED" && (
+        <div className="mt-6 rounded-lg border border-emerald-300 bg-emerald-50 p-4">
+          <h2 className="mb-1 font-medium text-emerald-800">Delivered</h2>
+          <p className="text-sm text-emerald-700">
+            Your order has been delivered.
+          </p>
+        </div>
       )}
     </main>
   );

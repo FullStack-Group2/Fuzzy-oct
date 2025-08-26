@@ -1,8 +1,6 @@
 import { Routes, Route } from 'react-router-dom';
-import {
-  ProtectedRoute,
-  PublicOnlyRoute,
-} from '../features/auth/ProtectedRoute';
+
+import { ProtectedRoute, PublicOnlyRoute } from '@/features/auth/ProtectedRoute';
 
 import NotFound from './pages/NotFound';
 import Home from './pages';

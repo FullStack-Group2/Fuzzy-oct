@@ -1,7 +1,6 @@
 import { useState } from 'react';
 
 import { FaArrowLeftLong } from 'react-icons/fa6';
-
 import PriceSlider from './PriceSlider';
 
 export default function FilterBar() {

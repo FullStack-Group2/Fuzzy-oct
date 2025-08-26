@@ -7,6 +7,11 @@ import { requireCustomer } from '../middleware/roleMiddleware';
 const router = Router();
 
 // Routes
+
+router.get('/products',authMiddleware,requireCustomer,customerController.getAllProducts);
+router.get('/stores/:storeId',authMiddleware,requireCustomer,customerController.getProductByStore);
+
+
 router.get(
   '/cart',
   authMiddleware,
@@ -19,6 +24,14 @@ router.post(
   requireCustomer,
   customerController.addToCart,
 );
+
+router.put(
+  '/cart/',
+  authMiddleware,
+  requireCustomer,
+  customerController.updateCartItem,
+);
+
 router.delete(
   '/cart/:productId',
   authMiddleware,

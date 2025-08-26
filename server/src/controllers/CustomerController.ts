@@ -9,6 +9,9 @@ import {
   deleteItemByProduct,
   getCustomerCart,
   getCustomerCartByObjectId,
+  getCustomerProducts,
+  getStoreProducts,
+  modifyItemCart
 } from '../services/CustomerServices';
 import { Schema } from 'mongoose';
 
@@ -54,7 +57,38 @@ export const addToCart = async (req: AuthenticatedRequest, res: Response) => {
   }
 };
 
-// Create order
+
+export const updateCartItem = async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { itemId, quantity } = req.body;
+    const { userId } = req.user!;
+
+    if (quantity <= 0) {
+      return res.status(400).json({ message: 'Quantity cannot be negative or equal 0' });
+    }
+
+    // Find cart item and update quantity
+    const updatedItem = await modifyItemCart({
+      customerId: userId,
+      cartId: itemId,
+      quantity,
+    })
+
+    if (!updatedItem) {
+      return res.status(404).json({ message: 'Cart item not found' });
+    }
+
+    res.status(200).json({
+      message: 'Cart item updated successfully',
+      cartItem: updatedItem,
+    });
+  } catch (error) {
+    console.error('Error updating cart item:', error);
+    res.status(500).json({ message: 'Failed to update cart item' });
+  }
+};
+
+// Create order -- create order chỉ create vào đúng 1 hub ?????
 export const createOrder = async (req: AuthenticatedRequest, res: Response) => {
   try {
     // extract request
@@ -88,14 +122,16 @@ export const removeItemFromCart = async (
     // extract request
     const { productId } = req.params;
     const { userId } = req.user!;
-
+    
+    console.log(`userId: ${userId}`);
     // Cart validate
 
     const cartItems: ICartItem[] = await getCustomerCartByObjectId(userId);
+    console.log(`cartItem: ${cartItems}`);
     const targetItem = cartItems.find(
-      (p) => (p.product as Schema.Types.ObjectId).toString() === productId,
+      (p) => p._id.toString() === productId,
     );
-
+    console.log(`targetItem: ${targetItem}`);
     if (!targetItem) {
       return res
         .status(404)
@@ -104,7 +140,8 @@ export const removeItemFromCart = async (
 
     // fetch item from db
 
-    await deleteItemByProduct(userId, productId);
+    const data = await deleteItemByProduct(userId, productId);
+    console.log(`check data when delete cart item: ${data}`);
 
     // return
     res.status(200).json({ message: 'Product deleted successfully.' });
@@ -184,3 +221,39 @@ export const updateCustomer = async (req: Request, res: Response) => {
     });
   }
 };
+
+
+
+export const getAllProducts = async (
+  req: AuthenticatedRequest,
+  res: Response,
+) => {
+  try {
+    const products = await getCustomerProducts();
+    res.status(200).json({ products });
+  } catch (error) {
+    console.error('Error fetching products:', error);
+    res.status(500).json({
+      message: 'Failed to fetch products.',
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
+};
+
+export const getProductByStore = async (
+  req: AuthenticatedRequest,
+  res: Response,
+) => {
+  try {
+    const { storeId } = req.params;
+    const products = await getStoreProducts(storeId);
+    res.status(200).json({ products });
+  } catch (error) {
+    console.error('Error fetching products:', error);
+    res.status(500).json({
+      message: 'Failed to fetch products.',
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
+};
+

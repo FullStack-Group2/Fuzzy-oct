@@ -21,7 +21,8 @@ export const deleteItemByProduct = async (
   userId: string,
   productId: string,
 ) => {
-  return CartItem.findOneAndDelete({ customer: userId, product: productId });
+  console.log(`check in deleteItem by product: ${userId} + ${productId}`)
+  return CartItem.findOneAndDelete({ customer: userId, _id: productId });
 };
 
 export const deleteAllItem = async (userId: string) => {
@@ -48,10 +49,48 @@ export const addItemToCart = async ({
   return CartItem.create({ customer, product, quantity });
 };
 
+
+export const modifyItemCart = async ({
+  customerId,
+  cartId,
+  quantity,
+}: {
+  customerId: string;
+  cartId: string;
+  quantity: number;
+}) => {
+  // 1. Check product stock
+  const productDoc = await ProductModel.find({_id: cartId});
+  console.log(productDoc);
+  if (!productDoc) {
+    throw new Error('Product not found');
+  }
+
+  if (quantity > productDoc.availableStock) {
+    throw new Error(
+      `Requested quantity (${quantity}) exceeds available stock (${productDoc.availableStock}).`
+    );
+  }
+
+  // 2. Update cart item
+  const updatedCartItem = await CartItem.findOneAndUpdate(
+    { customer: customerId, _id:cartId },
+    { $set: { quantity } },
+    { new: true, upsert: true } // upsert allows creating item if not exists
+  ).populate('product');
+
+  // 3. Return both product stock + cart quantity
+  return {
+    cartItem: updatedCartItem,
+    availableStock: productDoc.availableStock,
+    quantity: updatedCartItem?.quantity,
+  };
+}
+
 export const createOrderFromItem = async (userId: string) => {
   const customer = userId;
   const orderDate = new Date();
-  const status = OrderStatus.DELIVERED;
+  const status = OrderStatus.PENDING;
   const hub = '68a0a96ad24f3fdeb3eec4a9';
 
   const cartItem = await getCustomerCart(userId);
@@ -101,5 +140,11 @@ Nut feedback driver/don hang
 lỡ đặt 3 hàng mà shop thiếu hàng thì sao
 */
 
-// Vendor add item to hub
-export const addItemToHub = () => {};
+
+ export const getCustomerProducts = async () => {
+  return ProductModel.find({});
+};
+
+ export const getStoreProducts = async (storeId: string) => {
+  return ProductModel.find({vendor: storeId});
+};

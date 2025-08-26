@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { IoMdMenu } from 'react-icons/io';
 import { Link } from 'react-router-dom';
 
-type Role = 'customer' | 'vendor' | 'shipper' | null;
+type Role = 'CUSTOMER' | 'VENDOR' | 'SHIPPER' | null;
 
 // Mobile dropdown menu
 export default function MobileMenuDropDown({ role }: { role: Role }) {

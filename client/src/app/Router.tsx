@@ -35,124 +35,124 @@ const LogoutWrapper = () => {
 
 export default function AppRouter() {
   return (
-      <Routes>
-        {/* Auth routes - only accessible when NOT logged in */}
+    <Routes>
+      {/* Auth routes - only accessible when NOT logged in */}
+      <Route
+        path="/auth/login"
+        element={
+          <PublicOnlyRoute>
+            <Login />
+          </PublicOnlyRoute>
+        }
+      />
+      <Route
+        path="/auth/register"
+        element={
+          <PublicOnlyRoute>
+            <Register />
+          </PublicOnlyRoute>
+        }
+      />
+      <Route
+        path="/auth/forgot-password"
+        element={
+          <PublicOnlyRoute>
+            <ForgotPassword />
+          </PublicOnlyRoute>
+        }
+      />
+      <Route element={<Layout />}>
+        {/* Public routes accessible to everyone */}
+
+        {/* Protected routes that require authentication */}
         <Route
-          path="/auth/login"
+          path="/"
           element={
-            <PublicOnlyRoute>
-              <Login />
-            </PublicOnlyRoute>
+            <ProtectedRoute>
+              <Home />
+            </ProtectedRoute>
           }
         />
         <Route
-          path="/auth/register"
+          path="/orders"
           element={
-            <PublicOnlyRoute>
-              <Register/>
-            </PublicOnlyRoute>
+            <ProtectedRoute>
+              <Orders />
+            </ProtectedRoute>
           }
         />
         <Route
-          path="/auth/forgot-password"
+          path="/products"
           element={
-            <PublicOnlyRoute>
-              <ForgotPassword />
-            </PublicOnlyRoute>
+            <ProtectedRoute allowedRoles={['VENDOR']}>
+              <Products />
+            </ProtectedRoute>
           }
         />
-        <Route element={<Layout />}>
-          {/* Public routes accessible to everyone */}
 
-          {/* Protected routes that require authentication */}
-          <Route
-            path="/"
-            element={
-              <ProtectedRoute>
-                <Home />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/orders"
-            element={
-              <ProtectedRoute>
-                <Orders />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/products"
-            element={
-              <ProtectedRoute allowedRoles={['VENDOR']}>
-                <Products />
-              </ProtectedRoute>
-            }
-          />
+        <Route
+          path="/products/add"
+          element={
+            <ProtectedRoute allowedRoles={['VENDOR']}>
+              <AddProduct />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/products/:id/edit"
+          element={
+            <ProtectedRoute allowedRoles={['VENDOR']}>
+              <EditProduct />
+            </ProtectedRoute>
+          }
+        />
 
-          <Route
-            path="/products/add"
-            element={
-              <ProtectedRoute allowedRoles={['VENDOR']}>
-                <AddProduct />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/products/:id/edit"
-            element={
-              <ProtectedRoute allowedRoles={['VENDOR']}>
-                <EditProduct />
-              </ProtectedRoute>
-            }
-          />
+        <Route
+          path="/shop"
+          element={
+            <ProtectedRoute allowedRoles={['CUSTOMER']}>
+              <Shop />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/products/:id"
+          element={
+            <ProtectedRoute allowedRoles={['CUSTOMER']}>
+              <ProductDetail />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/stores/:id"
+          element={
+            <ProtectedRoute allowedRoles={['CUSTOMER']}>
+              <StoreDetail />
+            </ProtectedRoute>
+          }
+        />
 
-          <Route
-            path="/shop"
-            element={
-              <ProtectedRoute allowedRoles={['CUSTOMER']}>
-                <Shop />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/products/:id"
-            element={
-              <ProtectedRoute allowedRoles={['CUSTOMER']}>
-                <ProductDetail />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/stores/:id"
-            element={
-              <ProtectedRoute allowedRoles={['CUSTOMER']}>
-                <StoreDetail />
-              </ProtectedRoute>
-            }
-          />
+        {/* profile routes - requires authentications */}
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <Profile />
+            </ProtectedRoute>
+          }
+        />
+        {/* Logout route - requires authentication */}
+        <Route
+          path="/auth/logout"
+          element={
+            <ProtectedRoute>
+              <LogoutWrapper />
+            </ProtectedRoute>
+          }
+        />
 
-          {/* profile routes - requires authentications */}
-          <Route
-            path="/profile"
-            element={
-              <ProtectedRoute>
-                <Profile/>
-              </ProtectedRoute>
-            }
-          />
-          {/* Logout route - requires authentication */}
-          <Route
-            path="/auth/logout"
-            element={
-              <ProtectedRoute>
-                <LogoutWrapper />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route path="*" element={<NotFound />} />
-        </Route>
-      </Routes>
+        <Route path="*" element={<NotFound />} />
+      </Route>
+    </Routes>
   );
 }

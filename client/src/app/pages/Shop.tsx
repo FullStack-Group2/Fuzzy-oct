@@ -1,4 +1,3 @@
-import PriceSlider from '@/features/shop/PriceSlider';
 import FilterBar from '@/features/shop/FilterBar';
 import ShopCardItem from '@/features/shop/ShopCardItem';
 

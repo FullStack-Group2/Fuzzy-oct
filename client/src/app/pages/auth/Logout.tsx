@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button';
 import React, { useState } from 'react';
-import { useAuth } from '../../AuthProvider';
+import { useAuth } from '../../../stores/AuthProvider';
 import { useNavigate } from 'react-router-dom';
 
 interface LogoutProps {

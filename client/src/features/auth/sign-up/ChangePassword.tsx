@@ -6,8 +6,8 @@ import { Label } from '@/components/ui/label';
 import { Eye, EyeOff, X } from 'lucide-react';
 import PasswordRequirements, {
   passwordValidationSchema,
-} from '@/app/components/PasswordValidation';
-import { useAuth } from '../../AuthProvider';
+} from '@/features/auth/sign-up/PasswordValidation';
+import { useAuth } from '@/stores/AuthProvider';
 
 // Zod schema for change password validation
 const changePasswordSchema = z

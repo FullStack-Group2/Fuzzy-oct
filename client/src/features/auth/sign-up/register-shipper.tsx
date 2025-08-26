@@ -1,15 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Link } from 'react-router-dom';
 import PasswordRequirements, {
   passwordValidationSchema,
-} from '@/app/components/PasswordValidation';
+} from '@/features/auth/sign-up/PasswordValidation';
 
-// Zod schema for vendor registration validation
-const vendorRegistrationSchema = z.object({
+// Zod schema for shipper registration validation
+const shipperRegistrationSchema = z.object({
   username: z
     .string()
     .min(3, 'Username must be at least 3 characters long')
@@ -23,47 +30,62 @@ const vendorRegistrationSchema = z.object({
     .email('Please enter a valid email address')
     .min(1, 'Email is required'),
   password: passwordValidationSchema,
-  businessName: z
-    .string()
-    .min(2, 'Business name must be at least 2 characters long')
-    .max(100, 'Business name must be less than 100 characters'),
-  businessAddress: z
-    .string()
-    .min(5, 'Business address must be at least 5 characters long')
-    .max(200, 'Business address must be less than 200 characters'),
+  assignedHub: z.string(),
   profilePicture: z.string().optional(),
 });
 
-type VendorRegistrationData = z.infer<typeof vendorRegistrationSchema>;
+interface ShipperRegistrationData {
+  username: string;
+  email: string;
+  password: string;
+  assignedHub?: string; // Allow undefined for initial state
+  profilePicture?: string;
+}
 
-export interface RegisteredVendor {
+export interface RegisteredShipper {
   id: string;
   username: string;
-  businessName: string;
-  businessAddress: string;
+  email: string;
+  assignedHub?: string;
   profilePicture: string;
   role: string;
 }
 
-interface RegisterVendorProps {
-  onRegistrationSuccess?: (vendor: RegisteredVendor) => void;
+interface RegisterShipperProps {
+  onRegistrationSuccess?: (Shipper: RegisteredShipper) => void;
   onSwitchToLogin?: () => void;
 }
 
-export const RegisterVendor: React.FC<RegisterVendorProps> = ({
+export const RegisterShipper: React.FC<RegisterShipperProps> = ({
   onRegistrationSuccess,
 }) => {
-  const [formData, setFormData] = useState<VendorRegistrationData>({
+  const [formData, setFormData] = useState<ShipperRegistrationData>({
     username: '',
     email: '',
     password: '',
-    businessName: '',
-    businessAddress: '',
+    assignedHub: undefined, // Start with undefined to show placeholder
     profilePicture: '',
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>('');
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [hubs, setHubs] = useState<
+    { _id: string; hubName: string; hubLocation: string }[]
+  >([]);
+
+  useEffect(() => {
+    fetch('http://localhost:5001/api/hubs')
+      .then((res) => res.json())
+      .then((data) => {
+        // Sort hubs alphabetically by hubName for consistent ordering
+        const sortedHubs = data.hubs.sort(
+          (a: { hubName: string }, b: { hubName: string }) =>
+            a.hubName.localeCompare(b.hubName),
+        );
+        setHubs(sortedHubs);
+      })
+      .catch((err) => console.error('Failed to load hubs:', err));
+  }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -81,13 +103,39 @@ export const RegisterVendor: React.FC<RegisterVendorProps> = ({
     }
   };
 
+  const handleSelectChange = (value: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      assignedHub: value,
+    }));
+    // Clear general error and field-specific error when user selects
+    if (error) setError('');
+    if (fieldErrors.assignedHub) {
+      setFieldErrors((prev) => ({
+        ...prev,
+        assignedHub: '',
+      }));
+    }
+  };
+
   const validateForm = (): boolean => {
     try {
       // Clear previous field errors
       setFieldErrors({});
 
-      // Validate using Zod schema
-      vendorRegistrationSchema.parse(formData);
+      // Check for undefined assignedHub first
+      if (!formData.assignedHub) {
+        setFieldErrors({ assignedHub: 'Please select an assigned hub' });
+        setError('Please select an assigned hub');
+        return false;
+      }
+
+      // Validate using Zod schema with complete data
+      const completeData = {
+        ...formData,
+        assignedHub: formData.assignedHub,
+      };
+      shipperRegistrationSchema.parse(completeData);
       return true;
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -126,13 +174,12 @@ export const RegisterVendor: React.FC<RegisterVendorProps> = ({
         username: formData.username,
         email: formData.email,
         password: formData.password,
-        businessName: formData.businessName,
-        businessAddress: formData.businessAddress,
+        assignedHubId: formData.assignedHub!, // Send as assignedHubId to match backend expectation
         profilePicture: formData.profilePicture,
       };
 
       const response = await fetch(
-        'http://localhost:5001/api/auth/register/vendor',
+        'http://localhost:5001/api/auth/register/shipper',
         {
           method: 'POST',
           headers: {
@@ -145,14 +192,14 @@ export const RegisterVendor: React.FC<RegisterVendorProps> = ({
       const data = await response.json();
 
       if (response.ok) {
-        console.log('Vendor registration successful:', data);
+        console.log('Shipper registration successful:', data);
 
-        // Store vendor data and token in localStorage
-        localStorage.setItem('vendor', JSON.stringify(data.vendor));
+        // Store Shipper data and token in localStorage
+        localStorage.setItem('Shipper', JSON.stringify(data.Shipper));
         localStorage.setItem('token', data.token);
 
-        onRegistrationSuccess?.(data.vendor);
-        alert('Vendor registration successful!');
+        onRegistrationSuccess?.(data.Shipper);
+        alert('Shipper registration successful!');
       } else {
         setError(data.message || 'Registration failed');
         console.error('Registration failed:', data);
@@ -185,7 +232,9 @@ export const RegisterVendor: React.FC<RegisterVendorProps> = ({
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Error Message */}
             {error && (
-              <div className=" px-4 py-3 rounded-lg text-sm">{error}</div>
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+                {error}
+              </div>
             )}
 
             {/* Username Field */}
@@ -226,43 +275,32 @@ export const RegisterVendor: React.FC<RegisterVendorProps> = ({
               )}
             </div>
 
-            {/* Business Name Field */}
+            {/* Assigned Distribution Hub Field */}
             <div className="space-y-2">
-              <Label htmlFor="businessName">Business Name *</Label>
-              <Input
-                type="text"
-                id="businessName"
-                name="businessName"
-                value={formData.businessName}
-                onChange={handleInputChange}
-                placeholder="Enter your business name"
+              <Label htmlFor="assignedHub">Assigned distribution hub *</Label>
+              <Select
+                value={formData.assignedHub}
+                onValueChange={handleSelectChange}
                 disabled={loading}
-                className={`w-full ${fieldErrors.businessName ? 'border-red-500' : ''}`}
                 required
-              />
-              {fieldErrors.businessName && (
+              >
+                <SelectTrigger
+                  className={`w-full ${fieldErrors.assignedHub ? 'border-red-500' : ''}`}
+                >
+                  <SelectValue placeholder="Select your assigned hub" />
+                </SelectTrigger>
+                <SelectContent>
+                  {hubs.map((hub) => (
+                    <SelectItem key={hub._id} value={hub._id}>
+                      {hub.hubName} - {hub.hubLocation}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {fieldErrors.assignedHub && (
                 <p className="text-red-500 text-sm">
-                  {fieldErrors.businessName}
+                  {fieldErrors.assignedHub}
                 </p>
-              )}
-            </div>
-
-            {/* Business Address Field */}
-            <div className="space-y-2">
-              <Label htmlFor="businessAddress">Business Address *</Label>
-              <Input
-                type="text"
-                id="businessAddress"
-                name="businessAddress"
-                value={formData.businessAddress}
-                onChange={handleInputChange}
-                placeholder="Enter your business address"
-                disabled={loading}
-                className={`w-full ${fieldErrors.businessAddress ? 'border-red-500' : ''}`}
-                required
-              />
-              {fieldErrors.businessAddress && (
-                <p className=" text-sm">{fieldErrors.businessAddress}</p>
               )}
             </div>
 
@@ -281,7 +319,7 @@ export const RegisterVendor: React.FC<RegisterVendorProps> = ({
                 required
               />
               {fieldErrors.password && (
-                <p className=" text-sm">{fieldErrors.password}</p>
+                <p className="text-red-500 text-sm">{fieldErrors.password}</p>
               )}
 
               {/* Password Requirements */}
@@ -294,7 +332,7 @@ export const RegisterVendor: React.FC<RegisterVendorProps> = ({
               disabled={loading}
               className="w-full py-3 rounded-lg font-medium"
             >
-              {loading ? 'Creating Account...' : 'Create Vendor Account'}
+              {loading ? 'Creating Account...' : 'Create Shipper Account'}
             </Button>
 
             {/* Sign In Link */}

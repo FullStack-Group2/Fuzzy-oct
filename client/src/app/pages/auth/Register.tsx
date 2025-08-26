@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { SelectRegistrationType } from './SelectRegistrationType';
-import { RegisterVendor } from './register-vendor';
-import type { RegisteredVendor } from './register-vendor';
-import { RegisteredShipper, RegisterShipper } from './register-shipper';
-import { RegisterCustomer, RegisteredCustomer } from './register-customer';
+
+import { SelectRegistrationType } from '@/features/auth/sign-up/SelectRegistrationType';
+import { RegisterVendor,RegisteredVendor  } from '@/features/auth/sign-up/register-vendor';
+import { RegisterCustomer, RegisteredCustomer } from '@/features/auth/sign-up/register-customer';
+import { RegisterShipper, RegisteredShipper } from '@/features/auth/sign-up/register-shipper';
 
 // Types for registration roles
 export type RegistrationType = 'vendor' | 'shipper' | 'customer';
@@ -19,7 +19,7 @@ interface RegistrationFlowProps {
   onRegistrationSuccess?: (user: RegisteredUser) => void;
 }
 
-export const RegistrationFlow: React.FC<RegistrationFlowProps> = ({
+export const Register: React.FC<RegistrationFlowProps> = ({
   onRegistrationSuccess,
 }) => {
   const navigate = useNavigate();

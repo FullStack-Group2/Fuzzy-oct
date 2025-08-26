@@ -1,6 +1,4 @@
 import { Routes, Route } from 'react-router-dom';
-
-import { AuthProvider } from './AuthProvider';
 import {
   ProtectedRoute,
   PublicOnlyRoute,
@@ -19,12 +17,10 @@ import { Login } from './pages/auth/Login';
 import { Logout } from './pages/auth/Logout';
 
 import Layout from './Layout';
-import { useAuth } from './AuthProvider';
-import { RegistrationFlow } from './pages/auth/sign-up/RegistrationFlow';
+import { useAuth } from '../stores/AuthProvider';
 import { ForgotPassword } from './pages/auth/ForgotPassword';
-import { ShipperProfile } from './pages/shipper/ShipperProfile';
-import { CustomerProfile } from './pages/customer/CustomerProfile';
-import { VendorProfile } from './pages/vendor/VendorProfile';
+import { Register } from './pages/auth/Register';
+import Profile from './pages/Profile';
 
 // Wrapper component for Logout that injects user from context
 const LogoutWrapper = () => {
@@ -39,7 +35,6 @@ const LogoutWrapper = () => {
 
 export default function AppRouter() {
   return (
-    <AuthProvider>
       <Routes>
         {/* Auth routes - only accessible when NOT logged in */}
         <Route
@@ -54,7 +49,7 @@ export default function AppRouter() {
           path="/auth/register"
           element={
             <PublicOnlyRoute>
-              <RegistrationFlow />
+              <Register/>
             </PublicOnlyRoute>
           }
         />
@@ -86,16 +81,6 @@ export default function AppRouter() {
               </ProtectedRoute>
             }
           />
-
-          {/* Vendor-only routes */}
-          <Route
-            path="/vendor/profile"
-            element={
-              <ProtectedRoute allowedRoles={['VENDOR']}>
-                <VendorProfile />
-              </ProtectedRoute>
-            }
-          />
           <Route
             path="/products"
             element={
@@ -122,16 +107,6 @@ export default function AppRouter() {
             }
           />
 
-          {/* Customer-only routes */}
-
-          <Route
-            path="/customer/profile"
-            element={
-              <ProtectedRoute allowedRoles={['CUSTOMER']}>
-                <CustomerProfile />
-              </ProtectedRoute>
-            }
-          />
           <Route
             path="/shop"
             element={
@@ -156,12 +131,13 @@ export default function AppRouter() {
               </ProtectedRoute>
             }
           />
-          {/* Shipper routes */}
+
+          {/* profile routes - requires authentications */}
           <Route
-            path="/shipper/profile"
+            path="/profile"
             element={
-              <ProtectedRoute allowedRoles={['SHIPPER']}>
-                <ShipperProfile />
+              <ProtectedRoute>
+                <Profile/>
               </ProtectedRoute>
             }
           />
@@ -178,6 +154,5 @@ export default function AppRouter() {
           <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>
-    </AuthProvider>
   );
 }

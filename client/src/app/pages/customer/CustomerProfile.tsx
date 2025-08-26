@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button';
 import React, { useState, useCallback } from 'react';
-import { ChangePassword } from '../auth/ChangePassword';
-import { useAuth } from '../../AuthProvider';
+import { ChangePassword } from '@/features/auth/sign-up/ChangePassword';
+import { useAuth } from '../../../stores/AuthProvider';
 
 interface CustomerData {
   id: string;

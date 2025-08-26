@@ -7,7 +7,7 @@ import { ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import PasswordRequirements, {
   passwordValidationSchema,
-} from '@/app/components/PasswordValidation';
+} from '@/features/auth/sign-up/PasswordValidation';
 
 // Zod schema for password validation
 const passwordSchema = z.object({

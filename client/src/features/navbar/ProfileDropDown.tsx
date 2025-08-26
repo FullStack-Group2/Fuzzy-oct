@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useAuth } from '../../app/AuthProvider';
+import { useAuth } from '../../stores/AuthProvider';
 
 import { MdOutlinePerson } from 'react-icons/md';
 
@@ -11,17 +11,7 @@ export default function ProfileDropdown() {
   // Determine profile path based on user role
   const getProfilePath = () => {
     if (!user) return '/auth/login';
-
-    switch (user.role) {
-      case 'VENDOR':
-        return '/vendor/profile';
-      case 'CUSTOMER':
-        return '/customer/profile';
-      case 'SHIPPER':
-        return '/shipper/profile';
-      default:
-        return '/profile';
-    }
+    return '/profile';
   };
 
   return (

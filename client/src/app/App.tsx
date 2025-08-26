@@ -1,10 +1,10 @@
 import AppRouter from './Router';
-import { AuthProvider } from '../stores/AuthProvider';
+import Provider from './Provider';
 const App = () => {
   return (
-    <AuthProvider>
+    <Provider>
       <AppRouter />
-    </AuthProvider>
+    </Provider>
   );
 };
 

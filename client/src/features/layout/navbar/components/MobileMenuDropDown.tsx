@@ -9,15 +9,15 @@ export default function MobileMenuDropDown({ role }: { role: Role }) {
   const [isOpen, setIsOpen] = useState(false);
 
   const menu = {
-    customer: [
+    CUSTOMER: [
       { name: 'Shop', path: '/shop' },
       { name: 'Order', path: '/orders' },
     ],
-    vendor: [
+    VENDOR: [
       { name: 'Product', path: '/products' },
       { name: 'Order', path: '/orders' },
     ],
-    shipper: [{ name: 'Order', path: '/orders' }],
+    SHIPPER: [{ name: 'Order', path: '/orders' }],
     null: [
       { name: 'Register', path: '/register' },
       { name: 'Login', path: '/login' },

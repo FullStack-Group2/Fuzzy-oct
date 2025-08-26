@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { HiOutlineShoppingCart } from 'react-icons/hi';
 import { FaArrowLeftLong } from 'react-icons/fa6';
 import CartItem from './CartItem';
+import { useShopCart } from '../../stores/ShopCartDataContext';
+
 interface DataItem {
   name: string;
   imgSrc: string;
@@ -9,33 +11,35 @@ interface DataItem {
   quantity: number;
 }
 
-const productData: DataItem[] = [
-  {
-    name: 'Verona Seat',
-    imgSrc: '/verona-seat.png',
-    price: 950_000,
-    quantity: 2,
-  },
-  {
-    name: 'Chair',
-    imgSrc: '/verona-seat.png',
-    price: 750_000,
-    quantity: 1,
-  },
-];
+function calculateTotal(products: any[]): number {
+  if (!Array.isArray(products)) return 0;
 
-function calculateTotal(products: DataItem[]): number {
-  return products.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  return products.reduce((sum, item) => {
+    if (item && item.product) {
+      return sum + (item.product.price || 0) * (item.quantity || 0);
+    }
+    return sum; // skip items without product
+  }, 0);
 }
 
+
 export default function Cart() {
+  const {
+    cart,
+    loading,
+    error,
+    createOrder,
+  } = useShopCart();
+
   const [isOpen, setIsOpen] = useState(false);
-  const [data, setData] = useState(productData);
 
   function orderItems() {
     setIsOpen(false);
-    setData([]);
+    createOrder();
   }
+
+  if (loading) return <p>Loading cart...</p>;
+  if (error) return <p>{error}</p>;
 
   return (
     <>
@@ -49,7 +53,7 @@ export default function Cart() {
 
         {/*quantity in cart*/}
         <div className="absolute right-0 bottom-0 rounded-full w-[16px] h-[16px] bg-black text-white flex justify-center items-center text-[8px]">
-          {data.length >= 100 ? '99+' : data.length}
+          {cart.length >= 100 ? '99+' : cart.length}
         </div>
       </button>
 
@@ -69,12 +73,10 @@ export default function Cart() {
         </header>
 
         <main className="h-[calc(100%-140px)] py-10 overflow-y-auto flex flex-col gap-5">
-          {data.map((item, index) => (
+          {cart.map((item, index) => (
             <CartItem
               key={index}
               dataItem={item}
-              cartData={data}
-              setData={setData}
             />
           ))}
         </main>
@@ -82,7 +84,7 @@ export default function Cart() {
         <footer className="absolute right-0 bottom-0 w-full h-[140px] bg-[#F9F9F9] p-6 flex flex-col justify-between">
           <div className="w-full flex justify-between">
             <p>Total</p>
-            <p>{Intl.NumberFormat('vi-VN').format(calculateTotal(data))} vnd</p>
+            <p>{Intl.NumberFormat('vi-VN').format(calculateTotal(cart))} vnd</p>
           </div>
           <button
             onClick={() => orderItems()}

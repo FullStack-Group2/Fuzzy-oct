@@ -1,13 +1,16 @@
 import { Link } from 'react-router-dom';
-import authRole from '@/stores/authStore';
+import { useAuth } from '@/stores/AuthProvider';
 
-import NavLinkItems from '@/features/navbar/NavLinkItems';
-import SearchBar from '@/features/navbar/SearchBar';
-import ProfileDropdown from '@/features/navbar/ProfileDropDown';
-import MobileMenuDropDown from '@/features/navbar/MobileMenuDropDown';
-import Cart from '@/features/navbar/Cart/Cart';
+import NavLinkItems from '@/features/layout/navbar/components/NavLinkItems';
+import SearchBar from '@/features/layout/navbar/components/SearchBar';
+import ProfileDropdown from '@/features/layout/navbar/components/ProfileDropDown';
+import MobileMenuDropDown from '@/features/layout/navbar/components/MobileMenuDropDown';
+import Cart from '@/features/layout/navbar/components/cart/Cart';
+import { ShopCartDataProvider } from '@/features/layout/navbar/stores/ShopCartDataContext';
 
 export default function Navbar() {
+  const {user} = useAuth();
+  
   return (
     <nav className="w-full bg-white border-b sticky left-0 top-0 z-40">
       <div className=" mx-auto flex items-center justify-between px-4 py-3 md:py-4">
@@ -18,12 +21,12 @@ export default function Navbar() {
             <img src="/logo.png" alt="Logo" className="h-auto min-w-14 w-14" />
           </Link>
 
-          {authRole && <NavLinkItems role={authRole} />}
+          {user?.role && <NavLinkItems role={user.role} />}
         </div>
 
         {/* right side of navbar */}
         <div className="flex items-center space-x-4">
-          {!authRole && (
+          {!user?.role && (
             <div className="hidden md:flex items-center space-x-4">
               <Link
                 to="/auth/register"
@@ -40,7 +43,7 @@ export default function Navbar() {
             </div>
           )}
 
-          {authRole === 'CUSTOMER' && (
+          {user?.role === 'CUSTOMER' && (
             <>
               <SearchBar />
               <Cart />
@@ -50,7 +53,7 @@ export default function Navbar() {
           <ProfileDropdown />
 
           {/* menu toggle */}
-          <MobileMenuDropDown role={authRole} />
+          {user && <MobileMenuDropDown role={user.role} />}
         </div>
       </div>
     </nav>

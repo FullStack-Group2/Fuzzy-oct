@@ -1,17 +1,17 @@
 import { Link } from 'react-router-dom';
-type Role = 'customer' | 'vendor' | 'shipper' | null;
+type Role = 'CUSTOMER' | 'VENDOR' | 'SHIPPER' | null;
 
 export default function NavLinkItems({ role }: { role: Exclude<Role, null> }) {
   const menu = {
-    customer: [
+    CUSTOMER: [
       { name: 'Shop', path: '/shop' },
       { name: 'Order', path: '/orders' },
     ],
-    vendor: [
+    VENDOR: [
       { name: 'Product', path: '/products' },
       { name: 'Order', path: '/orders' },
     ],
-    shipper: [{ name: 'Order', path: '/orders' }],
+    SHIPPER: [{ name: 'Order', path: '/orders' }],
   };
 
   return (

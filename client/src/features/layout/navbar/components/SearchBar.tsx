@@ -1,5 +1,6 @@
 import { useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { CiSearch } from "react-icons/ci";
 
 export default function SearchBar() {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -29,10 +30,7 @@ export default function SearchBar() {
         type="submit" // ✅ pressing Enter or clicking this triggers handleSearch
         className="absolute right-2 top-1/2 -translate-y-1/2"
       >
-        <img
-          src="/src/assets/icon/search.svg"
-          alt="search"
-          className="h-4 w-4"
+        <CiSearch className='size-5'
         />
       </button>
     </form>

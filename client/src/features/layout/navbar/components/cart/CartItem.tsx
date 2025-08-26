@@ -1,5 +1,6 @@
 import React from 'react';
 import { CiTrash } from 'react-icons/ci';
+import { useShopCart } from '../../stores/ShopCartDataContext';
 
 interface DataItem {
   name: string;
@@ -13,38 +14,25 @@ interface CartItemProps {
   setData: any;
 }
 
-const CartItem: React.FC<CartItemProps> = ({ dataItem, cartData, setData }) => {
-  const { name, imgSrc, price, quantity } = dataItem;
+const CartItem: React.FC<any> = ({ dataItem }) => {
+  const { loading, error, updateCartItem, removeCartItem } = useShopCart();
+
+  if (loading) return <p>Loading cart...</p>;
+  if (error) return <p>{error}</p>;
+
+  // if(!dataItem) return <></>
+  const { _id, product, quantity } = dataItem;
 
   function increase() {
-    setData((prev: DataItem[]) =>
-      prev.map((item) =>
-        item.name === dataItem.name
-          ? { ...item, quantity: item.quantity + 1 }
-          : item,
-      ),
-    );
+    updateCartItem(_id, quantity + 1);
   }
 
   function decrease() {
-    setData((prev: DataItem[]) =>
-      prev.map((item) =>
-        item.name === dataItem.name && item.quantity > 1
-          ? { ...item, quantity: item.quantity - 1 }
-          : item,
-      ),
-    );
+    updateCartItem(_id, quantity - 1);
   }
 
   function removeItem() {
-    setData((prev: typeof cartData) => {
-      // filter out the current item
-      const updatedProducts = prev.filter(
-        (item) => item.name !== dataItem.name,
-      );
-
-      return updatedProducts;
-    });
+    removeCartItem(_id);
   }
 
   return (
@@ -53,8 +41,8 @@ const CartItem: React.FC<CartItemProps> = ({ dataItem, cartData, setData }) => {
         {/*product image*/}
         <div className="w-[120px] aspect-[17/25] bg-[#EEF1F1] flex justify-center items-center">
           <img
-            src={imgSrc}
-            alt={name}
+            src={product?.imageUrl}
+            alt={product?.name}
             className="w-[75%] h-auto object-contain"
           />
         </div>
@@ -62,9 +50,9 @@ const CartItem: React.FC<CartItemProps> = ({ dataItem, cartData, setData }) => {
         {/*product info*/}
         <div className="flex flex-col justify-between">
           <div>
-            <p className="text-[16px] font-medium">{name}</p>
+            <p className="text-[16px] font-medium">{product?.name}</p>
             <p className="text-[12px] font-extralight text-[#B1B1B1]">
-              {Intl.NumberFormat('vi-VN').format(price)} Vnd
+              {Intl.NumberFormat('vi-VN').format(product?.price)} Vnd
             </p>
           </div>
 

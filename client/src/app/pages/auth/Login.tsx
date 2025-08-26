@@ -3,8 +3,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { useAuth } from '../../AuthProvider';
-
+import { useAuth } from '@/stores/AuthProvider';
 interface LoginData {
   username: string;
   password: string;

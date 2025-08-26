@@ -5,7 +5,7 @@ import OrderModel from "../models/Order";
 import OrderItemModel from "../models/OrderItem";
 import ProductModel from "../models/Product";
 import { AuthenticatedRequest } from "../middleware/authMiddleware";
-import { VendorDecision } from "../models/OrderStatus";
+import { OrderStatus } from "../models/OrderStatus";
 
 // Get vendor with profile picture
 export const getVendorById = async (req: Request, res: Response) => {
@@ -79,7 +79,7 @@ export async function getAllOrders(req: AuthenticatedRequest, res: Response) {
     // Exclude vendor-rejected orders
     const orders = await OrderModel.find({
       _id: { $in: orderIds },
-      vendorDecision: { $ne: VendorDecision.REJECTED },
+      status: { $ne: OrderStatus.CANCELED },
     })
       .populate({ path: "customer", select: "name address" })
       .sort({ orderDate: -1 })
@@ -235,6 +235,8 @@ export async function updateStatus(req: AuthenticatedRequest, res: Response) {
     if (!["ACCEPT", "REJECT", "ACCEPTED", "REJECTED"].includes(actionRaw)) {
       return res.status(400).json({ error: "Invalid action" });
     }
+    const isAccept = actionRaw.startsWith('ACCEPT');
+
     const vendorId = new Types.ObjectId(req.user.userId);
     const orderId = new Types.ObjectId(id);
 
@@ -247,56 +249,50 @@ export async function updateStatus(req: AuthenticatedRequest, res: Response) {
     const isInOrder = items.some((it: any) => !!it.product);
     if (!isInOrder) return res.status(404).json({ error: "Order not found" });
 
-    // Now update vendorDecision atomically
-    const desired =
-      actionRaw === "ACCEPT" || actionRaw === "ACCEPTED"
-        ? VendorDecision.ACCEPTED
-        : VendorDecision.REJECTED;
+    const current = await OrderModel.findById(orderId).lean().exec();
+    if (!current) return res.status(404).json({ error: 'Order not found' });
 
-    // enforce "pending only" if you want; otherwise idempotent for ACCEPTED
-    const filter =
-      desired === VendorDecision.ACCEPTED
-        ? { _id: orderId, vendorDecision: { $ne: VendorDecision.REJECTED } }
-        : { _id: orderId, vendorDecision: { $ne: VendorDecision.REJECTED } }; // allow reject from PENDING; block double-reject
+    if (isAccept) {
+      if (current.status === OrderStatus.DELIVERED || current.status === OrderStatus.CANCELED) {
+        return res.status(409).json({ error: `Order already ${current.status.toLowerCase()}` });
+      }
+      // If already ACTIVE, return OK idempotently
+      if (current.status === OrderStatus.ACTIVE) {
+        return res.json({ ok: true, status: OrderStatus.ACTIVE, cancelReason: null });
+      }
+      if (current.status !== OrderStatus.PENDING) {
+        return res.status(409).json({ error: `Cannot accept from ${current.status}` });
+      }
+    } else {
+      // Reject path
+      if (current.status !== OrderStatus.PENDING) {
+        return res.status(409).json({ error: `Cannot reject from ${current.status}` });
+      }
+      if (!reason) {
+        return res.status(400).json({ error: 'Cancel reason is required when rejecting' });
+      }
+    }
 
-    const update =
-      desired === VendorDecision.ACCEPTED
-        ? {
-          $set: {
-            vendorDecision: VendorDecision.ACCEPTED,
-            status: "ACTIVE",              // <— promote order visibility to shipper
-          },
-          $unset: { vendorRejectReason: "" },
-        }
-        : {
-          $set: {
-            vendorDecision: VendorDecision.REJECTED,
-            status: "CANCELED",            // <— simplest behavior: reject cancels order
-            vendorRejectReason: reason,
-          },
-        };
+    const update = isAccept
+      ? { $set: { status: OrderStatus.ACTIVE }, $unset: { cancelReason: '' } }
+      : { $set: { status: OrderStatus.CANCELED, cancelReason: reason } };
 
     const updated = await OrderModel.findOneAndUpdate(
       { _id: orderId },
       update,
       { new: true }
-    ).lean().exec();
-    
+    )
+      .lean()
+      .exec();
+
     if (!updated) {
-      // Diagnose common cases
-      const exists = await OrderModel.exists({ _id: orderId });
-      if (!exists) return res.status(404).json({ error: "Order not found" });
-
-      const alreadyRejected = await OrderModel.exists({ _id: orderId, vendorDecision: VendorDecision.REJECTED });
-      if (alreadyRejected) return res.status(409).json({ error: "Order already rejected" });
-
-      return res.status(409).json({ error: "Could not update order" });
+      return res.status(409).json({ error: 'Could not update order' });
     }
 
     return res.json({
       ok: true,
-      vendorDecision: String(updated.vendorDecision ?? "").toUpperCase(),
-      vendorRejectReason: (updated as any).vendorRejectReason ?? null,
+      status: updated.status,
+      cancelReason: updated.cancelReason ?? null,
     });
   } catch (err) {
     console.error("[vendor.updateStatus] ERROR:", (err as any)?.message, err);

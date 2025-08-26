@@ -23,6 +23,7 @@ export default function ShipperCancelOrder() {
   const [reason, setReason] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [notes, setNotes] = useState("");
 
   useEffect(() => {
     let alive = true;
@@ -46,10 +47,13 @@ export default function ShipperCancelOrder() {
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
     if (!orderId || !reason) return;
+
+    const mergedReason = notes ? `${reason} — ${notes}` : reason;
+
     setSubmitting(true);
     setError(null);
     try {
-      await apiPatchOrderStatus(orderId, "CANCELED", reason);
+      await apiPatchOrderStatus(orderId, "CANCELED", mergedReason);
       // Replace to avoid history loop and go back to list
       navigate("/shipper/orders", { replace: true });
     } catch (err) {
@@ -98,6 +102,8 @@ export default function ShipperCancelOrder() {
               className="w-full rounded border p-2"
               rows={3}
               placeholder="Add more details…"
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)} 
             />
           </label>
         </div>

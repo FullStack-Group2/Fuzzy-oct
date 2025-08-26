@@ -1,23 +1,21 @@
 import { Schema, model, Document } from 'mongoose';
 import { IOrderItem } from './OrderItem';
-import { OrderStatus, VendorDecision } from './OrderStatus';
+import { OrderStatus } from './OrderStatus';
 
 export interface IOrder extends Document {
   customer: Schema.Types.ObjectId;
-  hub: Schema.Types.ObjectId;
+  distributionHub: Schema.Types.ObjectId;
   orderDate: Date;
   status: OrderStatus;
   totalPrice: number;
   orderItems: IOrderItem[]; // This will be a populated virtual field
-  vendorDecision: VendorDecision;    // PENDING | ACCEPTED | REJECTED
-  vendorRejectReason?: string;       // reason when vendor rejects
-  cancelReason?: string;             // reason when shipper/customer cancels
+  cancelReason?: string;       // reason when vendor or shipper rejects
 }
 
 const orderSchema = new Schema<IOrder>(
   {
     customer: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-    hub: {
+    distributionHub: {
       type: Schema.Types.ObjectId,
       ref: 'DistributionHub',
       required: true,
@@ -26,15 +24,9 @@ const orderSchema = new Schema<IOrder>(
     status: {
       type: String,
       enum: Object.values(OrderStatus),
-      default: OrderStatus.ACTIVE,
+      default: OrderStatus.PENDING,
     },
     totalPrice: { type: Number, required: true },
-    vendorDecision: {
-      type: String,
-      enum: Object.values(VendorDecision),
-      default: VendorDecision.PENDING,
-    },
-    vendorRejectReason: { type: String },
     cancelReason: { type: String },
   },
   {

@@ -1,4 +1,10 @@
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Navigate,
+  useLocation,
+} from 'react-router-dom';
 import authRole from '@/stores/authStore';
 
 import NotFound from './pages/NotFound';
@@ -15,10 +21,10 @@ import Logout from './pages/auth/Logout';
 import ForgotPassword from './pages/auth/ForgotPassword';
 import Register from './pages/auth/Register';
 import Layout from './Layout';
-import ShipperOrders from "./pages/shipper/ShipperOrders";
-import ShipperOrderDetail from "./pages/shipper/ShipperOrderDetails";
-import ShipperCancelOrder from "./pages/shipper/ShipperCancelOrder";
-import PrivacyPolicy from "./pages/PrivacyPolicy";
+import ShipperOrders from './pages/shipper/ShipperOrders';
+import ShipperOrderDetail from './pages/shipper/ShipperOrderDetails';
+import ShipperCancelOrder from './pages/shipper/ShipperCancelOrder';
+import PrivacyPolicy from './pages/PrivacyPolicy';
 import VendorOrders from './pages/vendor/VendorOrders';
 import VendorOrderDetails from './pages/vendor/VendorOrderDetails';
 import VendorCancelOrder from './pages/vendor/VendorCancelOrder';
@@ -33,7 +39,9 @@ export default function AppRouter() {
 
   function InnerRoutes() {
     const location = useLocation();
-    const state = location.state as { backgroundLocation?: Location } | undefined;
+    const state = location.state as
+      | { backgroundLocation?: Location }
+      | undefined;
     const backgroundLocation = state?.backgroundLocation;
 
     return (
@@ -49,7 +57,6 @@ export default function AppRouter() {
                 <Route path="/products" element={<Products />} />
                 <Route path="/products/add" element={<AddProduct />} />
                 <Route path="/products/:id/edit" element={<EditProduct />} />
-
               </>
             )}
 
@@ -68,26 +75,35 @@ export default function AppRouter() {
             <Route path="/auth/forgot-password" element={<ForgotPassword />} />
 
             <Route path="/vendor/orders" element={<VendorOrders />} />
-            <Route path="/vendor/orders/:orderId" element={<VendorOrderDetails />} />
-            <Route path="/vendor/orders/:orderId/reject" element={<VendorCancelOrder />} />
+            <Route
+              path="/vendor/orders/:orderId"
+              element={<VendorOrderDetails />}
+            />
+            <Route
+              path="/vendor/orders/:orderId/reject"
+              element={<VendorCancelOrder />}
+            />
 
+            <Route path="/shipper/orders" element={<ShipperOrders />} />
+            <Route
+              path="/shipper/orders/:orderId"
+              element={<ShipperOrderDetail />}
+            />
+            <Route
+              path="/shipper/orders/:orderId/cancel"
+              element={<ShipperCancelOrder />}
+            />
+            <Route
+              path="*"
+              element={<Navigate to="/shipper/orders" replace />}
+            />
 
-
-            {authRole == 'shipper' && (
-              <>
-                <Route path="/shipper/orders" element={<ShipperOrders />} />
-                <Route path="/shipper/orders/:orderId" element={<ShipperOrderDetail />} />
-                <Route path="/shipper/orders/:orderId/cancel" element={<ShipperCancelOrder />} />
-                <Route path="*" element={<Navigate to="/shipper/orders" replace />} />
-              </>
-            )}
+            {authRole == 'shipper' && <></>}
 
             <Route path="/privacy" element={<PrivacyPolicy />} />
 
             <Route path="*" element={<NotFound />} />
-
           </Route>
-
         </Routes>
         {backgroundLocation && (
           <Routes>
@@ -125,11 +141,8 @@ export default function AppRouter() {
               }
             />
           </Routes>
-
-
         )}
       </>
     );
-
   }
 }

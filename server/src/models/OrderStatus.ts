@@ -4,9 +4,3 @@ export enum OrderStatus {
   CANCELED = 'CANCELED',
   DELIVERED = 'DELIVERED',
 }
-
-export enum VendorDecision {
-  PENDING = 'PENDING',
-  ACCEPTED = 'ACCEPTED',
-  REJECTED = 'REJECTED',
-}

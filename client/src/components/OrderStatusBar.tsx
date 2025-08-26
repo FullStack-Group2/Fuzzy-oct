@@ -1,6 +1,4 @@
-import React from "react";
-
-export type UiStatus = "PENDING" | "ACTIVE" | "DELIVERED";
+export type UiStatus = "PENDING" | "ACTIVE" | "DELIVERED" | "CANCELED";
 
 type Props = {
   status: UiStatus;
@@ -26,14 +24,14 @@ export default function OrderStatusBar({ status, className = "" }: Props) {
   return (
     <div className={`relative w-full max-w-xl ${className}`}>
       {/* Base track */}
-      <div className="absolute left-0 right-0 top-4 h-1 rounded bg-gray-200" />
-      {/* Progress track */}
+      <div className="absolute left-4 right-4 top-4 h-1 rounded bg-gray-200" />
+
       <div
-        className="absolute left-0 top-4 h-1 rounded bg-emerald-500 transition-all duration-300"
-        style={{ width: `${progressPct}%` }}
+        className="absolute left-4 right-4 top-4 h-1 rounded bg-emerald-500 transition-transform duration-300 origin-left"
+        style={{ transform: `scaleX(${(currentIndex / (STEPS.length - 1)) || 0})` }}
       />
 
-      <ol className="relative flex items-center justify-between">
+      <ol className="relative flex items-center justify-between px-2">
         {STEPS.map((step, idx) => {
           const isReached = idx <= currentIndex;
           const circleClasses = isReached
@@ -71,12 +69,10 @@ export default function OrderStatusBar({ status, className = "" }: Props) {
 
 /** Maps vendor + order statuses to the 3-step UI status bar. */
 export function vendorUiStatus(args: {
-  vendorDecision: "PENDING" | "ACCEPTED" | "REJECTED";
-  status: "ACTIVE" | "DELIVERED" | "CANCELED";
+  status: "PENDING" | "ACTIVE" | "DELIVERED" | "CANCELED";
 }): UiStatus {
   if (args.status === "DELIVERED") return "DELIVERED";
-  if (args.vendorDecision === "ACCEPTED" && args.status === "ACTIVE")
-    return "ACTIVE";
+  if (args.status === "ACTIVE") return "ACTIVE";
   // Everything else (including REJECTED) shows as PENDING in this 3-step bar
   return "PENDING";
 }

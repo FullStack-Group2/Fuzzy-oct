@@ -33,7 +33,6 @@ export default function VendorOrders() {
                 <th className="px-4 py-3 w-16">No.</th>
                 <th className="px-4 py-3">Order ID</th>
                 <th className="px-4 py-3">Customer</th>
-                <th className="px-4 py-3">Vendor Decision</th>
                 <th className="px-4 py-3">Status</th>
                 <th className="px-4 py-3">Total</th>
                 <th className="px-4 py-3">Action</th>
@@ -44,8 +43,7 @@ export default function VendorOrders() {
                 <tr key={o.id} className="text-sm">
                   <td className="px-4 py-3 font-medium">{idx + 1}</td>
                   <td className="px-4 py-3 font-mono text-gray-500">{o.id}</td>
-                  <td className="px-4 py-3">{o.customerName}</td>
-                  <td className="px-4 py-3">{o.vendorDecision}</td>
+                  <td className="px-4 py-3">{o.customerName}</td> 
                   <td className="px-4 py-3">{o.status}</td>
                   <td className="px-4 py-3">${o.totalPrice.toFixed(2)}</td>
                   <td className="px-4 py-3">

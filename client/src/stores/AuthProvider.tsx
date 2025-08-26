@@ -62,20 +62,74 @@ export const useAuth = () => {
 // Helper functions for user management
 const getUser = async (): Promise<AppUser | null> => {
   try {
-    const token = localStorage.getItem('token');
-    if (!token) return null;
+    console.log('AuthProvider getUser: Checking localStorage contents...');
+    console.log('  - token:', !!localStorage.getItem('token'));
+    console.log('  - CUSTOMER:', !!localStorage.getItem('CUSTOMER'));
+    console.log('  - VENDOR:', !!localStorage.getItem('VENDOR'));
+    console.log('  - SHIPPER:', !!localStorage.getItem('SHIPPER'));
 
-    // Check for user data in localStorage based on role
-    const customerData = localStorage.getItem('Customer');
-    const vendorData = localStorage.getItem('Vendor');
-    const shipperData = localStorage.getItem('Shipper');
+    const token = localStorage.getItem('token');
+    if (!token) {
+      console.log('AuthProvider getUser: No token found');
+      return null;
+    }
+
+    // Check for user data in localStorage based on role - use uppercase keys
+    const customerData = localStorage.getItem('CUSTOMER');
+    const vendorData = localStorage.getItem('VENDOR');
+    const shipperData = localStorage.getItem('SHIPPER');
+
+    console.log('AuthProvider getUser: Checking stored user data...', {
+      customerData: !!customerData,
+      vendorData: !!vendorData,
+      shipperData: !!shipperData,
+    });
 
     const userData = customerData || vendorData || shipperData;
     if (userData) {
-      return JSON.parse(userData);
+      const parsedUser = JSON.parse(userData);
+      console.log('AuthProvider getUser: Parsed user data:', parsedUser);
+
+      // More lenient validation - just check for essential fields
+      if (
+        parsedUser &&
+        (parsedUser.id || parsedUser._id) &&
+        parsedUser.role &&
+        (parsedUser.email || parsedUser.username)
+      ) {
+        // Normalize the user object to ensure consistent id field
+        const normalizedUser = {
+          ...parsedUser,
+          id: parsedUser.id || parsedUser._id,
+        };
+
+        console.log(
+          'AuthProvider getUser: User validation passed:',
+          normalizedUser,
+        );
+        return normalizedUser;
+      } else {
+        console.warn(
+          'AuthProvider getUser: User validation failed. Missing required fields:',
+          {
+            hasId: !!(parsedUser.id || parsedUser._id),
+            hasRole: !!parsedUser.role,
+            hasEmailOrUsername: !!(parsedUser.email || parsedUser.username),
+          },
+        );
+      }
     }
+
+    // If we have a token but no valid user data, clear everything
+    console.warn(
+      'AuthProvider getUser: Token exists but user data is invalid or missing. Clearing storage.',
+    );
+    await removeUser();
     return null;
-  } catch {
+  } catch (error) {
+    console.error('AuthProvider getUser: Error parsing user data:', error);
+    // If there's an error parsing user data, clear everything
+    await removeUser();
     return null;
   }
 };
@@ -86,25 +140,35 @@ const setUser = async (
   isRememberMe?: boolean,
 ): Promise<void> => {
   try {
-    // Store user data based on role
-    const userKey =
-      userData.role.charAt(0).toUpperCase() + userData.role.slice(1);
+    console.log('AuthProvider setUser: Storing user data:', userData);
+
+    // Store user data based on role - use consistent capitalization
+    const userKey = userData.role; // Use the role as-is: 'CUSTOMER', 'VENDOR', 'SHIPPER'
+
+    console.log('AuthProvider setUser: Storing with key:', userKey);
     localStorage.setItem(userKey, JSON.stringify(userData));
 
     if (isRememberMe) {
       localStorage.setItem('isRememberMeSession', 'true');
+      console.log('AuthProvider setUser: Set remember me session');
     }
+
+    console.log('AuthProvider setUser: User data stored successfully');
   } catch (error) {
+    console.error('AuthProvider setUser: Failed to store user data:', error);
     throw new Error('Failed to store user data');
   }
 };
 
 const removeUser = async (): Promise<void> => {
+  console.log('AuthProvider removeUser: Clearing all user data and token');
+  console.trace('AuthProvider removeUser: Called from');
   localStorage.removeItem('token');
-  localStorage.removeItem('Customer');
-  localStorage.removeItem('Vendor');
-  localStorage.removeItem('Shipper');
+  localStorage.removeItem('CUSTOMER');
+  localStorage.removeItem('VENDOR');
+  localStorage.removeItem('SHIPPER');
   localStorage.removeItem('isRememberMeSession');
+  console.log('AuthProvider removeUser: All data cleared');
 };
 
 const getIsRememberMeSession = async (): Promise<boolean> => {
@@ -135,6 +199,49 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [showInactivityWarning, setShowInactivityWarning] = useState(false);
   const [isRememberMeSession, setIsRememberMeSession] = useState(false);
   const navigate = useNavigate();
+
+  // Add storage monitoring and debugging
+  useEffect(() => {
+    console.log('AuthProvider: Setting up storage monitoring...');
+
+    // Store original localStorage methods
+    const originalSetItem = localStorage.setItem;
+    const originalRemoveItem = localStorage.removeItem;
+    const originalClear = localStorage.clear;
+
+    // Override localStorage methods to add logging
+    localStorage.setItem = function (key: string, value: string) {
+      if (key === 'token') {
+        console.log(
+          'localStorage.setItem called for token:',
+          value.substring(0, 50) + '...',
+        );
+        console.trace('Token setItem called from:');
+      }
+      return originalSetItem.call(localStorage, key, value);
+    };
+
+    localStorage.removeItem = function (key: string) {
+      if (key === 'token') {
+        console.warn('localStorage.removeItem called for token!');
+        console.trace('Token removeItem called from:');
+      }
+      return originalRemoveItem.call(localStorage, key);
+    };
+
+    localStorage.clear = function () {
+      console.warn('localStorage.clear called!');
+      console.trace('localStorage.clear called from:');
+      return originalClear.call(localStorage);
+    };
+
+    // Cleanup function to restore original methods
+    return () => {
+      localStorage.setItem = originalSetItem;
+      localStorage.removeItem = originalRemoveItem;
+      localStorage.clear = originalClear;
+    };
+  }, []);
 
   console.log(
     'AuthProvider rendering, user:',
@@ -221,26 +328,43 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const loadUser = async () => {
+      console.log('AuthProvider: Loading user on mount/reload...');
       setIsLoading(true); // Ensure loading state is true at the start
       try {
         const userData = await getUser();
+        console.log('AuthProvider: Retrieved user data:', userData);
+
         if (userData) {
+          console.log(
+            'AuthProvider: Setting user session for:',
+            userData.role,
+            userData.email,
+          );
           setUserState(userData);
           setIsAuth(true);
           const rememberMeSession = await getIsRememberMeSession();
           setIsRememberMeSession(rememberMeSession);
+          console.log(
+            'AuthProvider: Authentication successful, isRememberMe:',
+            rememberMeSession,
+          );
         } else {
+          console.log(
+            'AuthProvider: No valid user data found, setting unauthenticated state',
+          );
           setUserState(null);
           setIsAuth(false);
           setIsRememberMeSession(false);
           // No need to call removeUser here if getUser implies user is not there
         }
-      } catch {
+      } catch (error) {
+        console.error('AuthProvider: Error loading user:', error);
         setUserState(null);
         setIsAuth(false);
         setIsRememberMeSession(false);
         await removeUser(); // Attempt to clear any lingering cookie on error
       } finally {
+        console.log('AuthProvider: User loading completed');
         setIsLoading(false);
       }
     };
@@ -292,14 +416,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [isAuth, isLoading, showInactivityWarning, resetInactivityTimer]);
 
   const setUserSession = async (userData: AppUser, cookiesMaxAge?: number) => {
+    console.log(
+      'AuthProvider setUserSession: Starting with userData:',
+      userData,
+    );
+    console.log('AuthProvider setUserSession: cookiesMaxAge:', cookiesMaxAge);
+
     try {
       const isRememberMe = !!cookiesMaxAge;
+      console.log('AuthProvider setUserSession: About to call setUser');
+
       await setUser(userData, cookiesMaxAge, isRememberMe);
+      console.log(
+        'AuthProvider setUserSession: setUser completed successfully',
+      );
+
       setUserState(userData);
       setIsAuth(true);
       setIsRememberMeSession(isRememberMe);
+      console.log(
+        'AuthProvider setUserSession: User session established successfully',
+      );
       // resetInactivityTimer will be called by the useEffect due to isAuth change
     } catch (error) {
+      console.error('AuthProvider setUserSession: Error occurred:', error);
+      console.log(
+        'AuthProvider setUserSession: Clearing user state due to error',
+      );
+
       setUserState(null); // Ensure user state is cleared on error
       setIsAuth(false);
       setIsRememberMeSession(false);

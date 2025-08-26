@@ -2,9 +2,18 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { SelectRegistrationType } from '@/features/auth/sign-up/SelectRegistrationType';
-import { RegisterVendor,RegisteredVendor  } from '@/features/auth/sign-up/register-vendor';
-import { RegisterCustomer, RegisteredCustomer } from '@/features/auth/sign-up/register-customer';
-import { RegisterShipper, RegisteredShipper } from '@/features/auth/sign-up/register-shipper';
+import {
+  RegisterVendor,
+  RegisteredVendor,
+} from '@/features/auth/sign-up/register-vendor';
+import {
+  RegisterCustomer,
+  RegisteredCustomer,
+} from '@/features/auth/sign-up/register-customer';
+import {
+  RegisterShipper,
+  RegisteredShipper,
+} from '@/features/auth/sign-up/register-shipper';
 
 // Types for registration roles
 export type RegistrationType = 'vendor' | 'shipper' | 'customer';

@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Link, useNavigate } from 'react-router-dom';
+
+import { Link } from 'react-router-dom';
+import { Label } from '@radix-ui/react-label';
 import { Button } from '@/components/ui/button';
-import { useAuth } from '../../AuthProvider';
 
 interface LoginData {
   username: string;
@@ -26,8 +26,6 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>('');
-  const navigate = useNavigate();
-  const { setUserSession } = useAuth();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -60,45 +58,13 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
 
       if (response.ok) {
         console.log('Login successful:', data);
-        console.log('User data received:', data.user);
-        console.log('Token received:', data.token);
 
-        try {
-          // Store token first (needed by AuthProvider)
-          localStorage.setItem('token', data.token);
-          console.log(
-            'Token stored in localStorage:',
-            localStorage.getItem('token'),
-          );
+        // Store user data and token in localStorage
+        localStorage.setItem('user', JSON.stringify(data.user));
+        localStorage.setItem('token', data.token);
 
-          // Verify token is actually there
-          const storedToken = localStorage.getItem('token');
-          console.log(
-            'Verification - token in localStorage:',
-            storedToken ? 'EXISTS' : 'MISSING',
-          );
-
-          // Use AuthProvider to set user session
-          console.log('About to call setUserSession with:', data.user);
-          await setUserSession(data.user);
-          console.log('User session set via AuthProvider');
-
-          // Check if token is still there after setUserSession
-          const tokenAfterSetUser = localStorage.getItem('token');
-          console.log(
-            'Token after setUserSession:',
-            tokenAfterSetUser ? 'EXISTS' : 'MISSING',
-          );
-
-          onLoginSuccess?.(data.user);
-
-          console.log('About to navigate to /');
-          navigate('/');
-          alert('Login successful!');
-        } catch (error) {
-          console.error('Error during login success handling:', error);
-          setError('Login succeeded but session setup failed');
-        }
+        onLoginSuccess?.(data.user);
+        alert('Login successful!');
       } else {
         setError(data.message || 'Login failed');
         console.error('Login failed:', data);
@@ -180,7 +146,7 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
             {/* Forgot Password */}
             <div className="text-right">
               <Link
-                to="/auth/forgot-password"
+                to="/forgot-password"
                 className="text-sm text-gray-600 hover:text-gray-800"
               >
                 Forgot password
@@ -201,7 +167,7 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
               <p className="text-sm text-gray-600">
                 Don&apos;t have an account?{' '}
                 <Link
-                  to="/auth/register"
+                  to="/register"
                   className="font-medium text-green-700 hover:text-green-800"
                 >
                   Sign up

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PasswordRequest } from './PasswordRequest';
 import { SetNewPassword } from './SetNewPassword';
-import { ForgotPassword } from './ForgotPassword';
+import { ForgotPassword } from '@/app/pages/auth/ForgotPassword';
 
 type PasswordResetStep =
   | 'forgot-password'

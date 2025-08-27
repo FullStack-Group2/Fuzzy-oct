@@ -1,15 +1,16 @@
-import { FormEvent, useState, useEffect } from "react";
-import { useNavigate, useParams, Link, useLocation } from "react-router-dom";
-import { apiPatchOrderStatus, apiGetActiveOrders  } from "../../../api/ShipperAPI";
+import { FormEvent, useState } from "react";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
+import { apiPatchOrderStatus } from "@/api/ShipperAPI";
+import { BackButton, CloseButton, RejectReasonSelector, useModalNavigation } from "@/components/OrdersUI";
 
-const REASONS = [
+const SHIPPER_REASONS = [
   "Delivery address is incomplete or invalid.",
   "Customer was not available to receive the order.",
   "Shipment was delayed due to unexpected logistics issues.",
   "Package was damaged before delivery",
   "Shipping route unavailable due to external conditions",
-  "Other"
-];
+  "Other",
+] as const;
 
 type LocationState = { orderIndex?: number };
 
@@ -17,47 +18,31 @@ export default function ShipperCancelOrder() {
   const { orderId } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
-  const state = (location.state || {}) as LocationState;
 
-  const [orderIndex, setOrderIndex] = useState<number | null>(state.orderIndex ?? null);
+  const { backgroundLocation, goClose, goTo } = useModalNavigation(location, navigate, "shipper");
+  const orderIndex = ((location.state || {}) as LocationState).orderIndex ?? null;
+
   const [reason, setReason] = useState("");
+  const [notes, setNotes] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [notes, setNotes] = useState("");
 
-  useEffect(() => {
-    let alive = true;
-    async function computeIndex() {
-      if (orderIndex != null || !orderId) return;
-      try {
-        const list = await apiGetActiveOrders();
-        if (!alive) return;
-        const pos = list.findIndex((o) => o.id === orderId);
-        setOrderIndex(pos >= 0 ? pos + 1 : null);
-      } catch {
-        // silent fail -> keep null
-      }
-    }
-    computeIndex();
-    return () => {
-      alive = false;
-    };
-  }, [orderIndex, orderId]);
+  function goDetails() {
+    if (!orderId) return goClose(false);
+    goTo(`/shipper/orders/${orderId}`, { backgroundLocation, orderIndex });
+  }
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
     if (!orderId || !reason) return;
 
-    const mergedReason = notes ? `(Shipper) ${reason} — Notes: ${notes}` : `Shipper Cancelled: ${reason}`;
-
     setSubmitting(true);
     setError(null);
     try {
-      await apiPatchOrderStatus(orderId, "CANCELED", mergedReason);
-      // Replace to avoid history loop and go back to list
-      navigate("/shipper/orders", { replace: true });
-    } catch (err) {
-      console.error(err);
+      const merged = reason === "Other" && notes ? `(Shipper) ${reason} — Notes: ${notes}` : `Shipper Cancelled: ${reason}`;
+      await apiPatchOrderStatus(orderId, "CANCELED", merged);
+      goClose(true);
+    } catch {
       setError("Failed to cancel order. Please try again.");
     } finally {
       setSubmitting(false);
@@ -66,63 +51,30 @@ export default function ShipperCancelOrder() {
 
   return (
     <main className="mx-auto max-w-lg p-6">
-      <div className="mb-4">
-        {/* Back to detail; replace keeps history clean */}
-        <button onClick={() => navigate(-1)} className="underline"> 
-          ← Back
-        </button>
-      </div>
+      <BackButton onClick={goDetails} className="absolute left-4 top-4">←</BackButton>
+      <CloseButton onClick={() => goClose(false)} className="absolute right-4 top-4" />
 
-      <h1 className="text-2xl font-semibold mb-3">
-        Cancel Order {orderIndex != null ? `#${orderIndex}` : `(ID ${orderId})`}
-      </h1>
-      <p className="text-sm text-gray-600 mb-4">
-        Please select a reason for cancellation. Choose one only
-      </p>
+      <h1 className="text-2xl font-semibold mb-3">Reason</h1>
+      <p className="text-sm text-gray-600 mb-4">Choose one only<span aria-hidden="true" className="ml-1 text-red-600">*</span></p>
 
       {error && <p className="mb-3 text-sm text-red-600">{error}</p>}
 
       <form onSubmit={onSubmit} className="space-y-4">
-        <div className="space-y-2">
-          {REASONS.map((r) => (
-            <label key={r} className="flex items-center gap-2">
-              <input
-                type="radio"
-                name="reason"
-                value={r}
-                checked={reason === r}
-                onChange={() => setReason(r)}
-              />
-              <span>{r}</span>
-            </label>
-          ))}
-          <label className="block">
-            <span className="block text-sm mb-1">Additional notes (optional)</span>
-            <textarea
-              className="w-full rounded border p-2"
-              rows={3}
-              placeholder="Add more details…"
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)} 
-            />
-          </label>
-        </div>
-
-        <div className="flex gap-3">
+        <RejectReasonSelector
+          reasons={SHIPPER_REASONS}
+          reason={reason}
+          notes={notes}
+          onChangeReason={setReason}
+          onChangeNotes={setNotes}
+        />
+        <div className="flex justify-center gap-3">
           <button
             type="submit"
-            disabled={!reason || submitting}
+            disabled={!reason || submitting || (reason === "Other" && !notes.trim())}
             className="rounded-md bg-red-600 px-4 py-2 text-white hover:bg-red-700 disabled:opacity-60"
           >
-            {submitting ? "Canceling…" : "Confirm Cancel"}
+            {submitting ? "Canceling..." : "Cancel"}
           </button>
-          <Link
-            to={`/shipper/orders/${orderId}`}
-            replace
-            className="rounded-md border px-4 py-2"
-          >
-            Back
-          </Link>
         </div>
       </form>
     </main>

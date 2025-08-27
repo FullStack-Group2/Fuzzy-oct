@@ -6,6 +6,8 @@ import { UserRole } from './UserRole';
 export interface IVendor extends IUser {
   businessName: string;
   businessAddress: string;
+  // street: string;
+  // city: string;
 }
 
 const vendorSchema = new Schema<IVendor>({

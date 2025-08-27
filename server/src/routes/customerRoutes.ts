@@ -7,16 +7,50 @@ import { requireCustomer } from '../middleware/roleMiddleware';
 const router = Router();
 
 // Routes
+
 router.get(
-  '/:id',
+  '/products',
   authMiddleware,
   requireCustomer,
-  customerController.getCustomerById,
+  customerController.getAllProducts,
 );
-router.put(
-  '/:id',
+router.get(
+  '/stores/:storeId',
   authMiddleware,
   requireCustomer,
-  customerController.updateCustomer,
+  customerController.getProductByStore,
+);
+
+router.get(
+  '/cart',
+  authMiddleware,
+  requireCustomer,
+  customerController.getCart,
+);
+router.post(
+  '/cart',
+  authMiddleware,
+  requireCustomer,
+  customerController.addToCart,
+);
+
+router.put(
+  '/cart/',
+  authMiddleware,
+  requireCustomer,
+  customerController.updateCartItem,
+);
+
+router.delete(
+  '/cart/:productId',
+  authMiddleware,
+  requireCustomer,
+  customerController.removeItemFromCart,
+);
+router.post(
+  '/orders',
+  authMiddleware,
+  requireCustomer,
+  customerController.createOrder,
 );
 export default router;

@@ -1,5 +1,5 @@
 /** @type {import('tailwindcss').Config} */
-module.exports = {
+export default {
   darkMode: ['class'],
   content: [
     './pages/**/*.{ts,tsx}',
@@ -14,6 +14,11 @@ module.exports = {
       screens: {
         '2xl': '1400px',
       },
+    },
+    screens: {
+      sm: '393px',
+      md: '768px',
+      lg: '1024px',
     },
     extend: {
       colors: {
@@ -79,5 +84,11 @@ module.exports = {
       },
     },
   },
-  plugins: [require('tailwindcss-animate')],
+  // corePlugins: {
+  //   aspectRatio: false,
+  // },
+  plugins: [
+    require('@tailwindcss/aspect-ratio'),
+    // require('tailwindcss-animate'),
+  ],
 };

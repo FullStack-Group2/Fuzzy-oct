@@ -19,7 +19,8 @@ const ShopPage: React.FC<ShopPageProps> = ({ index }) => {
 
   if (loading) return <p>is Loading...</p>;
   if (error) return <p>{error}</p>;
-  if (currentProducts.length === 0) return <p>No products found on this page.</p>;
+  if (currentProducts.length === 0)
+    return <p>No products found on this page.</p>;
 
   return (
     <div className="w-full h-auto grid grid-cols-1 gap-14 md:grid-cols-2 lg:grid-cols-3">

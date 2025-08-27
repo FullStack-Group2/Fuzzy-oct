@@ -12,7 +12,7 @@ export default function ProfileDropdown() {
   const handleLogout = async () => {
     setIsLoggingOut(true);
     setOpen(false);
-    
+
     try {
       await logout(true); // Pass true to show success toast
       console.log('Logout successful');

@@ -10,19 +10,17 @@ import {
 
 import { useShopProducts } from '../stores/ShopProductDataContext';
 
-
 type ShopPaginationProps = {
   pageIndex: number;
   setPageIndex: React.Dispatch<React.SetStateAction<number>>;
 };
-
 
 const ShopPagination: React.FC<ShopPaginationProps> = ({
   pageIndex,
   setPageIndex,
 }) => {
   const { products, loading, error } = useShopProducts();
-  
+
   if (loading) return <p>is Loading...</p>;
   if (error) return <p>{error}</p>;
 
@@ -53,7 +51,7 @@ const ShopPagination: React.FC<ShopPaginationProps> = ({
         <PaginationItem>
           <PaginationPrevious
             href="#"
-            onClick={(e:any) => {
+            onClick={(e: any) => {
               e.preventDefault();
               if (pageIndex > 1) setPageIndex(pageIndex - 1);
             }}
@@ -67,7 +65,7 @@ const ShopPagination: React.FC<ShopPaginationProps> = ({
               <PaginationLink
                 href="#"
                 isActive={pageIndex === 1}
-                onClick={(e:any) => {
+                onClick={(e: any) => {
                   e.preventDefault();
                   setPageIndex(1);
                 }}
@@ -85,7 +83,7 @@ const ShopPagination: React.FC<ShopPaginationProps> = ({
             <PaginationLink
               href="#"
               isActive={pageIndex === page}
-              onClick={(e:any) => {
+              onClick={(e: any) => {
                 e.preventDefault();
                 setPageIndex(page);
               }}
@@ -103,7 +101,7 @@ const ShopPagination: React.FC<ShopPaginationProps> = ({
               <PaginationLink
                 href="#"
                 isActive={pageIndex === MAX_PAGE}
-                onClick={(e:any) => {
+                onClick={(e: any) => {
                   e.preventDefault();
                   setPageIndex(MAX_PAGE);
                 }}
@@ -118,7 +116,7 @@ const ShopPagination: React.FC<ShopPaginationProps> = ({
         <PaginationItem>
           <PaginationNext
             href="#"
-            onClick={(e:any) => {
+            onClick={(e: any) => {
               e.preventDefault();
               if (pageIndex < MAX_PAGE) setPageIndex(pageIndex + 1);
             }}

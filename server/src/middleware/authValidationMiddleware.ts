@@ -11,9 +11,15 @@ import {
 } from '../validations/authValidation';
 
 // Export validation middleware functions
-export const validateVendorRegistration = validateBody(vendorRegistrationSchema);
-export const validateCustomerRegistration = validateBody(customerRegistrationSchema);
-export const validateShipperRegistration = validateBody(shipperRegistrationSchema);
+export const validateVendorRegistration = validateBody(
+  vendorRegistrationSchema,
+);
+export const validateCustomerRegistration = validateBody(
+  customerRegistrationSchema,
+);
+export const validateShipperRegistration = validateBody(
+  shipperRegistrationSchema,
+);
 export const validateLogin = validateBody(loginSchema);
 export const validateForgotPassword = validateBody(forgotPasswordSchema);
 export const validateVerifyResetCode = validateBody(verifyResetCodeSchema);

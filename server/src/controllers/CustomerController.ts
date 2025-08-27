@@ -11,7 +11,7 @@ import {
   getCustomerCartByObjectId,
   getCustomerProducts,
   getStoreProducts,
-  modifyItemCart
+  modifyItemCart,
 } from '../services/CustomerServices';
 import { Schema } from 'mongoose';
 
@@ -57,14 +57,18 @@ export const addToCart = async (req: AuthenticatedRequest, res: Response) => {
   }
 };
 
-
-export const updateCartItem = async (req: AuthenticatedRequest, res: Response) => {
+export const updateCartItem = async (
+  req: AuthenticatedRequest,
+  res: Response,
+) => {
   try {
     const { itemId, quantity } = req.body;
     const { userId } = req.user!;
 
     if (quantity <= 0) {
-      return res.status(400).json({ message: 'Quantity cannot be negative or equal 0' });
+      return res
+        .status(400)
+        .json({ message: 'Quantity cannot be negative or equal 0' });
     }
 
     // Find cart item and update quantity
@@ -72,7 +76,7 @@ export const updateCartItem = async (req: AuthenticatedRequest, res: Response) =
       customerId: userId,
       cartId: itemId,
       quantity,
-    })
+    });
 
     if (!updatedItem) {
       return res.status(404).json({ message: 'Cart item not found' });
@@ -122,15 +126,13 @@ export const removeItemFromCart = async (
     // extract request
     const { productId } = req.params;
     const { userId } = req.user!;
-    
+
     console.log(`userId: ${userId}`);
     // Cart validate
 
     const cartItems: ICartItem[] = await getCustomerCartByObjectId(userId);
     console.log(`cartItem: ${cartItems}`);
-    const targetItem = cartItems.find(
-      (p) => p._id.toString() === productId,
-    );
+    const targetItem = cartItems.find((p) => p._id.toString() === productId);
     console.log(`targetItem: ${targetItem}`);
     if (!targetItem) {
       return res
@@ -222,8 +224,6 @@ export const updateCustomer = async (req: Request, res: Response) => {
   }
 };
 
-
-
 export const getAllProducts = async (
   req: AuthenticatedRequest,
   res: Response,
@@ -256,4 +256,3 @@ export const getProductByStore = async (
     });
   }
 };
-

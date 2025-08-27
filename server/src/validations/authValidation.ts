@@ -15,8 +15,14 @@ const passwordSchema = z
   .regex(/^(?=.*[a-z])/, 'Password must contain at least one lowercase letter')
   .regex(/^(?=.*[A-Z])/, 'Password must contain at least one uppercase letter')
   .regex(/^(?=.*\d)/, 'Password must contain at least one digit')
-  .regex(/^(?=.*[!@#$%^&*])/, 'Password must contain at least one special character (!@#$%^&*)')
-  .regex(/^[a-zA-Z0-9!@#$%^&*]+$/, 'Password can only contain letters, digits, and special characters (!@#$%^&*)');
+  .regex(
+    /^(?=.*[!@#$%^&*])/,
+    'Password must contain at least one special character (!@#$%^&*)',
+  )
+  .regex(
+    /^[a-zA-Z0-9!@#$%^&*]+$/,
+    'Password can only contain letters, digits, and special characters (!@#$%^&*)',
+  );
 
 // Email validation
 const emailSchema = z
@@ -31,10 +37,7 @@ const textFieldSchema = z
   .trim();
 
 // Profile picture validation (optional)
-const profilePictureSchema = z
-  .string()
-  .optional()
-  .default('');
+const profilePictureSchema = z.string().optional().default('');
 
 // Vendor registration validation schema
 export const vendorRegistrationSchema = z.object({
@@ -97,8 +100,12 @@ export const changePasswordSchema = z.object({
 
 // Type exports for TypeScript
 export type VendorRegistrationInput = z.infer<typeof vendorRegistrationSchema>;
-export type CustomerRegistrationInput = z.infer<typeof customerRegistrationSchema>;
-export type ShipperRegistrationInput = z.infer<typeof shipperRegistrationSchema>;
+export type CustomerRegistrationInput = z.infer<
+  typeof customerRegistrationSchema
+>;
+export type ShipperRegistrationInput = z.infer<
+  typeof shipperRegistrationSchema
+>;
 export type LoginInput = z.infer<typeof loginSchema>;
 export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
 export type VerifyResetCodeInput = z.infer<typeof verifyResetCodeSchema>;

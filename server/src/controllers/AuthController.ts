@@ -15,8 +15,16 @@ import {
   verifyResetToken,
 } from '../utils/ResetTokenStore';
 import DistributionHub from '../models/DistributionHub';
-import { changePasswordSchema, customerRegistrationSchema, forgotPasswordSchema, loginSchema, resetPasswordSchema, shipperRegistrationSchema, vendorRegistrationSchema, verifyResetCodeSchema } from '../validations/authValidation';
-
+import {
+  changePasswordSchema,
+  customerRegistrationSchema,
+  forgotPasswordSchema,
+  loginSchema,
+  resetPasswordSchema,
+  shipperRegistrationSchema,
+  vendorRegistrationSchema,
+  verifyResetCodeSchema,
+} from '../validations/authValidation';
 
 interface TokenPayload {
   userId: string;
@@ -32,13 +40,13 @@ export const registerVendor = async (req: Request, res: Response) => {
   try {
     // Validate the request body using Zod schema
     const validationResult = vendorRegistrationSchema.safeParse(req.body);
-    
+
     if (!validationResult.success) {
-      const formattedErrors = validationResult.error.issues.map(err => ({
+      const formattedErrors = validationResult.error.issues.map((err) => ({
         field: err.path.join('.'),
         message: err.message,
       }));
-      
+
       return res.status(400).json({
         message: 'Validation failed',
         errors: formattedErrors,
@@ -108,20 +116,21 @@ export const registerCustomer = async (req: Request, res: Response) => {
   try {
     // Validate the request body using Zod schema
     const validationResult = customerRegistrationSchema.safeParse(req.body);
-    
+
     if (!validationResult.success) {
-      const formattedErrors = validationResult.error.issues.map(err => ({
+      const formattedErrors = validationResult.error.issues.map((err) => ({
         field: err.path.join('.'),
         message: err.message,
       }));
-      
+
       return res.status(400).json({
         message: 'Validation failed',
         errors: formattedErrors,
       });
     }
 
-    const { username, email, password, name, address, profilePicture } = validationResult.data;
+    const { username, email, password, name, address, profilePicture } =
+      validationResult.data;
 
     // Check if username already exists
     const existingUser = await UserServices.usernameExists(username);
@@ -179,20 +188,21 @@ export const registerShipper = async (req: Request, res: Response) => {
   try {
     // Validate the request body using Zod schema
     const validationResult = shipperRegistrationSchema.safeParse(req.body);
-    
+
     if (!validationResult.success) {
-      const formattedErrors = validationResult.error.issues.map(err => ({
+      const formattedErrors = validationResult.error.issues.map((err) => ({
         field: err.path.join('.'),
         message: err.message,
       }));
-      
+
       return res.status(400).json({
         message: 'Validation failed',
         errors: formattedErrors,
       });
     }
 
-    const { username, email, password, assignedHubId, profilePicture } = validationResult.data;
+    const { username, email, password, assignedHubId, profilePicture } =
+      validationResult.data;
 
     // Check if username already exists
     const existingUser = await UserServices.usernameExists(username);
@@ -254,13 +264,13 @@ export const login = async (req: Request, res: Response) => {
   try {
     // Validate the request body using Zod schema
     const validationResult = loginSchema.safeParse(req.body);
-    
+
     if (!validationResult.success) {
-      const formattedErrors = validationResult.error.issues.map(err => ({
+      const formattedErrors = validationResult.error.issues.map((err) => ({
         field: err.path.join('.'),
         message: err.message,
       }));
-      
+
       return res.status(400).json({
         message: 'Validation failed',
         errors: formattedErrors,
@@ -357,13 +367,13 @@ export const forgotPassword = async (req: Request, res: Response) => {
   try {
     // Validate the request body using Zod schema
     const validationResult = forgotPasswordSchema.safeParse(req.body);
-    
+
     if (!validationResult.success) {
-      const formattedErrors = validationResult.error.issues.map(err => ({
+      const formattedErrors = validationResult.error.issues.map((err) => ({
         field: err.path.join('.'),
         message: err.message,
       }));
-      
+
       return res.status(400).json({
         message: 'Validation failed',
         errors: formattedErrors,
@@ -438,13 +448,13 @@ export const verifyResetCode = async (req: Request, res: Response) => {
   try {
     // Validate the request body using Zod schema
     const validationResult = verifyResetCodeSchema.safeParse(req.body);
-    
+
     if (!validationResult.success) {
-      const formattedErrors = validationResult.error.issues.map(err => ({
+      const formattedErrors = validationResult.error.issues.map((err) => ({
         field: err.path.join('.'),
         message: err.message,
       }));
-      
+
       return res.status(400).json({
         message: 'Validation failed',
         errors: formattedErrors,
@@ -528,13 +538,13 @@ export const resetForgotPassword = async (req: Request, res: Response) => {
   try {
     // Validate the request body using Zod schema
     const validationResult = resetPasswordSchema.safeParse(req.body);
-    
+
     if (!validationResult.success) {
-      const formattedErrors = validationResult.error.issues.map(err => ({
+      const formattedErrors = validationResult.error.issues.map((err) => ({
         field: err.path.join('.'),
         message: err.message,
       }));
-      
+
       return res.status(400).json({
         message: 'Validation failed',
         errors: formattedErrors,
@@ -581,13 +591,13 @@ export const changePassword = async (req: Request, res: Response) => {
 
     // Validate the request body using Zod schema
     const validationResult = changePasswordSchema.safeParse(req.body);
-    
+
     if (!validationResult.success) {
-      const formattedErrors = validationResult.error.issues.map(err => ({
+      const formattedErrors = validationResult.error.issues.map((err) => ({
         field: err.path.join('.'),
         message: err.message,
       }));
-      
+
       return res.status(400).json({
         message: 'Validation failed',
         errors: formattedErrors,

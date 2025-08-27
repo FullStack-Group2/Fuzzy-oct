@@ -11,10 +11,10 @@ export const validateBody = (schema: z.ZodSchema) => {
     try {
       // Validate and transform the request body
       const validatedData = schema.parse(req.body);
-      
+
       // Replace request body with validated and transformed data
       req.body = validatedData;
-      
+
       next();
     } catch (error) {
       if (error instanceof z.ZodError) {

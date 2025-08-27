@@ -2,7 +2,6 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../../stores/AuthProvider';
 import { ProductCategory } from '@/types/ProductCategory';
 
-
 // Message types
 interface Message {
   id: string;
@@ -80,7 +79,7 @@ export const AIChatbox: React.FC = () => {
 Try asking me something like "Show me red sofas under $500" or "How do I add a new product?"`,
         sender: 'ai',
         timestamp: new Date(),
-        type: 'general'
+        type: 'general',
       };
       setMessages([welcomeMessage]);
     }
@@ -93,10 +92,10 @@ Try asking me something like "Show me red sofas under $500" or "How do I add a n
       id: Date.now().toString(),
       content: inputMessage.trim(),
       sender: 'user',
-      timestamp: new Date()
+      timestamp: new Date(),
     };
 
-    setMessages(prev => [...prev, userMessage]);
+    setMessages((prev) => [...prev, userMessage]);
     setInputMessage('');
     setIsLoading(true);
 
@@ -112,9 +111,9 @@ Try asking me something like "Show me red sofas under $500" or "How do I add a n
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(chatRequest)
+        body: JSON.stringify(chatRequest),
       });
 
       if (!response.ok) {
@@ -130,10 +129,10 @@ Try asking me something like "Show me red sofas under $500" or "How do I add a n
           sender: 'ai',
           timestamp: new Date(),
           type: data.response.type,
-          recommendations: data.response.recommendations || []
+          recommendations: data.response.recommendations || [],
         };
 
-        setMessages(prev => [...prev, aiMessage]);
+        setMessages((prev) => [...prev, aiMessage]);
       } else {
         throw new Error(data.message || 'Failed to get AI response');
       }
@@ -144,9 +143,9 @@ Try asking me something like "Show me red sofas under $500" or "How do I add a n
         content: 'Sorry, I encountered an error. Please try again later.',
         sender: 'ai',
         timestamp: new Date(),
-        type: 'general'
+        type: 'general',
       };
-      setMessages(prev => [...prev, errorMessage]);
+      setMessages((prev) => [...prev, errorMessage]);
     } finally {
       setIsLoading(false);
     }
@@ -160,10 +159,10 @@ Try asking me something like "Show me red sofas under $500" or "How do I add a n
   };
 
   const formatTime = (date: Date) => {
-    return date.toLocaleTimeString('en-US', { 
-      hour: '2-digit', 
+    return date.toLocaleTimeString('en-US', {
+      hour: '2-digit',
       minute: '2-digit',
-      hour12: false 
+      hour12: false,
     });
   };
 
@@ -175,7 +174,7 @@ Try asking me something like "Show me red sofas under $500" or "How do I add a n
       content: `Hello${user?.name ? ` ${user.name}` : ''}! I'm your furniture shopping assistant. How can I help you today?`,
       sender: 'ai',
       timestamp: new Date(),
-      type: 'general'
+      type: 'general',
     };
     setMessages([welcomeMessage]);
   };
@@ -199,17 +198,29 @@ Try asking me something like "Show me red sofas under $500" or "How do I add a n
           className="fixed bottom-6 right-6 z-50 bg-green-600 hover:bg-green-700 text-white rounded-full p-4 shadow-lg transition-all duration-300 hover:scale-110"
           aria-label="Open AI Assistant"
         >
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-4l-4 4z" />
+          <svg
+            className="w-6 h-6"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-4l-4 4z"
+            />
           </svg>
         </button>
       )}
 
       {/* Chat Window */}
       {isOpen && (
-        <div className={`fixed bottom-6 right-6 z-50 bg-white rounded-lg shadow-2xl border transition-all duration-300 ${
-          isMinimized ? 'w-80 h-16' : 'w-96 h-[28rem]'
-        }`}>
+        <div
+          className={`fixed bottom-6 right-6 z-50 bg-white rounded-lg shadow-2xl border transition-all duration-300 ${
+            isMinimized ? 'w-80 h-16' : 'w-96 h-[28rem]'
+          }`}
+        >
           {/* Header */}
           <div className="bg-green-800 text-white p-4 rounded-t-lg flex items-center justify-between">
             <div className="flex items-center space-x-2">
@@ -220,11 +231,24 @@ Try asking me something like "Show me red sofas under $500" or "How do I add a n
               <button
                 onClick={() => setIsMinimized(!isMinimized)}
                 className="text-white hover:bg-green-700 rounded p-1"
-                aria-label={isMinimized ? "Expand" : "Minimize"}
+                aria-label={isMinimized ? 'Expand' : 'Minimize'}
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
-                    d={isMinimized ? "M19 14l-7 7m0 0l-7-7m7 7V3" : "M5 10l7-7m0 0l7 7m-7-7v18"} />
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d={
+                      isMinimized
+                        ? 'M19 14l-7 7m0 0l-7-7m7 7V3'
+                        : 'M5 10l7-7m0 0l7 7m-7-7v18'
+                    }
+                  />
                 </svg>
               </button>
               <button
@@ -232,8 +256,18 @@ Try asking me something like "Show me red sofas under $500" or "How do I add a n
                 className="text-white hover:bg-green-700 rounded p-1"
                 aria-label="Clear chat"
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                  />
                 </svg>
               </button>
               <button
@@ -241,8 +275,18 @@ Try asking me something like "Show me red sofas under $500" or "How do I add a n
                 className="text-white hover:bg-green-700 rounded p-1"
                 aria-label="Close chat"
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
                 </svg>
               </button>
             </div>
@@ -254,53 +298,63 @@ Try asking me something like "Show me red sofas under $500" or "How do I add a n
               {/* Messages */}
               <div className="h-80 overflow-y-auto p-4 space-y-4 bg-gray-50">
                 {messages.map((message) => (
-                  <div key={message.id} className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
-                    <div className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
-                      message.sender === 'user' 
-                        ? 'bg-green-600 text-white rounded-br-none' 
-                        : 'bg-white text-gray-800 border rounded-bl-none shadow-sm'
-                    }`}>
-                      <div className="whitespace-pre-wrap">{message.content}</div>
-                      
+                  <div
+                    key={message.id}
+                    className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+                  >
+                    <div
+                      className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
+                        message.sender === 'user'
+                          ? 'bg-green-600 text-white rounded-br-none'
+                          : 'bg-white text-gray-800 border rounded-bl-none shadow-sm'
+                      }`}
+                    >
+                      <div className="whitespace-pre-wrap">
+                        {message.content}
+                      </div>
+
                       {/* Product Recommendations */}
-                      {message.recommendations && message.recommendations.length > 0 && (
-                        <div className="mt-3 space-y-2">
-                          {message.recommendations.map((rec, index) => (
-                            <div 
-                              key={index} 
-                              className="bg-gray-100 rounded-lg p-3 cursor-pointer hover:bg-gray-200 transition-colors"
-                              onClick={() => handleProductClick(rec.product.id)}
-                            >
-                              <div className="flex items-start space-x-3">
-                                <img 
-                                  src={rec.product.imageUrl} 
-                                  alt={rec.product.name}
-                                  className="w-12 h-12 object-cover rounded"
-                                />
-                                <div className="flex-1 min-w-0">
-                                  <h4 className="text-sm font-medium text-gray-900 truncate">
-                                    {rec.product.name}
-                                  </h4>
-                                  <p className="text-sm text-green-600 font-semibold">
-                                    ${rec.product.price}
-                                  </p>
-                                  <p className="text-xs text-gray-600 mt-1">
-                                    {rec.reason}
-                                  </p>
+                      {message.recommendations &&
+                        message.recommendations.length > 0 && (
+                          <div className="mt-3 space-y-2">
+                            {message.recommendations.map((rec, index) => (
+                              <div
+                                key={index}
+                                className="bg-gray-100 rounded-lg p-3 cursor-pointer hover:bg-gray-200 transition-colors"
+                                onClick={() =>
+                                  handleProductClick(rec.product.id)
+                                }
+                              >
+                                <div className="flex items-start space-x-3">
+                                  <img
+                                    src={rec.product.imageUrl}
+                                    alt={rec.product.name}
+                                    className="w-12 h-12 object-cover rounded"
+                                  />
+                                  <div className="flex-1 min-w-0">
+                                    <h4 className="text-sm font-medium text-gray-900 truncate">
+                                      {rec.product.name}
+                                    </h4>
+                                    <p className="text-sm text-green-600 font-semibold">
+                                      ${rec.product.price}
+                                    </p>
+                                    <p className="text-xs text-gray-600 mt-1">
+                                      {rec.reason}
+                                    </p>
+                                  </div>
                                 </div>
                               </div>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                      
+                            ))}
+                          </div>
+                        )}
+
                       <div className="text-xs mt-2 opacity-70">
                         {formatTime(message.timestamp)}
                       </div>
                     </div>
                   </div>
                 ))}
-                
+
                 {/* Loading indicator */}
                 {isLoading && (
                   <div className="flex justify-start">
@@ -308,15 +362,23 @@ Try asking me something like "Show me red sofas under $500" or "How do I add a n
                       <div className="flex items-center space-x-2">
                         <div className="flex space-x-1">
                           <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                          <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                          <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                          <div
+                            className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                            style={{ animationDelay: '0.1s' }}
+                          ></div>
+                          <div
+                            className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                            style={{ animationDelay: '0.2s' }}
+                          ></div>
                         </div>
-                        <span className="text-sm text-gray-600">AI is thinking...</span>
+                        <span className="text-sm text-gray-600">
+                          AI is thinking...
+                        </span>
                       </div>
                     </div>
                   </div>
                 )}
-                
+
                 <div ref={messagesEndRef} />
               </div>
 
@@ -338,8 +400,18 @@ Try asking me something like "Show me red sofas under $500" or "How do I add a n
                     disabled={isLoading || !inputMessage.trim()}
                     className="bg-green-600 hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white rounded-lg px-4 py-2 transition-colors"
                   >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
+                      />
                     </svg>
                   </button>
                 </div>

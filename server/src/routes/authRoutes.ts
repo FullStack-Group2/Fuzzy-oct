@@ -16,16 +16,40 @@ import {
 const router = Router();
 
 // Registration routes with validation
-router.post('/register/vendor', validateVendorRegistration, authController.registerVendor);
-router.post('/register/customer', validateCustomerRegistration, authController.registerCustomer);
-router.post('/register/shipper', validateShipperRegistration, authController.registerShipper);
+router.post(
+  '/register/vendor',
+  validateVendorRegistration,
+  authController.registerVendor,
+);
+router.post(
+  '/register/customer',
+  validateCustomerRegistration,
+  authController.registerCustomer,
+);
+router.post(
+  '/register/shipper',
+  validateShipperRegistration,
+  authController.registerShipper,
+);
 
 // Public routes - Authentication with validation
 router.post('/login', validateLogin, authController.login);
 router.post('/logout', authController.logout);
-router.post('/forgot-password', validateForgotPassword, authController.forgotPassword);
-router.post('/verify-otp', validateVerifyResetCode, authController.verifyResetCode);
-router.post('/reset-password', validateResetPassword, authController.resetForgotPassword);
+router.post(
+  '/forgot-password',
+  validateForgotPassword,
+  authController.forgotPassword,
+);
+router.post(
+  '/verify-otp',
+  validateVerifyResetCode,
+  authController.verifyResetCode,
+);
+router.post(
+  '/reset-password',
+  validateResetPassword,
+  authController.resetForgotPassword,
+);
 router.post(
   '/change-password/:id',
   authMiddleware,

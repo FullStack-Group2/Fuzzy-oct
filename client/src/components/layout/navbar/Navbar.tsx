@@ -9,8 +9,8 @@ import Cart from '@/features/layout/navbar/components/cart/Cart';
 import { ShopCartDataProvider } from '@/features/layout/navbar/stores/ShopCartDataContext';
 
 export default function Navbar() {
-  const {user} = useAuth();
-  
+  const { user } = useAuth();
+
   return (
     <nav className="w-full bg-white border-b sticky left-0 top-0 z-40">
       <div className=" mx-auto flex items-center justify-between px-4 py-3 md:py-4">

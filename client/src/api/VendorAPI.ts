@@ -1,13 +1,13 @@
 import type {
   VendorOrderListDTO,
   VendorOrderDetailDTO,
-} from "../models/VendorDTO";
+} from '../models/VendorDTO';
 
 const API_BASE =
-  (import.meta as any).env?.VITE_API_BASE ?? "http://localhost:5001/api";
+  (import.meta as any).env?.VITE_API_BASE ?? 'http://localhost:5001/api';
 
 function authHeaders(): HeadersInit {
-  const token = localStorage.getItem("token");
+  const token = localStorage.getItem('token');
   const headers: Record<string, string> = {};
   if (token) headers.Authorization = `Bearer ${token}`;
   return headers;
@@ -18,44 +18,55 @@ export async function apiVendorGetOrders(): Promise<VendorOrderListDTO[]> {
   const res = await fetch(`${API_BASE}/vendor/orders`, {
     headers: authHeaders(),
   });
-  if (!res.ok) throw new Error("Failed to load orders");
+  if (!res.ok) throw new Error('Failed to load orders');
   return res.json();
 }
 
 /** GET /api/vendor/orders/:orderId */
 export async function apiVendorGetOrderDetail(
-  orderId: string
+  orderId: string,
 ): Promise<VendorOrderDetailDTO> {
   const res = await fetch(`${API_BASE}/vendor/orders/${orderId}`, {
     headers: authHeaders(),
   });
-  if (!res.ok) throw new Error("Failed to load order");
+  if (!res.ok) throw new Error('Failed to load order');
   return res.json();
 }
 
 /** PATCH /api/vendor/orders/:orderId/status — ACCEPT */
 export async function apiVendorAcceptOrder(
-  orderId: string
+  orderId: string,
 ): Promise<{ ok: true }> {
   const res = await fetch(`${API_BASE}/vendor/orders/${orderId}/status`, {
-    method: "PATCH",
-    headers: { "Content-Type": "application/json", ...authHeaders() },
-    body: JSON.stringify({ action: "ACCEPT" }),
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...authHeaders() },
+    body: JSON.stringify({ action: 'ACCEPT' }),
   });
-  if (!res.ok) throw new Error("Failed to accept order");
-  return res.json();
+  return jsonOrThrow(res);
 }
 
 /** PATCH /api/vendor/orders/:orderId/status — REJECT (with reason) */
 export async function apiVendorRejectOrder(
   orderId: string,
-  reason: string
+  reason: string,
 ): Promise<{ ok: true }> {
   const res = await fetch(`${API_BASE}/vendor/orders/${orderId}/status`, {
-    method: "PATCH",
-    headers: { "Content-Type": "application/json", ...authHeaders() },
-    body: JSON.stringify({ action: "REJECT", reason }),
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...authHeaders() },
+    body: JSON.stringify({ action: 'REJECT', reason }),
   });
-  if (!res.ok) throw new Error("Failed to reject order");
+  if (!res.ok) throw new Error('Failed to reject order');
   return res.json();
+}
+
+async function jsonOrThrow(res: Response) {
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    const err = new Error(
+      data?.error || data?.message || `HTTP ${res.status}`,
+    ) as any;
+    Object.assign(err, data);
+    throw err;
+  }
+  return data;
 }

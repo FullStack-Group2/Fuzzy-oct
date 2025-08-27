@@ -1,11 +1,11 @@
 import { Request, Response } from 'express';
 import { VendorModel } from '../models/Vendor';
-import { Types } from "mongoose";
-import OrderModel from "../models/Order";
-import OrderItemModel from "../models/OrderItem";
-import ProductModel from "../models/Product";
-import { AuthenticatedRequest } from "../middleware/authMiddleware";
-import { OrderStatus } from "../models/OrderStatus";
+import mongoose, { Types } from 'mongoose';
+import OrderModel from '../models/Order';
+import OrderItemModel from '../models/OrderItem';
+import ProductModel from '../models/Product';
+import { AuthenticatedRequest } from '../middleware/authMiddleware';
+import { OrderStatus } from '../models/OrderStatus';
 
 // Get vendor with profile picture
 export const getVendorById = async (req: Request, res: Response) => {
@@ -38,13 +38,15 @@ export const getVendorById = async (req: Request, res: Response) => {
 /**
  * Helper: collect orderIds that include at least one item belonging to this vendor
  */
-async function findOrderIdsForVendor(vendorId: Types.ObjectId): Promise<string[]> {
+async function findOrderIdsForVendor(
+  vendorId: Types.ObjectId,
+): Promise<string[]> {
   // Get all items of orders; only keep those whose product belongs to this vendor
   const items = await OrderItemModel.find({})
-    .select("order product")
+    .select('order product')
     .populate({
-      path: "product",
-      select: "_id vendor",
+      path: 'product',
+      select: '_id vendor',
       match: { vendor: vendorId },
     })
     .lean()
@@ -67,8 +69,8 @@ async function findOrderIdsForVendor(vendorId: Types.ObjectId): Promise<string[]
  */
 export async function getAllOrders(req: AuthenticatedRequest, res: Response) {
   try {
-    if (!req.user || req.user.role !== "VENDOR") {
-      return res.status(403).json({ error: "Forbidden" });
+    if (!req.user || req.user.role !== 'VENDOR') {
+      return res.status(403).json({ error: 'Forbidden' });
     }
     const vendorId = new Types.ObjectId(req.user.userId);
 
@@ -78,24 +80,24 @@ export async function getAllOrders(req: AuthenticatedRequest, res: Response) {
 
     // Exclude vendor-rejected orders
     const orders = await OrderModel.find({
-      _id: { $in: orderIds }
+      _id: { $in: orderIds },
     })
-      .populate({ path: "customer", select: "name address" })
+      .populate({ path: 'customer', select: 'name address' })
       .sort({ orderDate: -1 })
       .lean()
       .exec();
 
     const dto = orders.map((o: any) => ({
       id: String(o._id),
-      status: String(o.status ?? "").toUpperCase(),
+      status: String(o.status ?? '').toUpperCase(),
       totalPrice: Number(o.totalPrice ?? o.totalprice ?? 0),
-      customerName: o.customer?.name ?? "Unknown",
+      customerName: o.customer?.name ?? 'Unknown',
     }));
 
     return res.json(dto);
   } catch (err) {
-    console.error("[vendor.getAllOrders] ERROR:", (err as any)?.message, err);
-    return res.status(500).json({ error: "Failed to list vendor orders" });
+    console.error('[vendor.getAllOrders] ERROR:', (err as any)?.message, err);
+    return res.status(500).json({ error: 'Failed to list vendor orders' });
   }
 }
 
@@ -104,46 +106,51 @@ export async function getAllOrders(req: AuthenticatedRequest, res: Response) {
  * Returns details for a single order that includes at least one item for this vendor.
  * Items are filtered to ONLY this vendor's products.
  */
-export async function getOrderDetails(req: AuthenticatedRequest, res: Response) {
+export async function getOrderDetails(
+  req: AuthenticatedRequest,
+  res: Response,
+) {
   try {
-    if (!req.user || req.user.role !== "VENDOR") {
-      return res.status(403).json({ error: "Forbidden" });
+    if (!req.user || req.user.role !== 'VENDOR') {
+      return res.status(403).json({ error: 'Forbidden' });
     }
     const { id } = req.params;
     if (!Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ error: "Invalid order id" });
+      return res.status(400).json({ error: 'Invalid order id' });
     }
     const orderId = new Types.ObjectId(id);
     const vendorId = new Types.ObjectId(req.user.userId);
 
     // Verify this order actually contains products owned by this vendor
-    const relevantItemExists = await OrderItemModel.exists({ order: orderId }).then(async (exists) => {
+    const relevantItemExists = await OrderItemModel.exists({
+      order: orderId,
+    }).then(async (exists) => {
       if (!exists) return false;
       // at least one item whose product.vendor = vendorId
       const items = await OrderItemModel.find({ order: orderId })
-        .select("product")
+        .select('product')
         .populate({
-          path: "product",
-          select: "_id vendor",
+          path: 'product',
+          select: '_id vendor',
           match: { vendor: vendorId },
         })
         .lean();
       return items.some((it: any) => !!it.product);
     });
     if (!relevantItemExists) {
-      return res.status(404).json({ error: "Order not found" });
+      return res.status(404).json({ error: 'Order not found' });
     }
 
     // Load the order header
     const order: any = await OrderModel.findById(orderId)
-      .populate({ path: "customer", select: "name address" })
+      .populate({ path: 'customer', select: 'name address' })
       .lean()
       .exec();
-    if (!order) return res.status(404).json({ error: "Order not found" });
+    if (!order) return res.status(404).json({ error: 'Order not found' });
 
     // Load items for this order
     const items = await OrderItemModel.find({ order: orderId })
-      .select("product quantity price priceAtPurchase")
+      .select('product quantity price priceAtPurchase')
       .lean()
       .exec();
 
@@ -153,15 +160,15 @@ export async function getOrderDetails(req: AuthenticatedRequest, res: Response) 
         items
           .map((it: any) => it.product)
           .filter((pid: any) => pid && Types.ObjectId.isValid(pid))
-          .map((pid: any) => String(pid))
-      )
+          .map((pid: any) => String(pid)),
+      ),
     ).map((x) => new Types.ObjectId(x));
 
     const products = validProductIds.length
       ? await ProductModel.find({ _id: { $in: validProductIds } })
-        .select("_id name imageUrl price vendor")
-        .lean()
-        .exec()
+          .select('_id name imageUrl price vendor')
+          .lean()
+          .exec()
       : [];
 
     const productMap = new Map(products.map((p: any) => [String(p._id), p]));
@@ -175,8 +182,8 @@ export async function getOrderDetails(req: AuthenticatedRequest, res: Response) 
         return {
           id: String(it._id),
           productId: String(p._id),
-          productName: p?.name ?? "Unknown Product",
-          imageUrl: p?.imageUrl ?? "",
+          productName: p?.name ?? 'Unknown Product',
+          imageUrl: p?.imageUrl ?? '',
           price,
           priceAtPurchase: price,
           quantity,
@@ -193,20 +200,52 @@ export async function getOrderDetails(req: AuthenticatedRequest, res: Response) 
     // DTO
     return res.json({
       id: String(order._id),
-      status: String(order.status ?? "").toUpperCase(),
-      vendorDecision: String(order.vendorDecision ?? "").toUpperCase(), // PENDING | ACCEPTED | REJECTED
-      orderDate: order.orderDate ? new Date(order.orderDate).toISOString() : null,
+      status: String(order.status ?? '').toUpperCase(),
+      vendorDecision: String(order.vendorDecision ?? '').toUpperCase(), // PENDING | ACCEPTED | REJECTED
+      orderDate: order.orderDate
+        ? new Date(order.orderDate).toISOString()
+        : null,
       totalPrice,
-      customerName: order.customer?.name ?? "Unknown",
-      customerAddress: order.customer?.address ?? "Unknown",
+      customerName: order.customer?.name ?? 'Unknown',
+      customerAddress: order.customer?.address ?? 'Unknown',
       items: vendorItems,
       vendorSubtotal, // convenient for vendor UI
       vendorRejectReason: order.vendorRejectReason ?? null,
     });
   } catch (err) {
-    console.error("[vendor.getOrderDetails] ERROR:", (err as any)?.message, err);
-    return res.status(500).json({ error: "Failed to load order" });
+    console.error(
+      '[vendor.getOrderDetails] ERROR:',
+      (err as any)?.message,
+      err,
+    );
+    return res.status(500).json({ error: 'Failed to load order' });
   }
+}
+
+async function collectVendorItems(
+  orderId: Types.ObjectId,
+  vendorId: Types.ObjectId,
+) {
+  const items = await OrderItemModel.find({ order: orderId })
+    .select('product quantity')
+    .populate({
+      path: 'product',
+      select: '_id vendor name',
+      match: { vendor: vendorId },
+    })
+    .lean();
+
+  // Keep only this vendor’s products
+  const vendorItems = items
+    .filter((it: any) => !!it.product)
+    .map((it: any) => ({
+      productId: it.product._id as Types.ObjectId,
+      productName: it.product.name as string,
+      qty: Number(it.quantity) || 0,
+    }))
+    .filter((x) => x.qty > 0);
+
+  return vendorItems;
 }
 
 /**
@@ -227,71 +266,93 @@ export async function updateStatus(req: AuthenticatedRequest, res: Response) {
     if (!Types.ObjectId.isValid(id)) {
       return res.status(400).json({ error: "Invalid order id" });
     }
+    const orderId = new Types.ObjectId(id);
+    const vendorId = new Types.ObjectId(req.user.userId);
+
     const actionRaw = String(req.body?.action ?? "").toUpperCase();
+    const isAccept = actionRaw.startsWith("ACCEPT");
     const reason = String(req.body?.reason ?? "");
 
-    if (!["ACCEPT", "REJECT", "ACCEPTED", "REJECTED"].includes(actionRaw)) {
-      return res.status(400).json({ error: "Invalid action" });
-    }
-    const isAccept = actionRaw.startsWith('ACCEPT');
-
-    const vendorId = new Types.ObjectId(req.user.userId);
-    const orderId = new Types.ObjectId(id);
-
-    // Ensure the vendor is part of this order (has at least one item in it)
-    const items = await OrderItemModel.find({ order: orderId })
-      .select("product")
-      .populate({ path: "product", select: "_id vendor", match: { vendor: vendorId } })
-      .lean()
-      .exec();
-    const isInOrder = items.some((it: any) => !!it.product);
-    if (!isInOrder) return res.status(404).json({ error: "Order not found" });
-
     const current = await OrderModel.findById(orderId).lean().exec();
-    if (!current) return res.status(404).json({ error: 'Order not found' });
+    if (!current) return res.status(404).json({ error: "Order not found" });
 
     if (isAccept) {
-      if (current.status === OrderStatus.DELIVERED || current.status === OrderStatus.CANCELED) {
+      if ([OrderStatus.DELIVERED, OrderStatus.CANCELED].includes(current.status)) {
         return res.status(409).json({ error: `Order already ${current.status.toLowerCase()}` });
       }
-      // If already ACTIVE, return OK idempotently
       if (current.status === OrderStatus.ACTIVE) {
+        // Idempotent accept: don’t deduct again
         return res.json({ ok: true, status: OrderStatus.ACTIVE, cancelReason: null });
       }
       if (current.status !== OrderStatus.PENDING) {
         return res.status(409).json({ error: `Cannot accept from ${current.status}` });
       }
+
+      // Ensure vendor is actually part of this order
+      const vendorItems = await collectVendorItems(orderId, vendorId);
+      if (vendorItems.length === 0) {
+        return res.status(404).json({ error: "Order not found for this vendor" });
+      }
+
+      const session = await mongoose.startSession();
+      try {
+        await session.withTransaction(async () => {
+          // 1) Deduct stock atomically per product with guard
+          for (const it of vendorItems) {
+            const r = await ProductModel.updateOne(
+              { _id: it.productId, vendor: vendorId, availableStock: { $gte: it.qty } },
+              { $inc: { availableStock: -it.qty } },
+              { session }
+            );
+            if (r.matchedCount === 0) {
+              // Not enough stock or not vendor’s product — abort
+              throw new Error(`INSUFFICIENT:${it.productName || String(it.productId)}`);
+            }
+          }
+          // 2) Mark order ACTIVE (or if you prefer vendor-specific flag, set that instead)
+          await OrderModel.updateOne(
+            { _id: orderId, status: OrderStatus.PENDING },
+            { $set: { status: OrderStatus.ACTIVE }, $unset: { cancelReason: "" } },
+            { session }
+          );
+        });
+
+        // Success — consider emitting a socket event here
+        // io.to(vendorId.toString()).emit("order:updated", { orderId: String(orderId), status: "ACTIVE" });
+
+        return res.json({ ok: true, status: OrderStatus.ACTIVE, cancelReason: null });
+      } catch (e: any) {
+        if (e?.message?.startsWith("INSUFFICIENT:")) {
+          const name = e.message.split("INSUFFICIENT:")[1] || "an item";
+          return res.status(409).json({
+            error: `Insufficient stock for ${name}.`,
+            code: "INSUFFICIENT_STOCK",
+            item: name,
+          });
+        }
+        console.error("[accept txn] ERROR", e);
+        return res.status(500).json({ error: "Failed to accept order" });
+      } finally {
+        session.endSession();
+      }
     } else {
-      // Reject path
+      // REJECT
       if (current.status !== OrderStatus.PENDING) {
         return res.status(409).json({ error: `Cannot reject from ${current.status}` });
       }
       if (!reason) {
-        return res.status(400).json({ error: 'Cancel reason is required when rejecting' });
+        return res.status(400).json({ error: "Cancel reason is required when rejecting" });
       }
+      const updated = await OrderModel.findOneAndUpdate(
+        { _id: orderId, status: OrderStatus.PENDING },
+        { $set: { status: OrderStatus.CANCELED, cancelReason: reason } },
+        { new: true }
+      ).lean();
+      if (!updated) return res.status(409).json({ error: "Could not update order" });
+
+      // socket emit here if you have it
+      return res.json({ ok: true, status: updated.status, cancelReason: updated.cancelReason ?? null });
     }
-
-    const update = isAccept
-      ? { $set: { status: OrderStatus.ACTIVE }, $unset: { cancelReason: '' } }
-      : { $set: { status: OrderStatus.CANCELED, cancelReason: reason } };
-
-    const updated = await OrderModel.findOneAndUpdate(
-      { _id: orderId },
-      update,
-      { new: true }
-    )
-      .lean()
-      .exec();
-
-    if (!updated) {
-      return res.status(409).json({ error: 'Could not update order' });
-    }
-
-    return res.json({
-      ok: true,
-      status: updated.status,
-      cancelReason: updated.cancelReason ?? null,
-    });
   } catch (err) {
     console.error("[vendor.updateStatus] ERROR:", (err as any)?.message, err);
     return res.status(500).json({ error: "Failed to update vendor decision" });

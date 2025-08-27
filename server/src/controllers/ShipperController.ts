@@ -99,9 +99,9 @@ export async function getOrderDetail(req: AuthenticatedRequest, res: Response) {
 
     const products = validProductIds.length
       ? await ProductModel.find({ _id: { $in: validProductIds } })
-          .select('name imageUrl price')
-          .lean()
-          .exec()
+        .select('name imageUrl price')
+        .lean()
+        .exec()
       : [];
 
     const productMap = new Map(products.map((p) => [String(p._id), p]));
@@ -156,17 +156,16 @@ export async function getOrderDetail(req: AuthenticatedRequest, res: Response) {
   }
 }
 
-export async function patchOrderStatus(
-  req: AuthenticatedRequest,
-  res: Response,
-) {
-   try {
+export async function patchOrderStatus(req: AuthenticatedRequest, res: Response) {
+  try {
     if (!req.user || req.user.role !== "SHIPPER") {
       return res.status(403).json({ error: "Forbidden" });
     }
 
     const { id } = req.params;
-    if (!Types.ObjectId.isValid(id)) return res.status(400).json({ error: "Invalid order id" });
+    if (!Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ error: "Invalid order id" });
+    }
 
     const desired = String(req.body?.status ?? "").toUpperCase();
     if (!ALLOWED_TARGET.includes(desired as AllowedTarget)) {
@@ -184,32 +183,57 @@ export async function patchOrderStatus(
     }
     const hubId = new Types.ObjectId(hubIdStr);
 
+    // ✅ If canceling, restore product stock
+    if (desired === "CANCELED") {
+      const items = await OrderItemModel.find({ order: id }).select("product quantity");
+      for (const it of items) {
+        if (Types.ObjectId.isValid(String(it.product)) && it.quantity > 0) {
+          await ProductModel.findByIdAndUpdate(
+            it.product,
+            { $inc: { availableStock: it.quantity } }
+          );
+        }
+      }
+    }
+
+    // ✅ Update order status regardless of DELIVERED or CANCELED
     const update =
       desired === "CANCELED"
         ? { $set: { status: "CANCELED", cancelReason: reason } }
         : { $set: { status: "DELIVERED" }, $unset: { cancelReason: 1 } };
 
     const updated = await OrderModel.findOneAndUpdate(
-      { _id: new Types.ObjectId(id), distributionHub: hubId, status: "ACTIVE" },
+      { _id: id, distributionHub: hubId, status: "ACTIVE" },
       update,
-      { new: true } // return post-update doc
+      { new: true }
     ).lean();
 
-    if (updated) return res.json({ ok: true, status: updated.status, cancelReason: updated.cancelReason ?? null });
+    if (updated) {
+      return res.json({
+        ok: true,
+        status: updated.status,
+        cancelReason: updated.cancelReason ?? null,
+      });
+    }
 
-    // Diagnose
+    // Diagnostics if no update happened
     const exists = await OrderModel.exists({ _id: id });
     if (!exists) return res.status(404).json({ error: "Order not found" });
 
     const inThisHub = await OrderModel.exists({ _id: id, distributionHub: hubId });
     if (!inThisHub) return res.status(403).json({ error: "Not allowed to update this order" });
 
-    const notActive = await OrderModel.exists({ _id: id, distributionHub: hubId, status: { $ne: "ACTIVE" } });
+    const notActive = await OrderModel.exists({
+      _id: id,
+      distributionHub: hubId,
+      status: { $ne: "ACTIVE" },
+    });
     if (notActive) return res.status(409).json({ error: "Order is not ACTIVE" });
 
     return res.status(409).json({ error: "Could not update order" });
+
   } catch (err) {
-    console.error('[patchOrderStatus] ERROR:', (err as any)?.message, err);
-    return res.status(500).json({ error: 'Failed to update status' });
+    console.error("[patchOrderStatus] ERROR:", (err as any)?.message, err);
+    return res.status(500).json({ error: "Failed to update status" });
   }
 }

@@ -7,7 +7,7 @@ import ProductModel from '../models/Product';
 import { AuthenticatedRequest } from '../middleware/authMiddleware';
 import { OrderStatus } from '../models/OrderStatus';
 
-// Get vendor with profile picture
+// Fetch a vendor by ID (exclude password, include profile picture and business info)
 export const getVendorById = async (req: Request, res: Response) => {
   try {
     const { vendorId } = req.params;
@@ -35,13 +35,10 @@ export const getVendorById = async (req: Request, res: Response) => {
   }
 };
 
-/**
- * Helper: collect orderIds that include at least one item belonging to this vendor
- */
+// Helper: find all orderIds that contain products from this vendor (remove after Duy adds single-vendor orders)
 async function findOrderIdsForVendor(
   vendorId: Types.ObjectId,
 ): Promise<string[]> {
-  // Get all items of orders; only keep those whose product belongs to this vendor
   const items = await OrderItemModel.find({})
     .select('order product')
     .populate({
@@ -54,7 +51,6 @@ async function findOrderIdsForVendor(
 
   const ids = new Set<string>();
   for (const it of items) {
-    // populated product will be null if vendor doesn't match
     if ((it as any).product) {
       ids.add(String((it as any).order));
     }
@@ -62,11 +58,7 @@ async function findOrderIdsForVendor(
   return Array.from(ids);
 }
 
-/**
- * GET /api/vendor/orders
- * Returns vendor-visible orders that are NOT REJECTED (by vendor)
- * (i.e., vendorDecision in ["PENDING", "ACCEPTED"])
- */
+// List all vendor-visible orders (only those containing this vendor’s products)
 export async function getAllOrders(req: AuthenticatedRequest, res: Response) {
   try {
     if (!req.user || req.user.role !== 'VENDOR') {
@@ -74,11 +66,11 @@ export async function getAllOrders(req: AuthenticatedRequest, res: Response) {
     }
     const vendorId = new Types.ObjectId(req.user.userId);
 
-    // Which orders contain this vendor's products?
+    // Find orders that include this vendor’s products
     const orderIds = await findOrderIdsForVendor(vendorId);
     if (orderIds.length === 0) return res.json([]);
 
-    // Exclude vendor-rejected orders
+    // Fetch orders, excluding those already rejected
     const orders = await OrderModel.find({
       _id: { $in: orderIds },
     })
@@ -101,11 +93,7 @@ export async function getAllOrders(req: AuthenticatedRequest, res: Response) {
   }
 }
 
-/**
- * GET /api/vendor/orders/:id
- * Returns details for a single order that includes at least one item for this vendor.
- * Items are filtered to ONLY this vendor's products.
- */
+// Get details of a single order, filtered to only this vendor’s items
 export async function getOrderDetails(
   req: AuthenticatedRequest,
   res: Response,
@@ -121,12 +109,11 @@ export async function getOrderDetails(
     const orderId = new Types.ObjectId(id);
     const vendorId = new Types.ObjectId(req.user.userId);
 
-    // Verify this order actually contains products owned by this vendor
+    // Ensure the order actually contains this vendor’s products
     const relevantItemExists = await OrderItemModel.exists({
       order: orderId,
     }).then(async (exists) => {
       if (!exists) return false;
-      // at least one item whose product.vendor = vendorId
       const items = await OrderItemModel.find({ order: orderId })
         .select('product')
         .populate({
@@ -141,20 +128,20 @@ export async function getOrderDetails(
       return res.status(404).json({ error: 'Order not found' });
     }
 
-    // Load the order header
+    // Fetch order header
     const order: any = await OrderModel.findById(orderId)
       .populate({ path: 'customer', select: 'name address' })
       .lean()
       .exec();
     if (!order) return res.status(404).json({ error: 'Order not found' });
 
-    // Load items for this order
+    // Fetch all items for this order
     const items = await OrderItemModel.find({ order: orderId })
       .select('product quantity price priceAtPurchase')
       .lean()
       .exec();
 
-    // Fetch products, then filter to ONLY this vendor's products
+    // Fetch products and filter down to this vendor’s
     const validProductIds = Array.from(
       new Set(
         items
@@ -166,16 +153,16 @@ export async function getOrderDetails(
 
     const products = validProductIds.length
       ? await ProductModel.find({ _id: { $in: validProductIds } })
-          .select('_id name imageUrl price vendor')
-          .lean()
-          .exec()
+        .select('_id name imageUrl price vendor')
+        .lean()
+        .exec()
       : [];
 
     const productMap = new Map(products.map((p: any) => [String(p._id), p]));
     const vendorItems = items
       .map((it: any) => {
         const p = productMap.get(String(it.product));
-        if (!p || String(p.vendor) !== String(vendorId)) return null; // keep vendor-only
+        if (!p || String(p.vendor) !== String(vendorId)) return null;
         const price = Number(it?.price ?? it?.priceAtPurchase ?? p?.price ?? 0);
         const quantity = Number(it?.quantity ?? 0);
         const subtotal = Math.round(price * quantity * 100) / 100;
@@ -195,13 +182,12 @@ export async function getOrderDetails(
     const vendorSubtotal = vendorItems.reduce((s, it) => s + it.subtotal, 0);
     const storedTotal = Number(order.totalprice ?? order.totalPrice ?? 0);
     const totalPrice =
-      storedTotal > 0 ? storedTotal : Math.round(vendorSubtotal * 100) / 100; // fallback, though vendors usually see full order total
+      storedTotal > 0 ? storedTotal : Math.round(vendorSubtotal * 100) / 100;
 
-    // DTO
     return res.json({
       id: String(order._id),
       status: String(order.status ?? '').toUpperCase(),
-      vendorDecision: String(order.vendorDecision ?? '').toUpperCase(), // PENDING | ACCEPTED | REJECTED
+      vendorDecision: String(order.vendorDecision ?? '').toUpperCase(),
       orderDate: order.orderDate
         ? new Date(order.orderDate).toISOString()
         : null,
@@ -209,7 +195,7 @@ export async function getOrderDetails(
       customerName: order.customer?.name ?? 'Unknown',
       customerAddress: order.customer?.address ?? 'Unknown',
       items: vendorItems,
-      vendorSubtotal, // convenient for vendor UI
+      vendorSubtotal,
       vendorRejectReason: order.vendorRejectReason ?? null,
     });
   } catch (err) {
@@ -222,6 +208,7 @@ export async function getOrderDetails(
   }
 }
 
+// Helper: collect only this vendor’s items from an order
 async function collectVendorItems(
   orderId: Types.ObjectId,
   vendorId: Types.ObjectId,
@@ -235,7 +222,7 @@ async function collectVendorItems(
     })
     .lean();
 
-  // Keep only this vendor’s products
+  // Keep only this vendor’s products (change after Duy adds single-vendor orders)
   const vendorItems = items
     .filter((it: any) => !!it.product)
     .map((it: any) => ({
@@ -248,15 +235,7 @@ async function collectVendorItems(
   return vendorItems;
 }
 
-/**
- * PATCH /api/vendor/orders/:id/status
- * Body: { action: "ACCEPT" | "REJECT", reason?: string }
- * Accept: sets vendorDecision = ACCEPTED
- * Reject: sets vendorDecision = REJECTED and records vendorRejectReason
- *
- * NOTE: Does NOT touch Order.status (ACTIVE/DELIVERED/CANCELED),
- * so your shipper flow remains unchanged.
- */
+// Update vendor decision on an order (ACCEPT or REJECT)
 export async function updateStatus(req: AuthenticatedRequest, res: Response) {
   try {
     if (!req.user || req.user.role !== "VENDOR") {
@@ -281,23 +260,22 @@ export async function updateStatus(req: AuthenticatedRequest, res: Response) {
         return res.status(409).json({ error: `Order already ${current.status.toLowerCase()}` });
       }
       if (current.status === OrderStatus.ACTIVE) {
-        // Idempotent accept: don’t deduct again
         return res.json({ ok: true, status: OrderStatus.ACTIVE, cancelReason: null });
       }
       if (current.status !== OrderStatus.PENDING) {
         return res.status(409).json({ error: `Cannot accept from ${current.status}` });
       }
 
-      // Ensure vendor is actually part of this order
+       // Make sure vendor is actually part of this order
       const vendorItems = await collectVendorItems(orderId, vendorId);
       if (vendorItems.length === 0) {
         return res.status(404).json({ error: "Order not found for this vendor" });
       }
 
+      // Transaction: deduct stock and mark order ACTIVE
       const session = await mongoose.startSession();
       try {
         await session.withTransaction(async () => {
-          // 1) Deduct stock atomically per product with guard
           for (const it of vendorItems) {
             const r = await ProductModel.updateOne(
               { _id: it.productId, vendor: vendorId, availableStock: { $gte: it.qty } },
@@ -305,20 +283,15 @@ export async function updateStatus(req: AuthenticatedRequest, res: Response) {
               { session }
             );
             if (r.matchedCount === 0) {
-              // Not enough stock or not vendor’s product — abort
               throw new Error(`INSUFFICIENT:${it.productName || String(it.productId)}`);
             }
           }
-          // 2) Mark order ACTIVE (or if you prefer vendor-specific flag, set that instead)
           await OrderModel.updateOne(
             { _id: orderId, status: OrderStatus.PENDING },
             { $set: { status: OrderStatus.ACTIVE }, $unset: { cancelReason: "" } },
             { session }
           );
         });
-
-        // Success — consider emitting a socket event here
-        // io.to(vendorId.toString()).emit("order:updated", { orderId: String(orderId), status: "ACTIVE" });
 
         return res.json({ ok: true, status: OrderStatus.ACTIVE, cancelReason: null });
       } catch (e: any) {
@@ -336,7 +309,6 @@ export async function updateStatus(req: AuthenticatedRequest, res: Response) {
         session.endSession();
       }
     } else {
-      // REJECT
       if (current.status !== OrderStatus.PENDING) {
         return res.status(409).json({ error: `Cannot reject from ${current.status}` });
       }
@@ -350,7 +322,6 @@ export async function updateStatus(req: AuthenticatedRequest, res: Response) {
       ).lean();
       if (!updated) return res.status(409).json({ error: "Could not update order" });
 
-      // socket emit here if you have it
       return res.json({ ok: true, status: updated.status, cancelReason: updated.cancelReason ?? null });
     }
   } catch (err) {

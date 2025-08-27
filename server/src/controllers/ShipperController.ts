@@ -1,4 +1,3 @@
-// shipper.controller.ts
 import { Response } from 'express';
 import OrderModel from '../models/Order';
 import OrderItemModel from '../models/OrderItem';
@@ -9,10 +8,7 @@ import { AuthenticatedRequest } from '../middleware/authMiddleware';
 const ALLOWED_TARGET = ['DELIVERED', 'CANCELED'] as const;
 type AllowedTarget = (typeof ALLOWED_TARGET)[number];
 
-/**
- * GET /api/shipper/orders
- * Returns ACTIVE orders for the current shipper's distributionHub
- */
+// List ACTIVE orders for the current shipper's distribution hub
 export async function listActiveOrders(
   req: AuthenticatedRequest,
   res: Response,
@@ -25,14 +21,14 @@ export async function listActiveOrders(
 
     const hubIdStr =
       req.user.hubId ||
-      (typeof req.query.hubId === 'string' ? req.query.hubId : undefined); // optional dev fallback
+      (typeof req.query.hubId === 'string' ? req.query.hubId : undefined);
     if (!hubIdStr) return res.status(400).json({ error: 'hubId required' });
     if (!Types.ObjectId.isValid(hubIdStr))
       return res.status(400).json({ error: 'hubId invalid' });
 
     const hubId = new Types.ObjectId(hubIdStr);
 
-    // Only ACTIVE, only this hub
+    // Fetch all ACTIVE orders in this hub
     const orders = await OrderModel.find({ distributionHub: hubId, status: 'ACTIVE' })
       .populate({ path: 'customer', select: 'name address' })
       .lean()
@@ -52,6 +48,7 @@ export async function listActiveOrders(
   }
 }
 
+// Get details of a single ACTIVE order in this shipper's hub
 export async function getOrderDetail(req: AuthenticatedRequest, res: Response) {
 
   try {
@@ -71,7 +68,7 @@ export async function getOrderDetail(req: AuthenticatedRequest, res: Response) {
     }
     const hubId = new Types.ObjectId(hubIdStr);
 
-    // Only ACTIVE and only this hub
+    // Fetch order only if it is ACTIVE and belongs to this hub
     const order: any = await OrderModel.findOne({
       _id: orderId,
       distributionHub: hubId,
@@ -83,11 +80,13 @@ export async function getOrderDetail(req: AuthenticatedRequest, res: Response) {
 
     if (!order) return res.status(404).json({ error: 'Order not found' });
 
+    // Fetch order items
     const items = await OrderItemModel.find({ order: orderId })
       .select('product quantity price priceAtPurchase')
       .lean()
       .exec();
 
+    // Collect valid productIds
     const validProductIds = Array.from(
       new Set(
         items
@@ -97,6 +96,7 @@ export async function getOrderDetail(req: AuthenticatedRequest, res: Response) {
       ),
     ).map((id) => new Types.ObjectId(id));
 
+    // Fetch product info for items
     const products = validProductIds.length
       ? await ProductModel.find({ _id: { $in: validProductIds } })
         .select('name imageUrl price')
@@ -106,6 +106,7 @@ export async function getOrderDetail(req: AuthenticatedRequest, res: Response) {
 
     const productMap = new Map(products.map((p) => [String(p._id), p]));
 
+    // Build DTO items with computed subtotal
     const mappedItems = items.map((it: any) => {
       const p = productMap.get(String(it.product));
       const price = Number(it?.price ?? it?.priceAtPurchase ?? p?.price ?? 0);
@@ -127,6 +128,7 @@ export async function getOrderDetail(req: AuthenticatedRequest, res: Response) {
       };
     });
 
+    // Compute total (use stored total if valid, else recompute)
     const computedTotal = mappedItems.reduce((s, it) => s + it.subtotal, 0);
     const storedTotal = Number(order.totalPrice ?? order.totalprice ?? 0);
     const totalPrice =
@@ -156,6 +158,7 @@ export async function getOrderDetail(req: AuthenticatedRequest, res: Response) {
   }
 }
 
+// Update order status (DELIVERED or CANCELED) for this shipper's hub
 export async function patchOrderStatus(req: AuthenticatedRequest, res: Response) {
   try {
     if (!req.user || req.user.role !== "SHIPPER") {
@@ -183,7 +186,7 @@ export async function patchOrderStatus(req: AuthenticatedRequest, res: Response)
     }
     const hubId = new Types.ObjectId(hubIdStr);
 
-    // ✅ If canceling, restore product stock
+    // If canceling, restore product stock quantities
     if (desired === "CANCELED") {
       const items = await OrderItemModel.find({ order: id }).select("product quantity");
       for (const it of items) {
@@ -196,12 +199,13 @@ export async function patchOrderStatus(req: AuthenticatedRequest, res: Response)
       }
     }
 
-    // ✅ Update order status regardless of DELIVERED or CANCELED
+    // Prepare update object based on new status
     const update =
       desired === "CANCELED"
         ? { $set: { status: "CANCELED", cancelReason: reason } }
         : { $set: { status: "DELIVERED" }, $unset: { cancelReason: 1 } };
 
+    // Apply update only if order is ACTIVE and in this hub
     const updated = await OrderModel.findOneAndUpdate(
       { _id: id, distributionHub: hubId, status: "ACTIVE" },
       update,
@@ -215,20 +219,6 @@ export async function patchOrderStatus(req: AuthenticatedRequest, res: Response)
         cancelReason: updated.cancelReason ?? null,
       });
     }
-
-    // Diagnostics if no update happened
-    const exists = await OrderModel.exists({ _id: id });
-    if (!exists) return res.status(404).json({ error: "Order not found" });
-
-    const inThisHub = await OrderModel.exists({ _id: id, distributionHub: hubId });
-    if (!inThisHub) return res.status(403).json({ error: "Not allowed to update this order" });
-
-    const notActive = await OrderModel.exists({
-      _id: id,
-      distributionHub: hubId,
-      status: { $ne: "ACTIVE" },
-    });
-    if (notActive) return res.status(409).json({ error: "Order is not ACTIVE" });
 
     return res.status(409).json({ error: "Could not update order" });
 

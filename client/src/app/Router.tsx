@@ -60,6 +60,9 @@ export default function AppRouter() {
                 <Route path="/products" element={<Products />} />
                 <Route path="/products/add" element={<AddProduct />} />
                 <Route path="/products/:id/edit" element={<EditProduct />} />
+                <Route path="/vendor/orders" element={<VendorOrders />} />
+                <Route path="/vendor/orders/:orderId" element={<VendorOrderDetails />} />
+                <Route path="/vendor/orders/:orderId/reject" element={<VendorCancelOrder />} />
               </>
             )}
 
@@ -68,6 +71,9 @@ export default function AppRouter() {
                 <Route path="/shop" element={<Shop />} />
                 <Route path="/products/:id" element={<ProductDetail />} />
                 <Route path="/stores/:id" element={<StoreDetail />} />
+                <Route path="/customer/orders" element={<CustomerOrders />} />
+                <Route path="/customer/orders/:orderId" element={<CustomerOrderDetails />} />
+                <Route path="/customer/orders/:orderId/cancel" element={<CustomerCancelOrder />} />
               </>
             )}
 
@@ -77,36 +83,13 @@ export default function AppRouter() {
             <Route path="/auth/logout" element={<Logout />} />
             <Route path="/auth/forgot-password" element={<ForgotPassword />} />
 
-            <Route path="/customer/orders" element={<CustomerOrders />} />
-            <Route path="/customer/orders/:orderId" element={<CustomerOrderDetails />} />
-            <Route path="/customer/orders/:orderId/cancel" element={<CustomerCancelOrder />} />
-
-            <Route path="/vendor/orders" element={<VendorOrders />} />
-            <Route
-              path="/vendor/orders/:orderId"
-              element={<VendorOrderDetails />}
-            />
-            <Route
-              path="/vendor/orders/:orderId/reject"
-              element={<VendorCancelOrder />}
-            />
-
-            <Route path="/shipper/orders" element={<ShipperOrders />} />
-            <Route
-              path="/shipper/orders/:orderId"
-              element={<ShipperOrderDetail />}
-            />
-            <Route
-              path="/shipper/orders/:orderId/cancel"
-              element={<ShipperCancelOrder />}
-            />
-            <Route
-              path="*"
-              element={<Navigate to="/shipper/orders" replace />}
-            />
-
-            {authRole == 'shipper' && <></>}
-
+            {authRole == 'shipper' && (
+              <>
+                <Route path="/shipper/orders" element={<ShipperOrders />} />
+                <Route path="/shipper/orders/:orderId" element={<ShipperOrderDetail />} />
+                <Route path="/shipper/orders/:orderId/cancel" element={<ShipperCancelOrder />} />
+              </>
+            )}
 
             <Route path="/privacy" element={<PrivacyPolicy />} />
 

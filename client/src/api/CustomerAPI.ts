@@ -2,10 +2,9 @@ import type {
   CustomerOrderDetailDTO,
   CustomerOrderListDTO,
 } from "../models/CustomerDTO";
+import API_BASE from "./API";
 
-const API_BASE =
-  (import.meta as any).env?.VITE_API_BASE ?? "http://localhost:5001/api";
-
+// Build the request headers (attach Content-Type and Authorization if token exists)
 function authHeaders(): HeadersInit {
   const token = localStorage.getItem("token");
   const headers: Record<string, string> = {"Content-Type": "application/json"};
@@ -13,6 +12,7 @@ function authHeaders(): HeadersInit {
   return headers;
 }
 
+// Fetch all orders that belong to the logged-in customer
 export async function apiCustomerGetOrders(): Promise<CustomerOrderListDTO[]> {
   const res = await fetch(`${API_BASE}/customer/orders`, {
     headers: authHeaders()
@@ -21,6 +21,7 @@ export async function apiCustomerGetOrders(): Promise<CustomerOrderListDTO[]> {
   return res.json();
 }
 
+// Fetch the details of a single customer order by its ID
 export async function apiCustomerGetOrderDetail(
   orderId: string
 ): Promise<CustomerOrderDetailDTO> {
@@ -31,6 +32,7 @@ export async function apiCustomerGetOrderDetail(
   return res.json();
 }
 
+// Cancel a customer order by sending a PATCH request with status and reason
 export async function apiCustomerCancelOrder(
   orderId: string,
   reason: string,

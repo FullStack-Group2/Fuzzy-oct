@@ -8,9 +8,9 @@ import { AuthenticatedRequest } from "../middleware/authMiddleware";
 
 const ALLOWED_TARGET = new Set(["CANCELED"]);
 
-// --- internal helper: vendor name by orderId (single-vendor per order) ---
+// Helper: find vendor names for a set of orderIds
 async function vendorNameByOrderIds(orderIds: Types.ObjectId[]) {
-  // 1) Find vendor *userId* per order from items -> product.vendor
+  // Aggregate vendor IDs from order items
   const rows = await OrderItemModel.aggregate<{
     _id: Types.ObjectId;
     vendor: Types.ObjectId;
@@ -29,13 +29,13 @@ async function vendorNameByOrderIds(orderIds: Types.ObjectId[]) {
     {
       $group: {
         _id: "$order",
-        vendor: { $first: "$product.vendor" },       // single-vendor guarantee
-        vendorSet: { $addToSet: "$product.vendor" }, // sanity check
+        vendor: { $first: "$product.vendor" },
+        vendorSet: { $addToSet: "$product.vendor" },
       },
     },
   ]);
 
-  // Optional sanity check
+  // Warn if an order unexpectedly has multiple vendors
   for (const r of rows) {
     if ((r.vendorSet || []).length > 1) {
       console.warn(
@@ -44,18 +44,20 @@ async function vendorNameByOrderIds(orderIds: Types.ObjectId[]) {
     }
   }
 
-  // 2) Resolve names from the USERS collection
+  // Collect unique vendor IDs
   const vendorIds = Array.from(
     new Set(rows.map((r) => String(r.vendor)).filter(Boolean)),
   );
 
   if (!vendorIds.length) return new Map<string, string>();
 
+  // Fetch vendor user records
   const users = await UserModel.find({ _id: { $in: vendorIds } })
     .select({ businessName: 1, name: 1, username: 1 })
     .lean()
     .exec();
 
+  // Build map vendorId -> displayName
   const nameById = new Map<string, string>(
     users.map((u: any) => [
       String(u._id),
@@ -63,7 +65,7 @@ async function vendorNameByOrderIds(orderIds: Types.ObjectId[]) {
     ]),
   );
 
-  // 3) Build orderId -> vendorName
+  // Build map orderId -> vendorName
   const map = new Map<string, string>();
   for (const r of rows) {
     map.set(String(r._id), nameById.get(String(r.vendor)) || "Unknown vendor");
@@ -71,10 +73,7 @@ async function vendorNameByOrderIds(orderIds: Types.ObjectId[]) {
   return map;
 }
 
-/**
- * GET /api/customer/orders
- * Return ALL orders (any status) for the authenticated customer.
- */
+// List all orders belonging to the authenticated customer
 export async function listCustomerOrders(req: AuthenticatedRequest, res: Response) {
   try {
     if (!req.user || req.user.role !== "CUSTOMER") {
@@ -87,15 +86,18 @@ export async function listCustomerOrders(req: AuthenticatedRequest, res: Respons
     }
     const customer = new Types.ObjectId(customerIdStr);
 
+    // Fetch orders for this customer
     const orders = await OrderModel.find({ customer })
       .select("status totalPrice totalprice createdAt")
       .sort({ createdAt: -1 })
       .lean()
       .exec();
 
+    // Map vendor names
     const orderIds = orders.map(o => o._id as Types.ObjectId);
     const vendorNameMap = orderIds.length ? await vendorNameByOrderIds(orderIds) : new Map<string, string>();
 
+    // Build DTO for response
     const dto = orders.map(o => ({
       id: String(o._id),
       status: String(o.status ?? "").toUpperCase(),
@@ -110,10 +112,7 @@ export async function listCustomerOrders(req: AuthenticatedRequest, res: Respons
   }
 }
 
-/**
- * GET /api/customer/orders/:id
- * Return detail (items + single vendor) for the authenticated customer.
- */
+// Get detail of a single customer order (including items and vendor info)
 export async function getCustomerOrderDetail(req: AuthenticatedRequest, res: Response) {
   try {
     if (!req.user || req.user.role !== "CUSTOMER") {
@@ -132,7 +131,7 @@ export async function getCustomerOrderDetail(req: AuthenticatedRequest, res: Res
     }
     const customer = new Types.ObjectId(customerIdStr);
 
-    // Allow any status, but must belong to this customer
+    // Fetch the order (must belong to this customer)
     const order: any = await OrderModel.findOne({ _id: orderId, customer })
       .select("status totalPrice totalprice customer address shippingAddress cancelReason orderDate")
       .populate({ path: "customer", select: "name address" })
@@ -141,12 +140,13 @@ export async function getCustomerOrderDetail(req: AuthenticatedRequest, res: Res
 
     if (!order) return res.status(404).json({ error: "Order not found" });
 
-    // Pull items
+    // Fetch order items
     const itemsRaw = await OrderItemModel.find({ order: orderId })
       .select("product quantity price priceAtPurchase")
       .lean()
       .exec();
 
+    // Collect valid productIds
     const validProductIds = Array.from(
       new Set(
         itemsRaw
@@ -156,6 +156,7 @@ export async function getCustomerOrderDetail(req: AuthenticatedRequest, res: Res
       ),
     ).map(idStr => new Types.ObjectId(idStr));
 
+    // Fetch product details
     const products = validProductIds.length
       ? await ProductModel.find({ _id: { $in: validProductIds } })
         .select("name imageUrl price vendor")
@@ -165,7 +166,7 @@ export async function getCustomerOrderDetail(req: AuthenticatedRequest, res: Res
 
     const productMap = new Map(products.map(p => [String(p._id), p]));
 
-    // Compute items
+    // Map items with product details
     const mappedItems = itemsRaw.map((it: any) => {
       const p: any = productMap.get(String(it.product));
       const price = Number(it?.price ?? it?.priceAtPurchase ?? p?.price ?? 0);
@@ -180,11 +181,11 @@ export async function getCustomerOrderDetail(req: AuthenticatedRequest, res: Res
         priceAtPurchase: price,
         quantity,
         subtotal,
-        vendor: p?.vendor ? String(p.vendor) : null, // keep for vendor resolve
+        vendor: p?.vendor ? String(p.vendor) : null,
       };
     });
 
-    // Resolve single vendor name (first vendor in items)
+    // Resolve vendor name from the first item
     let vendorName = "Unknown vendor";
     const firstVendorId = mappedItems.find(it => it.vendor)?.vendor;
     if (firstVendorId) {
@@ -199,17 +200,19 @@ export async function getCustomerOrderDetail(req: AuthenticatedRequest, res: Res
         "Unknown vendor";
     }
 
-    // Totals & address
+    // Compute total price
     const computedTotal = mappedItems.reduce((s, it) => s + it.subtotal, 0);
     const storedTotal = Number(order.totalPrice ?? order.totalprice ?? 0);
     const totalPrice = storedTotal > 0 ? storedTotal : Math.round(computedTotal * 100) / 100;
 
+    // Resolve address
     const customerAddress =
       order?.customer?.address ??
       order?.shippingAddress ??
       order?.address ??
       "Unknown";
 
+    // Send DTO
     return res.json({
       id: String(order._id),
       status: String(order.status ?? "").toUpperCase(),
@@ -226,42 +229,32 @@ export async function getCustomerOrderDetail(req: AuthenticatedRequest, res: Res
   }
 }
 
-/**
- * PATCH /api/customer/orders/:id/status
- * Body: { status: "CANCELED", reason?: string }
- * Only allow the customer to cancel their own PENDING orders.
- */
+// Cancel a customer order (only allowed from PENDING -> CANCELED)
 export async function patchCustomerOrderStatus(req: AuthenticatedRequest, res: Response) {
   try {
-    console.log(1);
     if (!req.user || req.user.role !== "CUSTOMER") {
       return res.status(403).json({ error: "Forbidden" });
     }
 
-    console.log(2);
     const { id } = req.params;
     if (!Types.ObjectId.isValid(id)) {
       return res.status(400).json({ error: "Invalid order id" });
     }
 
-    console.log(3);
     const raw = (typeof req.body?.status === "string" ? req.body.status : "").trim().toUpperCase();
     if (!raw) return res.status(400).json({ error: "Missing status in body" });
     if (!ALLOWED_TARGET.has(raw)) {
       return res.status(400).json({ error: `Invalid status: ${req.body?.status}` });
     }
 
-    console.log(4);
     const reason = String(req.body?.reason ?? "").trim();
 
-    console.log(5);
     const customerIdStr = (req.user as any).userId || (req.user as any).id;
     if (!customerIdStr || !Types.ObjectId.isValid(customerIdStr)) {
       return res.status(400).json({ error: "Invalid customer id in token" });
     }
     const customer = new Types.ObjectId(customerIdStr);
 
-    console.log(5);
     // Only allow cancel from PENDING -> CANCELED
     const updated = await OrderModel.findOneAndUpdate(
       { _id: new Types.ObjectId(id), customer, status: "PENDING" },
@@ -276,16 +269,6 @@ export async function patchCustomerOrderStatus(req: AuthenticatedRequest, res: R
         cancelReason: (updated as any).cancelReason ?? null,
       });
     }
-
-    // Diagnose
-    const exists = await OrderModel.exists({ _id: id });
-    if (!exists) return res.status(404).json({ error: "Order not found" });
-
-    const isOwned = await OrderModel.exists({ _id: id, customer });
-    if (!isOwned) return res.status(403).json({ error: "Not allowed to update this order" });
-
-    const notPending = await OrderModel.exists({ _id: id, customer, status: { $ne: "PENDING" } });
-    if (notPending) return res.status(409).json({ error: "Only PENDING orders can be canceled" });
 
     return res.status(409).json({ error: "Could not update order" });
   } catch (err) {

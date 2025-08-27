@@ -58,10 +58,10 @@ export const authMiddleware = async (
         const hubId = raw && typeof raw === "object" && "toString" in raw ? raw.toString() : (raw as any);
 
         req.user = {
-          userId: decoded.userId,         // users._id
+          userId: decoded.userId,
           username: decoded.username,
           role: decoded.role,
-          hubId,                          // controllers use this
+          hubId,
         };
         return next();
       }
@@ -82,7 +82,6 @@ export const authMiddleware = async (
     return res.status(500).json({ message: 'Internal server error.' });
   }
 };
-
 
 // Role-based middleware
 export const requireRole = (roles: UserRole[]) => {

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { ProductCategory } from '../add'; // Import ProductCategory enum
 
 export const EditProduct: React.FC = () => {
   const location = useLocation();
@@ -10,7 +11,7 @@ export const EditProduct: React.FC = () => {
   const [formData, setFormData] = useState({
     name: product?.name || '',
     description: product?.description || '',
-    categories: product?.categories || '',
+    category: product?.category || '', // Updated field name
     price: product?.price || '',
     availableStock: product?.availableStock || '',
     imageUrl: product?.imageUrl || '',
@@ -41,7 +42,7 @@ export const EditProduct: React.FC = () => {
     setFormData({
       name: product?.name || '',
       description: product?.description || '',
-      categories: product?.categories || '',
+      category: product?.category || '', // Updated field name
       price: product?.price || '',
       availableStock: product?.availableStock || '',
       imageUrl: product?.imageUrl || '',
@@ -103,7 +104,7 @@ export const EditProduct: React.FC = () => {
 
     try {
       const response = await fetch(
-        `http://localhost:5001/api/vendors/${product?._id}`,
+        `http://localhost:5001/api/vendors/product/${product?._id}`,
         {
           method: 'PUT',
           headers: {
@@ -127,7 +128,7 @@ export const EditProduct: React.FC = () => {
           setFormData({
             name: updated.name ?? formData.name,
             description: updated.description ?? formData.description,
-            categories: updated.categories ?? formData.categories,
+            category: updated.category ?? formData.category, // Updated field name
             price: String(updated.price ?? formData.price),
             availableStock: String(updated.availableStock ?? formData.availableStock),
             imageUrl: updated.imageUrl ?? formData.imageUrl,
@@ -232,18 +233,21 @@ export const EditProduct: React.FC = () => {
           ></textarea>
           {errors.description && <p className="text-red-500 text-sm mt-1">{errors.description}</p>}
 
-          {/* <label className="block text-gray-700 mt-4 mb-2">Categories</label>
+          {/* Category Field */}
+          <label className="block text-gray-700 mt-4 mb-2">Category</label>
           <select
-            name="categories"
-            value={formData.categories}
+            name="category" // Updated field name
+            value={formData.category} // Updated field name
             onChange={handleInputChange}
             className="w-full border border-gray-300 rounded-lg p-2"
           >
             <option value="">Select category</option>
-            <option value="Chairs & Seating">Chairs & Seating</option>
-            <option value="Tables">Tables</option>
-            <option value="Storage">Storage</option>
-          </select> */}
+            {Object.values(ProductCategory).map((category) => (
+              <option key={category} value={category}>
+                {category}
+              </option>
+            ))}
+          </select>
 
           {/* Price Field */}
           <label className="block text-gray-700 mt-4 mb-2">Price</label>

@@ -2,13 +2,25 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ImageIcon } from '@radix-ui/react-icons';
 
+export enum ProductCategory {
+  SOFAS = 'SOFAS',
+  CHAIRS = 'CHAIRS',
+  TABLES = 'TABLES',
+  BEDS = 'BEDS',
+  WARDROBES = 'WARDROBES',
+  CABINETS = 'CABINETS',
+  SHELVES = 'SHELVES',
+  DECORATION = 'DECORATION',
+  OTHERS = 'OTHERS',
+}
+
 export const AddProduct: React.FC = () => {
   const token = localStorage.getItem('Authorization') || '';
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    categories: '',
+    category: '', // Updated field name
     price: '',
     availableStock: '',
     image: null as File | null,
@@ -123,14 +135,16 @@ export const AddProduct: React.FC = () => {
       const productData = {
         name: formData.name,
         description: formData.description,
-        categories: formData.categories,
+        category: formData.category, // Updated field name
         price: Number(formData.price),
         availableStock: Number(formData.availableStock),
         imageUrl,
       };
 
+      console.log('Submitting product data:', productData); // Log productData for debugging
+
       const productResponse = await fetch(
-        'http://localhost:5001/api/vendors/add',
+        'http://localhost:5001/api/vendors/add-product',
         {
           method: 'POST',
           headers: {
@@ -146,7 +160,7 @@ export const AddProduct: React.FC = () => {
         setFormData({
           name: '',
           description: '',
-          categories: '',
+          category: '', // Updated field name
           price: '',
           availableStock: '',
           image: null,
@@ -154,8 +168,8 @@ export const AddProduct: React.FC = () => {
         setImagePreview(null);
       } else {
         const errorData = await productResponse.json();
-        console.error('Error adding product:', errorData);
-        alert('Failed to add product');
+        console.error('Error adding product:', errorData); // Log backend response
+        alert(`Failed to add product: ${errorData.message}`);
       }
     } catch (error) {
       console.error('Error adding product:', error);
@@ -250,6 +264,22 @@ export const AddProduct: React.FC = () => {
           ></textarea>
           {errors.description && <p className="text-red-500 text-sm mt-1">{errors.description}</p>}
 
+          {/* Categories Field */}
+          <label className="block text-gray-700 mt-4 mb-2">Category</label>
+          <select
+            name="category" // Updated field name
+            value={formData.category} // Updated field name
+            onChange={handleInputChange}
+            className="w-full border border-gray-300 rounded-lg p-2"
+          >
+            <option value="">Select category</option>
+            {Object.values(ProductCategory).map((category) => (
+              <option key={category} value={category}>
+                {category}
+              </option>
+            ))}
+          </select>
+          
           {/* Price Field */}
           <label className="block text-gray-700 mt-4 mb-2">Price</label>
           <div className="relative">

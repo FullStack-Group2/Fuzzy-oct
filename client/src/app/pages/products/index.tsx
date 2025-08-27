@@ -8,7 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table/table';
-import { Button } from '@/components/ui/button/button';
+import { Button } from '@/components/ui/button';
 import { UploadIcon } from '@radix-ui/react-icons';
 
 import jsPDF from 'jspdf';
@@ -23,7 +23,7 @@ interface Product {
   description: string;
   vendor: string;
   availableStock: number;
-  salesCount?: number; // Add salesCount to the Product interface
+  salesCount?: number;
 }
 
 export const Products: React.FC = () => {
@@ -36,45 +36,49 @@ export const Products: React.FC = () => {
     const fetchProducts = async () => {
       setLoading(true);
       try {
-        const response = await fetch(
-          'http://localhost:5001/api/vendors/products',
-          {
-            headers: {
-              Authorization: token || '', // Ensure the token is passed correctly
-            },
+        const response = await fetch('http://localhost:5001/api/vendors/products', {
+          headers: {
+            Authorization: token,
           },
-        );
+        });
+
         if (response.ok) {
           const data = await response.json();
           const productsWithSales = await Promise.all(
             data.products.map(async (product: Product) => {
               const salesResponse = await fetch(
-                `http://localhost:5001/api/vendors/${product._id}/sales`,
+                `http://localhost:5001/api/vendors/product/${product._id}/sales`,
                 {
                   headers: {
-                    Authorization: token || '', // Use the same token for sales API
+                    Authorization: token,
                   },
                 },
               );
-              const salesData = await salesResponse.json();
-              return { ...product, salesCount: salesData.totalSold || 0 };
+
+              if (salesResponse.ok) {
+                const salesData = await salesResponse.json();
+                return { ...product, salesCount: salesData.totalSold || 0 };
+              } else {
+                console.error(`Failed to fetch sales for product ${product._id}`);
+                return { ...product, salesCount: 0 };
+              }
             }),
           );
           setProducts(productsWithSales);
         } else {
           console.error('Failed to fetch products');
-          alert('Failed to load products');
+          alert('Failed to load products. Please try again.');
         }
       } catch (error) {
         console.error('Error fetching products:', error);
-        alert('Error fetching products');
+        alert('An error occurred while fetching products.');
       } finally {
         setLoading(false);
       }
     };
 
     fetchProducts();
-  }, [token]); // Added token to the dependency array
+  }, [token]);
 
   const handleDelete = async (productId: string) => {
     const confirmDelete = window.confirm(
@@ -108,28 +112,32 @@ export const Products: React.FC = () => {
     }
   };
 
-const handleExportToPDF = () => {
-  const doc = new jsPDF();
+  const formatPrice = (price: number) => {
+    return price.toLocaleString('vi-VN'); // Format price in VND format
+  };
 
-  // Add a title
-  doc.setFontSize(18);
-  doc.text('Product List', 14, 20);
+  const handleExportToPDF = () => {
+    const doc = new jsPDF();
 
-  // Define table headers and rows
-  autoTable(doc, {
-    head: [['Name', 'Price', 'Sold', 'Available Stock']],
-    body: products.map((product) => [
-      product.name,
-      `$${product.price.toFixed(2)}`,
-      product.salesCount || 0,
-      product.availableStock,
-    ]),
-    startY: 30, // Start the table below the title
-  });
+    // File Title
+    doc.setFontSize(18);
+    doc.text('Product List', 14, 20);
 
-  // Save the PDF
-  doc.save('product_list.pdf');
-};
+    // Define table headers and rows
+    autoTable(doc, {
+      head: [['Name', 'Price', 'Sold', 'Available Stock']],
+      body: products.map((product) => [
+        product.name,
+        `${formatPrice(product.price)} vnd`, // Format price in PDF export
+        product.salesCount || 0,
+        product.availableStock,
+      ]),
+      startY: 30, // Start the table below the title
+    });
+
+    // Save the PDF
+    doc.save('product_list.pdf');
+  };
 
   return (
     <div className="p-6">
@@ -199,7 +207,7 @@ const handleExportToPDF = () => {
                       <span className="text-left">{product.name}</span>
                     </div>
                   </TableCell>
-                  <TableCell className="text-gray-500">{product.price.toFixed(2)} vnd</TableCell>
+                  <TableCell className="text-gray-500">{formatPrice(product.price)} vnd</TableCell>
                   <TableCell className="text-gray-500">{product.salesCount || 0}</TableCell>
                   <TableCell className="text-gray-500">{product.availableStock}</TableCell>
                   <TableCell className="text-center">

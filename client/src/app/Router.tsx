@@ -14,24 +14,11 @@ import ProductDetail from './pages/products/[productId]';
 import Shop from './pages/Shop';
 import StoreDetail from './pages/stores/[storeId]';
 import { Login } from './pages/auth/Login';
-import { Logout } from './pages/auth/Logout';
 
 import Layout from './Layout';
-import { useAuth } from '../stores/AuthProvider';
 import { ForgotPassword } from './pages/auth/ForgotPassword';
 import { Register } from './pages/auth/Register';
 import Profile from './pages/Profile';
-
-// Wrapper component for Logout that injects user from context
-const LogoutWrapper = () => {
-  const { user } = useAuth();
-
-  if (!user) {
-    return null;
-  }
-
-  return <Logout />;
-};
 
 export default function AppRouter() {
   return (
@@ -138,15 +125,6 @@ export default function AppRouter() {
           element={
             <ProtectedRoute>
               <Profile />
-            </ProtectedRoute>
-          }
-        />
-        {/* Logout route - requires authentication */}
-        <Route
-          path="/auth/logout"
-          element={
-            <ProtectedRoute>
-              <LogoutWrapper />
             </ProtectedRoute>
           }
         />

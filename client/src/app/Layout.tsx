@@ -1,6 +1,8 @@
 import Footer from '@/components/layout/footer/Footer';
 import Navbar from '@/components/layout/navbar/Navbar';
 import { Outlet } from 'react-router-dom';
+import AIChatbox from '@/features/AIChatbox/AIChatbox';
+import InactivityWarning from '@/features/auth/InactivityWarning';
 
 export default function Layout() {
   return (
@@ -17,6 +19,12 @@ export default function Layout() {
 
       {/* Footer only appears after content ends */}
       <Footer />
+
+      {/* AI Chatbox - Available everywhere for authenticated users */}
+      <AIChatbox />
+
+      {/* Inactivity Warning Dialog */}
+      <InactivityWarning />
     </section>
   );
 }

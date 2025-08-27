@@ -15,6 +15,8 @@ import {
   verifyResetToken,
 } from '../utils/ResetTokenStore';
 import DistributionHub from '../models/DistributionHub';
+import { changePasswordSchema, customerRegistrationSchema, forgotPasswordSchema, loginSchema, resetPasswordSchema, shipperRegistrationSchema, vendorRegistrationSchema, verifyResetCodeSchema } from '../validations/authValidation';
+
 
 interface TokenPayload {
   userId: string;
@@ -28,6 +30,21 @@ const client = twilio(
 // Register Vendor
 export const registerVendor = async (req: Request, res: Response) => {
   try {
+    // Validate the request body using Zod schema
+    const validationResult = vendorRegistrationSchema.safeParse(req.body);
+    
+    if (!validationResult.success) {
+      const formattedErrors = validationResult.error.issues.map(err => ({
+        field: err.path.join('.'),
+        message: err.message,
+      }));
+      
+      return res.status(400).json({
+        message: 'Validation failed',
+        errors: formattedErrors,
+      });
+    }
+
     const {
       username,
       email,
@@ -35,17 +52,9 @@ export const registerVendor = async (req: Request, res: Response) => {
       businessName,
       businessAddress,
       profilePicture,
-    } = req.body;
-
-    if (!username || !email || !password || !businessName || !businessAddress) {
-      return res.status(400).json({
-        message:
-          'Username, email, password, business name, and business address are required',
-      });
-    }
+    } = validationResult.data;
 
     // Check if username already exists
-
     const existingUser = await UserServices.usernameExists(username);
 
     if (existingUser) {
@@ -97,14 +106,22 @@ export const registerVendor = async (req: Request, res: Response) => {
 // Register Customer
 export const registerCustomer = async (req: Request, res: Response) => {
   try {
-    const { username, email, password, name, address, profilePicture } =
-      req.body;
-
-    if (!username || !email || !password || !name || !address) {
+    // Validate the request body using Zod schema
+    const validationResult = customerRegistrationSchema.safeParse(req.body);
+    
+    if (!validationResult.success) {
+      const formattedErrors = validationResult.error.issues.map(err => ({
+        field: err.path.join('.'),
+        message: err.message,
+      }));
+      
       return res.status(400).json({
-        message: 'Username, email, password, name, and address are required',
+        message: 'Validation failed',
+        errors: formattedErrors,
       });
     }
+
+    const { username, email, password, name, address, profilePicture } = validationResult.data;
 
     // Check if username already exists
     const existingUser = await UserServices.usernameExists(username);
@@ -160,14 +177,22 @@ export const registerCustomer = async (req: Request, res: Response) => {
 // Register Shipper
 export const registerShipper = async (req: Request, res: Response) => {
   try {
-    const { username, email, password, assignedHubId, profilePicture } =
-      req.body;
-
-    if (!username || !email || !password || !assignedHubId) {
+    // Validate the request body using Zod schema
+    const validationResult = shipperRegistrationSchema.safeParse(req.body);
+    
+    if (!validationResult.success) {
+      const formattedErrors = validationResult.error.issues.map(err => ({
+        field: err.path.join('.'),
+        message: err.message,
+      }));
+      
       return res.status(400).json({
-        message: 'Username, email, password, and assigned hub are required',
+        message: 'Validation failed',
+        errors: formattedErrors,
       });
     }
+
+    const { username, email, password, assignedHubId, profilePicture } = validationResult.data;
 
     // Check if username already exists
     const existingUser = await UserServices.usernameExists(username);
@@ -227,13 +252,22 @@ export const registerShipper = async (req: Request, res: Response) => {
 // Login for all user types
 export const login = async (req: Request, res: Response) => {
   try {
-    const { username, password } = req.body;
-
-    if (!username || !password) {
+    // Validate the request body using Zod schema
+    const validationResult = loginSchema.safeParse(req.body);
+    
+    if (!validationResult.success) {
+      const formattedErrors = validationResult.error.issues.map(err => ({
+        field: err.path.join('.'),
+        message: err.message,
+      }));
+      
       return res.status(400).json({
-        message: 'Username and password are required',
+        message: 'Validation failed',
+        errors: formattedErrors,
       });
     }
+
+    const { username, password } = validationResult.data;
 
     const user = await UserServices.findByUserName(username);
     if (!user) {
@@ -321,10 +355,22 @@ export const logout = async (req: Request, res: Response) => {
 
 export const forgotPassword = async (req: Request, res: Response) => {
   try {
-    const { email } = req.body;
-    if (!email) {
-      return res.status(400).json({ message: 'Email is required' });
+    // Validate the request body using Zod schema
+    const validationResult = forgotPasswordSchema.safeParse(req.body);
+    
+    if (!validationResult.success) {
+      const formattedErrors = validationResult.error.issues.map(err => ({
+        field: err.path.join('.'),
+        message: err.message,
+      }));
+      
+      return res.status(400).json({
+        message: 'Validation failed',
+        errors: formattedErrors,
+      });
     }
+
+    const { email } = validationResult.data;
 
     // Check if user exists in your DB
     const user = await UserServices.findByEmail(email);
@@ -390,10 +436,22 @@ interface TwilioVerificationCheck {
 
 export const verifyResetCode = async (req: Request, res: Response) => {
   try {
-    const { email, code } = req.body;
-    if (!email || !code) {
-      return res.status(400).json({ message: 'Email and code are required' });
+    // Validate the request body using Zod schema
+    const validationResult = verifyResetCodeSchema.safeParse(req.body);
+    
+    if (!validationResult.success) {
+      const formattedErrors = validationResult.error.issues.map(err => ({
+        field: err.path.join('.'),
+        message: err.message,
+      }));
+      
+      return res.status(400).json({
+        message: 'Validation failed',
+        errors: formattedErrors,
+      });
     }
+
+    const { email, code } = validationResult.data;
 
     console.log(`Attempting to verify OTP for email: ${email}, code: ${code}`);
 
@@ -468,12 +526,22 @@ export const verifyResetCode = async (req: Request, res: Response) => {
 
 export const resetForgotPassword = async (req: Request, res: Response) => {
   try {
-    const { email, newPassword, resetToken } = req.body;
-    if (!email || !newPassword || !resetToken) {
-      return res
-        .status(400)
-        .json({ message: 'Email, new password, and reset token are required' });
+    // Validate the request body using Zod schema
+    const validationResult = resetPasswordSchema.safeParse(req.body);
+    
+    if (!validationResult.success) {
+      const formattedErrors = validationResult.error.issues.map(err => ({
+        field: err.path.join('.'),
+        message: err.message,
+      }));
+      
+      return res.status(400).json({
+        message: 'Validation failed',
+        errors: formattedErrors,
+      });
     }
+
+    const { email, newPassword, resetToken } = validationResult.data;
 
     // Verify the reset token
     if (!verifyResetToken(email, resetToken)) {
@@ -511,12 +579,22 @@ export const changePassword = async (req: Request, res: Response) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    const { currentPassword, newPassword } = req.body;
-    if (!currentPassword || !newPassword) {
+    // Validate the request body using Zod schema
+    const validationResult = changePasswordSchema.safeParse(req.body);
+    
+    if (!validationResult.success) {
+      const formattedErrors = validationResult.error.issues.map(err => ({
+        field: err.path.join('.'),
+        message: err.message,
+      }));
+      
       return res.status(400).json({
-        message: 'Current password and new password are required',
+        message: 'Validation failed',
+        errors: formattedErrors,
       });
     }
+
+    const { currentPassword, newPassword } = validationResult.data;
 
     // Check if password field exists
     if (!user.password) {

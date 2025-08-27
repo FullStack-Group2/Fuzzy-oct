@@ -1,14 +1,15 @@
 import mongoose, { Schema, model, Document } from 'mongoose';
+import { ProductCategory } from './ProductCategory';
 
 export interface IProduct extends Document {
   _id: mongoose.Types.ObjectId;
-
   name: string;
   price: number;
   imageUrl: string;
   description: string;
+  category: ProductCategory;
   vendor: mongoose.Types.ObjectId; // Reference to the User (Vendor)
-  availableStock: number; 
+  availableStock: number;
 }
 
 const ProductSchema = new Schema<IProduct>({
@@ -25,6 +26,11 @@ const ProductSchema = new Schema<IProduct>({
   },
   imageUrl: { type: String, required: true },
   description: { type: String, maxlength: 500 },
+  category: {
+    type: String,
+    enum: Object.values(ProductCategory),
+    default: ProductCategory.OTHERS,
+  },
   vendor: {
     type: Schema.Types.ObjectId,
     ref: 'Vendor',

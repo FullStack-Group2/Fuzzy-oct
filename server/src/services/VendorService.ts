@@ -1,9 +1,9 @@
 import { IVendor, VendorModel } from '../models/Vendor';
-import { ProductModel as Product, IProduct } from '../models/Product';
 import Order from '../models/Order';
 import { OrderStatus } from '../models/OrderStatus';
 import OrderItem from '../models/OrderItem';
 import mongoose from 'mongoose';
+import { IProduct, ProductModel } from '../models/Product';
 
 // Check if a username already exists
 export const findVendorByUsername = async (username: string) => {
@@ -23,32 +23,34 @@ export const createVendor = async (vendorData: Partial<IVendor>) => {
 };
 
 export const createProduct = async (productData: Partial<IProduct>) => {
-  const newProduct = new Product(productData);
+  const newProduct = new ProductModel(productData);
   await newProduct.save();
   return newProduct;
 };
 
 export const getOneProduct = async (productId: string) => {
-  return Product.findById(productId);
+  return ProductModel.findById(productId);
 };
 
 export const getVendorProducts = async (vendorId: string) => {
-  return Product.find({ vendor: vendorId });
+  return ProductModel.find({ vendor: vendorId });
 };
 
 export const editProduct = async (
   productId: string,
   updateData: Partial<IProduct>,
 ) => {
-  return Product.findByIdAndUpdate(productId, updateData, { new: true });
+  return ProductModel.findByIdAndUpdate(productId, updateData, { new: true });
 };
 
 export const deleteProduct = async (productId: string) => {
-  return Product.findByIdAndDelete(productId);
+  return ProductModel.findByIdAndDelete(productId);
 };
 
 export const getVendorOrders = async (vendorId: string) => {
-  const productIds = await Product.find({ vendor: vendorId }).distinct('_id');
+  const productIds = await ProductModel.find({ vendor: vendorId }).distinct(
+    '_id',
+  );
 
   return Order.aggregate([
     {
@@ -96,7 +98,9 @@ export const getVendorOrders = async (vendorId: string) => {
 };
 
 export const getVendorOrderHistory = async (vendorId: string) => {
-  const productIds = await Product.find({ vendor: vendorId }).distinct('_id');
+  const productIds = await ProductModel.find({ vendor: vendorId }).distinct(
+    '_id',
+  );
 
   return Order.aggregate([
     {

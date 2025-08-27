@@ -1,8 +1,11 @@
-import PriceSlider from '@/features/shop/PriceSlider';
-import FilterBar from '@/features/shop/FilterBar';
-import ShopCardItem from '@/features/shop/ShopCardItem';
+import { useState } from 'react';
+import FilterBar from '@/features/shop/components/filter/FilterBar';
+import ShopPage from '@/features/shop/components/ShopPage';
+import ShopPagination from '@/features/shop/components/ShopPagination';
 
 const Shop = () => {
+  const [pageIndex, setPageIndex] = useState(0);
+
   return (
     <>
       <header className="relative mb-5 w-screen h-48 bg-[#B7F7E1]">
@@ -15,66 +18,13 @@ const Shop = () => {
           Shop page
         </div>
       </header>
+        
+      <section className="w-[90vw] mx-auto mb-5 flex flex-col lg:flex-row lg:justify-between gap-5">
+        <FilterBar/>
+        <div className='w-full lg:w-[73%]'>
+          <ShopPage index={pageIndex} />
 
-      <section className="w-[90vw] mx-auto mb-5 flex flex-col md:flex-row md:justify-between gap-5">
-        <FilterBar />
-
-        <div className="w-full h-auto grid grid-cols-1 gap-14 md:w-[73%] sm:grid-cols-2 md:grid-cols-3">
-          <ShopCardItem
-            imgSrc="/verona-seat.png"
-            itemName="Verona Seat"
-            itemPrice="950.000"
-          />
-          <ShopCardItem
-            imgSrc="/verona-seat.png"
-            itemName="Verona Seat"
-            itemPrice="950.000"
-          />
-          <ShopCardItem
-            imgSrc="/verona-seat.png"
-            itemName="Verona Seat"
-            itemPrice="950.000"
-          />
-          <ShopCardItem
-            imgSrc="/verona-seat.png"
-            itemName="Verona Seat"
-            itemPrice="950.000"
-          />
-          <ShopCardItem
-            imgSrc="/verona-seat.png"
-            itemName="Verona Seat"
-            itemPrice="950.000"
-          />
-          <ShopCardItem
-            imgSrc="/verona-seat.png"
-            itemName="Verona Seat"
-            itemPrice="950.000"
-          />
-          <ShopCardItem
-            imgSrc="/verona-seat.png"
-            itemName="Verona Seat"
-            itemPrice="950.000"
-          />
-          <ShopCardItem
-            imgSrc="/verona-seat.png"
-            itemName="Verona Seat"
-            itemPrice="950.000"
-          />
-          <ShopCardItem
-            imgSrc="/verona-seat.png"
-            itemName="Verona Seat"
-            itemPrice="950.000"
-          />
-          <ShopCardItem
-            imgSrc="/verona-seat.png"
-            itemName="Verona Seat"
-            itemPrice="950.000"
-          />
-          <ShopCardItem
-            imgSrc="/verona-seat.png"
-            itemName="Verona Seat"
-            itemPrice="950.000"
-          />
+          <ShopPagination pageIndex={pageIndex} setPageIndex={setPageIndex} />
         </div>
       </section>
     </>

@@ -1,0 +1,23 @@
+import { Router } from 'express';
+
+import * as shipperController from '../controllers/ShipperController';
+import { authMiddleware } from '../middleware/authMiddleware';
+import { requireShipper } from '../middleware/roleMiddleware';
+
+const router = Router();
+
+// Routes
+router.get(
+  '/:id',
+  authMiddleware,
+  requireShipper,
+  shipperController.getShipperById,
+);
+router.put(
+  '/:id',
+  authMiddleware,
+  requireShipper,
+  shipperController.updateShipper,
+);
+
+export default router;

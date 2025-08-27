@@ -7,5 +7,5 @@ export enum ProductCategory {
   CABINETS = 'CABINETS',
   SHELVES = 'SHELVES',
   DECORATION = 'DECORATION',
-  OTHERS = 'OTHERS'
+  OTHERS = 'OTHERS',
 }

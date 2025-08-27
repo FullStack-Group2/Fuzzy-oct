@@ -8,9 +8,18 @@ const router = Router();
 
 // Routes
 
-router.get('/products',authMiddleware,requireCustomer,customerController.getAllProducts);
-router.get('/stores/:storeId',authMiddleware,requireCustomer,customerController.getProductByStore);
-
+router.get(
+  '/products',
+  authMiddleware,
+  requireCustomer,
+  customerController.getAllProducts,
+);
+router.get(
+  '/stores/:storeId',
+  authMiddleware,
+  requireCustomer,
+  customerController.getProductByStore,
+);
 
 router.get(
   '/cart',

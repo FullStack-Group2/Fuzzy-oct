@@ -16,7 +16,8 @@ const ShopPage: React.FC<ShopPageProps> = ({ index }) => {
 
   if (loading) return <p>Loading products...</p>;
   if (error) return <p>{error}</p>;
-  if (currentProducts.length === 0) return <p>No products found on this page.</p>;
+  if (currentProducts.length === 0)
+    return <p>No products found on this page.</p>;
 
   return (
     <div className="flex flex-col gap-10">
@@ -46,7 +47,9 @@ const ShopPage: React.FC<ShopPageProps> = ({ index }) => {
                 arjs="trackingMethod: best; sourceType: webcam;debugUIEnabled: false;"
                 style="width: 100%; height: 100%;"
               >
-                ${currentProducts.map(product => `
+                ${currentProducts
+                  .map(
+                    (product) => `
                   <a-nft
                     type="nft"
                     url="${product.nftDescriptorUrl}"
@@ -55,21 +58,25 @@ const ShopPage: React.FC<ShopPageProps> = ({ index }) => {
                     smoothTolerance=".01"
                     smoothThreshold="5"
                   >
-                    ${product.modelUrl ? `
+                    ${
+                      product.modelUrl
+                        ? `
                       <a-entity
                         gltf-model="${product.modelUrl}"
                         scale="5 5 5"
                         position="2 -15 0"
                         rotation="-90 0 0"
                       ></a-entity>
-                    ` : `
+                    `
+                        : `
                       <a-image
                         src="${product.imageUrl}"
                         position="0 0.5 0"
                         width="1"
                         height="1"
                       ></a-image>
-                    `}
+                    `
+                    }
                     <a-text
                       value="${product.name}"
                       position="0 -0.5 0"
@@ -77,7 +84,9 @@ const ShopPage: React.FC<ShopPageProps> = ({ index }) => {
                       color="white"
                     ></a-text>
                   </a-nft>
-                `).join('')}
+                `,
+                  )
+                  .join('')}
                 <a-entity camera></a-entity>
               </a-scene>
             `,

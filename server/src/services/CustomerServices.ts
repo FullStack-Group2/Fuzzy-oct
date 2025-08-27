@@ -21,7 +21,7 @@ export const deleteItemByProduct = async (
   userId: string,
   productId: string,
 ) => {
-  console.log(`check in deleteItem by product: ${userId} + ${productId}`)
+  console.log(`check in deleteItem by product: ${userId} + ${productId}`);
   return CartItem.findOneAndDelete({ customer: userId, _id: productId });
 };
 
@@ -49,7 +49,6 @@ export const addItemToCart = async ({
   return CartItem.create({ customer, product, quantity });
 };
 
-
 export const modifyItemCart = async ({
   customerId,
   cartId,
@@ -60,7 +59,7 @@ export const modifyItemCart = async ({
   quantity: number;
 }) => {
   // 1. Check product stock
-  const productDoc = await ProductModel.find({_id: cartId});
+  const productDoc = await ProductModel.find({ _id: cartId });
   console.log(productDoc);
   if (!productDoc) {
     throw new Error('Product not found');
@@ -68,15 +67,15 @@ export const modifyItemCart = async ({
 
   if (quantity > productDoc.availableStock) {
     throw new Error(
-      `Requested quantity (${quantity}) exceeds available stock (${productDoc.availableStock}).`
+      `Requested quantity (${quantity}) exceeds available stock (${productDoc.availableStock}).`,
     );
   }
 
   // 2. Update cart item
   const updatedCartItem = await CartItem.findOneAndUpdate(
-    { customer: customerId, _id:cartId },
+    { customer: customerId, _id: cartId },
     { $set: { quantity } },
-    { new: true, upsert: true } // upsert allows creating item if not exists
+    { new: true, upsert: true }, // upsert allows creating item if not exists
   ).populate('product');
 
   // 3. Return both product stock + cart quantity
@@ -85,7 +84,7 @@ export const modifyItemCart = async ({
     availableStock: productDoc.availableStock,
     quantity: updatedCartItem?.quantity,
   };
-}
+};
 
 export const createOrderFromItem = async (userId: string) => {
   const customer = userId;
@@ -140,11 +139,10 @@ Nut feedback driver/don hang
 lỡ đặt 3 hàng mà shop thiếu hàng thì sao
 */
 
-
- export const getCustomerProducts = async () => {
+export const getCustomerProducts = async () => {
   return ProductModel.find({});
 };
 
- export const getStoreProducts = async (storeId: string) => {
-  return ProductModel.find({vendor: storeId});
+export const getStoreProducts = async (storeId: string) => {
+  return ProductModel.find({ vendor: storeId });
 };

@@ -49,7 +49,8 @@ export const getVendorById = async (req: Request, res: Response) => {
 export const addProduct = async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { userId } = req.user!;
-    const { name, price, description, imageUrl, category, availableStock } = req.body;
+    const { name, price, description, imageUrl, category, availableStock } =
+      req.body;
 
     // Validate required fields
     if (!name || !description || !price || !category || !availableStock) {

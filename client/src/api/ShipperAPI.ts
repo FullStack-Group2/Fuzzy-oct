@@ -14,7 +14,6 @@ function authHeaders(): HeadersInit {
 
 export async function apiGetActiveOrders(hubId?: string): Promise<OrderListDTO[]> {
   const url = new URL(`${API_BASE}/shipper/orders`);
-  if (hubId) url.searchParams.set("hubId", hubId); // dev fallback
   const res = await fetch(url, { headers: authHeaders() });
   if (!res.ok) throw new Error("Failed to load orders");
   return res.json();

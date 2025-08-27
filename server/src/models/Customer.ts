@@ -1,5 +1,6 @@
 import { Schema } from 'mongoose';
 import { UserModel, IUser } from './User';
+import { UserRole } from './UserRole';
 
 export interface ICustomer extends IUser {
   name: string;
@@ -12,6 +13,6 @@ const customerSchema = new Schema<ICustomer>({
 });
 
 export const CustomerModel = UserModel.discriminator<ICustomer>(
-  "Customer",
+  UserRole.CUSTOMER,
   customerSchema,
 );

@@ -48,6 +48,7 @@ export const authMiddleware = async (
         break;
       case UserRole.CUSTOMER:
         roleDoc = await CustomerModel.findById(decoded.userId).lean();
+        
         break;
       case UserRole.SHIPPER: {
         const shipper = await ShipperModel.findById(decoded.userId).select('distributionHub').lean();

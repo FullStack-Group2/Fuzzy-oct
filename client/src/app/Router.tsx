@@ -29,6 +29,9 @@ import VendorOrders from './pages/vendor/VendorOrders';
 import VendorOrderDetails from './pages/vendor/VendorOrderDetails';
 import VendorCancelOrder from './pages/vendor/VendorCancelOrder';
 import Modal from '@/components/Modal';
+import CustomerCancelOrder from './pages/customer/CustomerCancelOrder';
+import CustomerOrders from './pages/customer/CustomerOrders';
+import CustomerOrderDetails from './pages/customer/CustomerOrderDetails';
 
 export default function AppRouter() {
   return (
@@ -74,6 +77,10 @@ export default function AppRouter() {
             <Route path="/auth/logout" element={<Logout />} />
             <Route path="/auth/forgot-password" element={<ForgotPassword />} />
 
+            <Route path="/customer/orders" element={<CustomerOrders />} />
+            <Route path="/customer/orders/:orderId" element={<CustomerOrderDetails />} />
+            <Route path="/customer/orders/:orderId/cancel" element={<CustomerCancelOrder />} />
+
             <Route path="/vendor/orders" element={<VendorOrders />} />
             <Route
               path="/vendor/orders/:orderId"
@@ -99,6 +106,7 @@ export default function AppRouter() {
             />
 
             {authRole == 'shipper' && <></>}
+
 
             <Route path="/privacy" element={<PrivacyPolicy />} />
 
@@ -137,6 +145,22 @@ export default function AppRouter() {
               element={
                 <Modal>
                   <VendorCancelOrder />
+                </Modal>
+              }
+            />
+            <Route
+              path="/customer/orders/:orderId"
+              element={
+                <Modal>
+                  <CustomerOrderDetails />
+                </Modal>
+              }
+            />
+            <Route
+              path="/customer/orders/:orderId/cancel"
+              element={
+                <Modal>
+                  <CustomerCancelOrder />
                 </Modal>
               }
             />

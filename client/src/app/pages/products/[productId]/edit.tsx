@@ -6,7 +6,7 @@ export const EditProduct: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const product = location.state?.product;
-  const token = localStorage.getItem('Authorization') || '';
+  const token = `Bearer ${localStorage.getItem('token') || ''}`;
 
   const [formData, setFormData] = useState({
     name: product?.name || '',

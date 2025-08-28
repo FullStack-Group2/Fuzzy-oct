@@ -15,7 +15,7 @@ export enum ProductCategory {
 }
 
 export const AddProduct: React.FC = () => {
-  const token = localStorage.getItem('Authorization') || '';
+  const token = `Bearer ${localStorage.getItem('token') || ''}`;
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: '',

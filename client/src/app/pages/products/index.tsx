@@ -29,7 +29,7 @@ interface Product {
 export const Products: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
-  const token = localStorage.getItem('Authorization') || '';
+  const token = `Bearer ${localStorage.getItem('token') || ''}`;
   const navigate = useNavigate();
 
   useEffect(() => {

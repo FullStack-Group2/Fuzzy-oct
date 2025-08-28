@@ -6,9 +6,16 @@ import { VendorModel } from '../models/Vendor';
 import { CustomerModel } from '../models/Customer';
 import { ShipperModel } from '../models/Shipper';
 import { UserRole } from '../models/UserRole';
-import { UserModel } from '../models/User';
 import { UserServices } from '../services/UserServices';
+import { createVendor } from '../services/VendorService';
 import { signJWT } from '../utils/SignHelper';
+import twilio from 'twilio';
+import {
+  deleteResetToken,
+  generateResetToken,
+  verifyResetToken,
+} from '../utils/ResetTokenStore';
+import DistributionHub from '../models/DistributionHub';
 
 interface TokenPayload {
   userId: string;
@@ -17,36 +24,40 @@ interface TokenPayload {
   hubId?: string;
 }
 
+const client = twilio(
+  process.env.TWILIO_ACCOUNT_SID,
+  process.env.TWILIO_AUTH_TOKEN,
+);
+
 // Register Vendor
 export const registerVendor = async (req: Request, res: Response) => {
   try {
     const {
       username,
+      email,
       password,
       businessName,
       businessAddress,
       profilePicture,
     } = req.body;
 
-    if (!username || !password || !businessName || !businessAddress) {
+    if (!username || !email || !password || !businessName || !businessAddress) {
       return res.status(400).json({
         message:
-          'Username, password, business name, and business address are required.',
+          'Username, email, password, business name, and business address are required',
       });
     }
 
-    // Check if username already exists
-    const existingUser = await VendorModel.findOne({ username });
+    const existingUser = await UserServices.usernameExists(username);
     if (existingUser) {
-      return res.status(409).json({ message: 'Username already exists.' });
+      return res.status(409).json({ message: 'Username already exists' });
     }
 
-    // Hash password
     const hashedPassword = await bcrypt.hash(password, 12);
 
-    // Create vendor
-    const vendor = new VendorModel({
+    const vendor = await createVendor({
       username: username.trim(),
+      email: email.trim().toLowerCase(),
       password: hashedPassword,
       role: UserRole.VENDOR,
       businessName: businessName.trim(),
@@ -54,9 +65,6 @@ export const registerVendor = async (req: Request, res: Response) => {
       profilePicture: profilePicture || '',
     });
 
-    await vendor.save();
-
-    // Generate JWT token
     const tokenPayload: TokenPayload = {
       userId: vendor.id.toString(),
       username: vendor.username,
@@ -70,6 +78,7 @@ export const registerVendor = async (req: Request, res: Response) => {
       vendor: {
         id: vendor._id,
         username: vendor.username,
+        email: vendor.email,
         businessName: vendor.businessName,
         businessAddress: vendor.businessAddress,
         profilePicture: vendor.profilePicture,
@@ -79,22 +88,6 @@ export const registerVendor = async (req: Request, res: Response) => {
     });
   } catch (error: unknown) {
     console.error('Vendor Registration Error:', error);
-
-    if (
-      error &&
-      typeof error === 'object' &&
-      'code' in error &&
-      error.code === 11000
-    ) {
-      const field =
-        error && typeof error === 'object' && 'keyPattern' in error
-          ? Object.keys(error.keyPattern as object)[0]
-          : 'field';
-      return res.status(409).json({
-        message: `${field} already exists.`,
-      });
-    }
-
     res.status(500).json({ message: 'Internal server error' });
   }
 };
@@ -102,26 +95,25 @@ export const registerVendor = async (req: Request, res: Response) => {
 // Register Customer
 export const registerCustomer = async (req: Request, res: Response) => {
   try {
-    const { username, password, name, address, profilePicture } = req.body;
+    const { username, email, password, name, address, profilePicture } =
+      req.body;
 
-    if (!username || !password || !name || !address) {
+    if (!username || !email || !password || !name || !address) {
       return res.status(400).json({
-        message: 'Username, password, name, and address are required.',
+        message: 'Username, email, password, name, and address are required',
       });
     }
 
-    // Check if username already exists
-    const existingUser = await CustomerModel.findOne({ username });
+    const existingUser = await UserServices.usernameExists(username);
     if (existingUser) {
-      return res.status(409).json({ message: 'Username already exists.' });
+      return res.status(409).json({ message: 'Username already exists' });
     }
 
-    // Hash password
     const hashedPassword = await bcrypt.hash(password, 12);
 
-    // Create customer
     const customer = new CustomerModel({
       username: username.trim(),
+      email: email.trim().toLowerCase(),
       password: hashedPassword,
       role: UserRole.CUSTOMER,
       name: name.trim(),
@@ -131,7 +123,6 @@ export const registerCustomer = async (req: Request, res: Response) => {
 
     await customer.save();
 
-    // Generate JWT token
     const tokenPayload: TokenPayload = {
       userId: customer.id.toString(),
       username: customer.username,
@@ -145,6 +136,7 @@ export const registerCustomer = async (req: Request, res: Response) => {
       customer: {
         id: customer._id,
         username: customer.username,
+        email: customer.email,
         name: customer.name,
         address: customer.address,
         profilePicture: customer.profilePicture,
@@ -154,18 +146,6 @@ export const registerCustomer = async (req: Request, res: Response) => {
     });
   } catch (error: unknown) {
     console.error('Customer Registration Error:', error);
-
-    if (
-      error &&
-      typeof error === 'object' &&
-      'code' in error &&
-      error.code === 11000
-    ) {
-      return res.status(409).json({
-        message: 'Username already exists.',
-      });
-    }
-
     res.status(500).json({ message: 'Internal server error' });
   }
 };
@@ -173,42 +153,59 @@ export const registerCustomer = async (req: Request, res: Response) => {
 // Register Shipper
 export const registerShipper = async (req: Request, res: Response) => {
   try {
-    const { username, password, profilePicture } = req.body;
-    const hubRaw = req.body.distributionHub ?? req.body.assignedHub ?? req.body.hub;
+    const { username, email, password, profilePicture } = req.body;
+    const hubRaw =
+      req.body.distributionHub ??
+      req.body.assignedHubId ??
+      req.body.assignedHub ??
+      req.body.hub;
 
-    if (!username) return res.status(400).json({ message: 'Username is required.' });
-    if (!password) return res.status(400).json({ message: 'Password is required.' });
-    if (!hubRaw) return res.status(400).json({ message: 'Assigned hub is required.' });
-
+    if (!username) {
+      return res.status(400).json({ message: 'Username is required' });
+    }
+    if (!email) {
+      return res.status(400).json({ message: 'Email is required' });
+    }
+    if (!password) {
+      return res.status(400).json({ message: 'Password is required' });
+    }
+    if (!hubRaw) {
+      return res.status(400).json({ message: 'Assigned hub is required' });
+    }
     if (!Types.ObjectId.isValid(hubRaw)) {
-      return res.status(400).json({ message: 'Assigned hub must be a valid ObjectId.' });
+      return res
+        .status(400)
+        .json({ message: 'Assigned hub must be a valid ObjectId' });
     }
-    const distributionHub = new Types.ObjectId(hubRaw);
 
-    // Check if username already exists
-    const existingUser = await UserModel.findOne({ username });
+    const existingUser = await UserServices.usernameExists(username);
     if (existingUser) {
-      return res.status(409).json({ message: 'Username already exists.' });
+      return res.status(409).json({ message: 'Username already exists' });
     }
 
-    // Hash password
+    const hub = await DistributionHub.findById(hubRaw);
+    if (!hub) {
+      return res.status(404).json({ message: 'Assigned hub not found' });
+    }
+
     const hashedPassword = await bcrypt.hash(password, 12);
 
-    // Create shipper
     const shipper = await ShipperModel.create({
       username: username.trim(),
+      email: email.trim().toLowerCase(),
       password: hashedPassword,
       role: UserRole.SHIPPER,
+      // Keep your HEAD schema: store hub under distributionHub
+      distributionHub: hub._id,
       profilePicture: profilePicture || '',
-      distributionHub
     });
 
-    // Generate JWT token
+    // Build JWT with hubId for shipper
     const tokenPayload: TokenPayload = {
       userId: shipper.id.toString(),
       username: shipper.username,
       role: UserRole.SHIPPER,
-      hubId: shipper.distributionHub.toString()
+      hubId: shipper.distributionHub?.toString(),
     };
 
     const token = signJWT(tokenPayload);
@@ -218,6 +215,7 @@ export const registerShipper = async (req: Request, res: Response) => {
       shipper: {
         id: shipper._id,
         username: shipper.username,
+        email: shipper.email,
         distributionHub: shipper.distributionHub,
         profilePicture: shipper.profilePicture,
         role: shipper.role,
@@ -226,18 +224,6 @@ export const registerShipper = async (req: Request, res: Response) => {
     });
   } catch (error: unknown) {
     console.error('Shipper Registration Error:', error);
-
-    if (
-      error &&
-      typeof error === 'object' &&
-      'code' in error &&
-      error.code === 11000
-    ) {
-      return res.status(409).json({
-        message: 'Username already exists.',
-      });
-    }
-
     res.status(500).json({ message: 'Internal server error' });
   }
 };
@@ -246,44 +232,97 @@ export const registerShipper = async (req: Request, res: Response) => {
 export const login = async (req: Request, res: Response) => {
   try {
     const { username, password } = req.body;
-    if (!username || !password)
-      return res.status(400).json({ message: "Username and password are required." });
+
+    if (!username || !password) {
+      return res
+        .status(400)
+        .json({ message: 'Username and password are required' });
+    }
 
     const user = await UserServices.findByUserName(username);
-    if (!user) return res.status(401).json({ message: "Invalid credentials" });
+    if (!user) {
+      return res.status(401).json({ message: 'Invalid credentials' });
+    }
 
-    const ok = await bcrypt.compare(password, user.password);
-    if (!ok) return res.status(401).json({ message: "Invalid credentials." });
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      return res.status(401).json({ message: 'Invalid credentials' });
+    }
 
-    const isShipper = user.role === UserRole.SHIPPER;
-    const hubId = isShipper && (user as any).distributionHub
-      ? (user as any).distributionHub.toString()
-      : undefined;
+    // Prepare token payload (with hubId for shippers)
+    let hubId: string | undefined;
+    if (user.role === UserRole.SHIPPER) {
+      // support both schemas transparently
+      const shipper = await ShipperModel.findById(user._id)
+        .select('distributionHub assignedHub')
+        .populate('assignedHub', 'hubName hubLocation'); // no-op if field absent
 
-    // Create token using USERS id (not role id)
+      if (shipper?.distributionHub) {
+        hubId = shipper.distributionHub.toString();
+      } else if ((shipper as any)?.assignedHub) {
+        const assigned = (shipper as any).assignedHub;
+        hubId = typeof assigned === 'object' && assigned?._id
+          ? assigned._id.toString()
+          : String(assigned);
+      }
+    }
+
     const tokenPayload: TokenPayload = {
       userId: user.id.toString(),
       username: user.username,
       role: user.role,
-      ...(hubId ? { hubId } : {})
+      ...(hubId ? { hubId } : {}),
     };
     const token = signJWT(tokenPayload);
 
     const userData: Record<string, unknown> = {
       id: user._id,
       username: user.username,
+      email: user.email,
       role: user.role,
       profilePicture: user.profilePicture,
     };
 
-    if (user.role === UserRole.SHIPPER) {
-      userData.distributionHub = (user as any).distributionHub;
+    // Attach role-specific extras (merge of HEAD + dev)
+    switch (user.role) {
+      case UserRole.VENDOR: {
+        const vendor = await VendorModel.findById(user._id);
+        if (vendor) {
+          userData.businessName = vendor.businessName;
+          userData.businessAddress = vendor.businessAddress;
+        }
+        break;
+      }
+      case UserRole.CUSTOMER: {
+        const customer = await CustomerModel.findById(user._id);
+        if (customer) {
+          userData.name = customer.name;
+          userData.address = customer.address;
+        }
+        break;
+      }
+      case UserRole.SHIPPER: {
+        const shipper = await ShipperModel.findById(user._id)
+          .select('distributionHub assignedHub')
+          .populate('assignedHub', 'hubName hubLocation'); // safe if path missing
+        if (shipper) {
+          if (shipper.distributionHub) {
+            userData.distributionHub = shipper.distributionHub;
+          }
+          if ((shipper as any).assignedHub) {
+            userData.assignedHub = (shipper as any).assignedHub;
+          }
+        }
+        break;
+      }
     }
 
-    return res.status(200).json({ message: "Login successful", user: userData, token });
+    return res
+      .status(200)
+      .json({ message: 'Login successful', user: userData, token });
   } catch (err) {
-    console.error("Login Error:", err);
-    return res.status(500).json({ message: "Internal server error" });
+    console.error('Login Error:', err);
+    return res.status(500).json({ message: 'Internal server error' });
   }
 };
 
@@ -296,6 +335,224 @@ export const logout = async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error('Logout Error:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+export const forgotPassword = async (req: Request, res: Response) => {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      return res.status(400).json({ message: 'Email is required' });
+    }
+
+    const user = await UserServices.findByEmail(email);
+    if (!user) {
+      return res.status(404).json({ message: 'Email is not registered' });
+    }
+
+    console.log(`Sending OTP to email: ${email}`);
+
+    try {
+      const verificationPromise = client.verify.v2
+        .services(process.env.TWILIO_VERIFY_SERVICE_SID!)
+        .verifications.create({
+          channel: 'email',
+          channelConfiguration: {
+            template_id: 'd-2a11adc42d924c07b8ca411243c19913',
+            from: 'huygiasg004@gmail.com',
+            from_name: 'Fuzzy Support',
+          },
+          to: email,
+        });
+
+      const timeoutPromise = new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error('OTP send timeout')), 15000),
+      );
+
+      const result = await Promise.race([verificationPromise, timeoutPromise]);
+
+      console.log('OTP send result:', result);
+      res.status(200).json({ status: 'Verification code sent successfully' });
+    } catch (twilioError: unknown) {
+      console.error('Twilio OTP send error:', twilioError);
+      const error = twilioError as TwilioError;
+
+      if (
+        error.message === 'OTP send timeout' ||
+        error.code === 'ECONNABORTED'
+      ) {
+        return res.status(408).json({
+          message: 'Failed to send verification code. Please try again',
+        });
+      }
+
+      return res.status(500).json({
+        message: 'Failed to send verification code. Please try again later',
+      });
+    }
+  } catch (error) {
+    console.error('Forgot Password Error:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+interface TwilioError {
+  message?: string;
+  code?: string | number;
+}
+interface TwilioVerificationCheck {
+  status: string;
+  sid?: string;
+}
+
+export const verifyResetCode = async (req: Request, res: Response) => {
+  try {
+    const { email, code } = req.body;
+    if (!email || !code) {
+      return res.status(400).json({ message: 'Email and code are required' });
+    }
+
+    console.log(`Attempting to verify OTP for email: ${email}, code: ${code}`);
+
+    let verificationCheck: TwilioVerificationCheck;
+    try {
+      const verificationPromise = client.verify.v2
+        .services(process.env.TWILIO_VERIFY_SERVICE_SID!)
+        .verificationChecks.create({
+          to: email,
+          code: code.toString(),
+        });
+
+      const timeoutPromise = new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error('Verification timeout')), 15000),
+      );
+
+      verificationCheck = await Promise.race([
+        verificationPromise,
+        timeoutPromise,
+      ]);
+    } catch (twilioError: unknown) {
+      console.error('Twilio verification error:', twilioError);
+
+      const error = twilioError as TwilioError;
+
+      if (error.code === 20404) {
+        return res.status(400).json({
+          message: 'Verification code has expired or is invalid',
+        });
+      }
+
+      if (
+        error.message === 'Verification timeout' ||
+        error.code === 'ECONNABORTED'
+      ) {
+        return res.status(408).json({
+          message:
+            'Verification service is temporarily unavailable. Please try again',
+        });
+      }
+
+      return res.status(500).json({
+        message:
+          'Failed to verify code. Please try again or request a new code',
+      });
+    }
+
+    console.log('Verification check result:', verificationCheck);
+
+    if (verificationCheck.status !== 'approved') {
+      return res.status(400).json({
+        message: 'Invalid or expired verification code',
+      });
+    }
+
+    const resetToken = generateResetToken(email);
+    console.log('Generated reset token:', resetToken);
+
+    res.status(200).json({
+      status: 'Code verified successfully',
+      resetToken,
+    });
+  } catch (error) {
+    console.error('Verify Code Error:', error);
+    res.status(500).json({
+      message: 'Internal server error. Please try again later',
+    });
+  }
+};
+
+export const resetForgotPassword = async (req: Request, res: Response) => {
+  try {
+    const { email, newPassword, resetToken } = req.body;
+    if (!email || !newPassword || !resetToken) {
+      return res
+        .status(400)
+        .json({ message: 'Email, new password, and reset token are required' });
+    }
+
+    if (!verifyResetToken(email, resetToken)) {
+      return res
+        .status(400)
+        .json({ message: 'Invalid or expired reset token' });
+    }
+
+    const user = await UserServices.findByEmail(email);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const result = await UserServices.updatePassword(user.id, newPassword);
+    console.log('Password reset result:', result);
+
+    deleteResetToken(email);
+
+    res.status(200).json({ status: 'Password reset successful' });
+  } catch (error) {
+    console.error('Reset Password Error:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+export const changePassword = async (req: Request, res: Response) => {
+  try {
+    const userId = req.params.id;
+
+    const user = await UserServices.findByIdWithPassword(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const { currentPassword, newPassword } = req.body;
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({
+        message: 'Current password and new password are required',
+      });
+    }
+
+    if (!user.password) {
+      console.error('User password field is missing');
+      return res
+        .status(500)
+        .json({ message: 'User authentication data is corrupted' });
+    }
+
+    const isPasswordValid = await bcrypt.compare(
+      currentPassword,
+      user.password,
+    );
+    console.log('Is current password valid:', isPasswordValid);
+
+    if (!isPasswordValid) {
+      return res.status(401).json({ message: 'Current password is incorrect' });
+    }
+
+    const result = await UserServices.updatePassword(userId, newPassword);
+    console.log('Password change result:', result);
+
+    res.status(200).json({ message: 'Password changed successfully' });
+  } catch (error) {
+    console.error('Change Password Error:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
 };

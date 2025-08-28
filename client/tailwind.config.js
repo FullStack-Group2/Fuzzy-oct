@@ -15,6 +15,11 @@ export default {
         '2xl': '1400px',
       },
     },
+    screens: {
+      sm: '393px',
+      md: '768px',
+      lg: '1024px',
+    },
     extend: {
       colors: {
         border: 'hsl(var(--border))',
@@ -79,5 +84,11 @@ export default {
       },
     },
   },
-  plugins: [require('tailwindcss-animate')],
+  // corePlugins: {
+  //   aspectRatio: false,
+  // },
+  plugins: [
+    require('@tailwindcss/aspect-ratio'),
+    // require('tailwindcss-animate'),
+  ],
 };

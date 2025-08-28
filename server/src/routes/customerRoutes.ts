@@ -1,15 +1,25 @@
-import { Router } from "express";
-import { authMiddleware, requireCustomer } from "../middleware/authMiddleware";
-import {
-  listCustomerOrders,
-  getCustomerOrderDetail,
-  patchCustomerOrderStatus,
-} from "../controllers/CustomerController";
+import { Router } from 'express';
+
+import * as customerController from '../controllers/CustomerController';
+import { authMiddleware } from '../middleware/authMiddleware';
+import { requireCustomer } from '../middleware/roleMiddleware';
 
 const router = Router();
 
-router.get("/orders", authMiddleware, requireCustomer, listCustomerOrders);
-router.get("/orders/:id", authMiddleware, requireCustomer, getCustomerOrderDetail);
-router.patch("/orders/:id/status", authMiddleware, requireCustomer, patchCustomerOrderStatus);
+// Product browsing
+router.get('/products', authMiddleware, requireCustomer, customerController.getAllProducts);
+router.get('/stores/:storeId', authMiddleware, requireCustomer, customerController.getProductByStore);
+
+// Cart
+router.get('/cart', authMiddleware, requireCustomer, customerController.getCart);
+router.post('/cart', authMiddleware, requireCustomer, customerController.addToCart);
+router.put('/cart', authMiddleware, requireCustomer, customerController.updateCartItem);
+router.delete('/cart/:productId', authMiddleware, requireCustomer, customerController.removeItemFromCart);
+
+// Orders (create + history/detail/actions)
+router.post('/orders', authMiddleware, requireCustomer, customerController.createOrder);
+router.get('/orders', authMiddleware, requireCustomer, customerController.listCustomerOrders);
+router.get('/orders/:id', authMiddleware, requireCustomer, customerController.getCustomerOrderDetail);
+router.patch('/orders/:id/status', authMiddleware, requireCustomer, customerController.patchCustomerOrderStatus);
 
 export default router;

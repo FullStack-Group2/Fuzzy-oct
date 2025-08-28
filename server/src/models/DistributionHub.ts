@@ -1,12 +1,13 @@
 import { Schema, model, Document } from 'mongoose';
+import { HubTypes } from './HubTypes';
 
 export interface IDistributionHub extends Document {
-  hubName: string;
+  hubName: HubTypes;
   hubLocation: string;
 }
 
 const DistributionHubSchema = new Schema<IDistributionHub>({
-  hubName: { type: String, required: true },
+  hubName: { type: String, enum: Object.values(HubTypes), required: true },
   hubLocation: { type: String, required: true },
 });
 

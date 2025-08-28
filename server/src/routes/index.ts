@@ -1,19 +1,31 @@
 import { Router } from 'express';
-import AuthRoutes from './authRoutes';
-import UploadRoutes from './uploadRoutes';
-import VendorRoutes from './vendorRoutes';
+
+// Keep import names consistent (all lowerCamelCase)
+import authRoutes from './authRoutes';
+import uploadRoutes from './uploadRoutes';
+import vendorRoutes from './vendorRoutes';
+import customerRoutes from './customerRoutes';
 import shipperRoutes from './shipperRoutes';
-import distributionHubRoutes from './distributionHubRoutes';
-import CustomerRoutes from './customerRoutes';
+
+// Hubs: file name diverged across branches
+// - HEAD: './distributionHubRoutes'
+// - dev : './hubRoutes'
+// Prefer the shorter 'hubRoutes' module; if your project actually exports from
+// 'distributionHubRoutes', you can re-export from 'hubRoutes.ts' to keep this import stable.
+import hubRoutes from './hubRoutes';
 
 const router = Router();
-// this is the main router for the API
-router.use('/auth', AuthRoutes);
-router.use('/upload', UploadRoutes);
-router.use('/vendor', VendorRoutes);
-router.use('/customer', CustomerRoutes);
-router.use('/products', VendorRoutes);
-router.use('/shipper', shipperRoutes);
-router.use('/distributionHub', distributionHubRoutes);
+
+// Core
+router.use('/auth', authRoutes);
+router.use('/upload', uploadRoutes);
+
+// Preferred RESTful, pluralized mounts (dev)
+router.use('/vendors', vendorRoutes);
+router.use('/customers', customerRoutes);
+router.use('/shippers', shipperRoutes);
+router.use('/hubs', hubRoutes);
+router.use('/distributionHub', hubRoutes);           // legacy
+router.use('/products', vendorRoutes);               // legacy: product endpoints lived under vendor
 
 export default router;

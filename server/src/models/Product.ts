@@ -1,11 +1,14 @@
-import { Schema, model, Document } from 'mongoose';
+import mongoose, { Schema, model, Document } from 'mongoose';
+import { ProductCategory } from './ProductCategory';
 
 export interface IProduct extends Document {
+  _id: mongoose.Types.ObjectId;
   name: string;
   price: number;
   imageUrl: string;
   description: string;
-  vendor: Schema.Types.ObjectId; // Reference to the User (Vendor)
+  category: ProductCategory;
+  vendor: mongoose.Types.ObjectId; // reference to Vendor
   availableStock: number;
 }
 
@@ -23,6 +26,11 @@ const ProductSchema = new Schema<IProduct>({
   },
   imageUrl: { type: String, required: true },
   description: { type: String, maxlength: 500 },
+  category: {
+    type: String,
+    enum: Object.values(ProductCategory),
+    default: ProductCategory.OTHERS,
+  },
   vendor: {
     type: Schema.Types.ObjectId,
     ref: 'Vendor',
@@ -33,7 +41,7 @@ const ProductSchema = new Schema<IProduct>({
     required: true,
     min: 0,
     default: 0,
-  }
+  },
 });
 
-export default model<IProduct>('Product', ProductSchema);
+export const ProductModel = model<IProduct>('Product', ProductSchema);

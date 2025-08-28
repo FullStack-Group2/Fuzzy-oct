@@ -1,18 +1,35 @@
 import { Request, Response } from 'express';
-import { VendorModel } from '../models/Vendor';
 import mongoose, { Types } from 'mongoose';
+
+import { AuthenticatedRequest } from '../middleware/authMiddleware';
+import { VendorModel } from '../models/Vendor';
 import OrderModel from '../models/Order';
 import OrderItemModel from '../models/OrderItem';
-import ProductModel from '../models/Product';
-import { AuthenticatedRequest } from '../middleware/authMiddleware';
+import { ProductModel, IProduct } from '../models/Product';
 import { OrderStatus } from '../models/OrderStatus';
+
+import {
+  createProduct,
+  getOneProduct,
+  getVendorProducts,
+  editProduct,
+  deleteProduct,
+  getVendorOrders,
+  getVendorOrderHistory,
+  getProductSalesCount,
+} from '../services/VendorService';
+import { UserServices } from '../services/UserServices';
+
+/* ------------------------------------------------------------------ */
+/* Vendor profile (shared)                                             */
+/* ------------------------------------------------------------------ */
 
 // Fetch a vendor by ID (exclude password, include profile picture and business info)
 export const getVendorById = async (req: Request, res: Response) => {
   try {
-    const { vendorId } = req.params;
+    const { id } = req.params;
 
-    const vendor = await VendorModel.findById(vendorId).select('-password');
+    const vendor = await VendorModel.findById(id).select('-password');
     if (!vendor) {
       return res.status(404).json({ message: 'Vendor not found.' });
     }
@@ -21,6 +38,8 @@ export const getVendorById = async (req: Request, res: Response) => {
       vendor: {
         id: vendor._id,
         username: vendor.username,
+        email: vendor.email,
+        role: vendor.role,
         businessName: vendor.businessName,
         businessAddress: vendor.businessAddress,
         profilePicture: vendor.profilePicture,
@@ -35,10 +54,13 @@ export const getVendorById = async (req: Request, res: Response) => {
   }
 };
 
-// Helper: find all orderIds that contain products from this vendor (remove after Duy adds single-vendor orders)
-async function findOrderIdsForVendor(
-  vendorId: Types.ObjectId,
-): Promise<string[]> {
+/* ------------------------------------------------------------------ */
+/* HEAD branch: Vendor-facing order visibility & decisions             */
+/* (multi-vendor aware; uses OrderStatus and stock adjustments)        */
+/* ------------------------------------------------------------------ */
+
+// Helper: find all orderIds that contain products from this vendor
+async function findOrderIdsForVendor(vendorId: Types.ObjectId): Promise<string[]> {
   const items = await OrderItemModel.find({})
     .select('order product')
     .populate({
@@ -66,14 +88,10 @@ export async function getAllOrders(req: AuthenticatedRequest, res: Response) {
     }
     const vendorId = new Types.ObjectId(req.user.userId);
 
-    // Find orders that include this vendor’s products
     const orderIds = await findOrderIdsForVendor(vendorId);
     if (orderIds.length === 0) return res.json([]);
 
-    // Fetch orders, excluding those already rejected
-    const orders = await OrderModel.find({
-      _id: { $in: orderIds },
-    })
+    const orders = await OrderModel.find({ _id: { $in: orderIds } })
       .populate({ path: 'customer', select: 'name address' })
       .sort({ orderDate: -1 })
       .lean()
@@ -94,10 +112,7 @@ export async function getAllOrders(req: AuthenticatedRequest, res: Response) {
 }
 
 // Get details of a single order, filtered to only this vendor’s items
-export async function getOrderDetails(
-  req: AuthenticatedRequest,
-  res: Response,
-) {
+export async function getOrderDetails(req: AuthenticatedRequest, res: Response) {
   try {
     if (!req.user || req.user.role !== 'VENDOR') {
       return res.status(403).json({ error: 'Forbidden' });
@@ -110,38 +125,35 @@ export async function getOrderDetails(
     const vendorId = new Types.ObjectId(req.user.userId);
 
     // Ensure the order actually contains this vendor’s products
-    const relevantItemExists = await OrderItemModel.exists({
-      order: orderId,
-    }).then(async (exists) => {
-      if (!exists) return false;
-      const items = await OrderItemModel.find({ order: orderId })
-        .select('product')
-        .populate({
-          path: 'product',
-          select: '_id vendor',
-          match: { vendor: vendorId },
-        })
-        .lean();
-      return items.some((it: any) => !!it.product);
-    });
+    const relevantItemExists = await OrderItemModel.exists({ order: orderId }).then(
+      async (exists) => {
+        if (!exists) return false;
+        const items = await OrderItemModel.find({ order: orderId })
+          .select('product')
+          .populate({
+            path: 'product',
+            select: '_id vendor',
+            match: { vendor: vendorId },
+          })
+          .lean();
+        return items.some((it: any) => !!it.product);
+      },
+    );
     if (!relevantItemExists) {
       return res.status(404).json({ error: 'Order not found' });
     }
 
-    // Fetch order header
     const order: any = await OrderModel.findById(orderId)
       .populate({ path: 'customer', select: 'name address' })
       .lean()
       .exec();
     if (!order) return res.status(404).json({ error: 'Order not found' });
 
-    // Fetch all items for this order
     const items = await OrderItemModel.find({ order: orderId })
       .select('product quantity price priceAtPurchase')
       .lean()
       .exec();
 
-    // Fetch products and filter down to this vendor’s
     const validProductIds = Array.from(
       new Set(
         items
@@ -153,9 +165,9 @@ export async function getOrderDetails(
 
     const products = validProductIds.length
       ? await ProductModel.find({ _id: { $in: validProductIds } })
-        .select('_id name imageUrl price vendor')
-        .lean()
-        .exec()
+          .select('_id name imageUrl price vendor')
+          .lean()
+          .exec()
       : [];
 
     const productMap = new Map(products.map((p: any) => [String(p._id), p]));
@@ -188,9 +200,7 @@ export async function getOrderDetails(
       id: String(order._id),
       status: String(order.status ?? '').toUpperCase(),
       vendorDecision: String(order.vendorDecision ?? '').toUpperCase(),
-      orderDate: order.orderDate
-        ? new Date(order.orderDate).toISOString()
-        : null,
+      orderDate: order.orderDate ? new Date(order.orderDate).toISOString() : null,
       totalPrice,
       customerName: order.customer?.name ?? 'Unknown',
       customerAddress: order.customer?.address ?? 'Unknown',
@@ -199,20 +209,13 @@ export async function getOrderDetails(
       vendorRejectReason: order.vendorRejectReason ?? null,
     });
   } catch (err) {
-    console.error(
-      '[vendor.getOrderDetails] ERROR:',
-      (err as any)?.message,
-      err,
-    );
+    console.error('[vendor.getOrderDetails] ERROR:', (err as any)?.message, err);
     return res.status(500).json({ error: 'Failed to load order' });
   }
 }
 
 // Helper: collect only this vendor’s items from an order
-async function collectVendorItems(
-  orderId: Types.ObjectId,
-  vendorId: Types.ObjectId,
-) {
+async function collectVendorItems(orderId: Types.ObjectId, vendorId: Types.ObjectId) {
   const items = await OrderItemModel.find({ order: orderId })
     .select('product quantity')
     .populate({
@@ -222,7 +225,6 @@ async function collectVendorItems(
     })
     .lean();
 
-  // Keep only this vendor’s products (change after Duy adds single-vendor orders)
   const vendorItems = items
     .filter((it: any) => !!it.product)
     .map((it: any) => ({
@@ -238,26 +240,28 @@ async function collectVendorItems(
 // Update vendor decision on an order (ACCEPT or REJECT)
 export async function updateStatus(req: AuthenticatedRequest, res: Response) {
   try {
-    if (!req.user || req.user.role !== "VENDOR") {
-      return res.status(403).json({ error: "Forbidden" });
+    if (!req.user || req.user.role !== 'VENDOR') {
+      return res.status(403).json({ error: 'Forbidden' });
     }
     const { id } = req.params;
     if (!Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ error: "Invalid order id" });
+      return res.status(400).json({ error: 'Invalid order id' });
     }
     const orderId = new Types.ObjectId(id);
     const vendorId = new Types.ObjectId(req.user.userId);
 
-    const actionRaw = String(req.body?.action ?? "").toUpperCase();
-    const isAccept = actionRaw.startsWith("ACCEPT");
-    const reason = String(req.body?.reason ?? "");
+    const actionRaw = String(req.body?.action ?? '').toUpperCase();
+    const isAccept = actionRaw.startsWith('ACCEPT');
+    const reason = String(req.body?.reason ?? '');
 
     const current = await OrderModel.findById(orderId).lean().exec();
-    if (!current) return res.status(404).json({ error: "Order not found" });
+    if (!current) return res.status(404).json({ error: 'Order not found' });
 
     if (isAccept) {
       if ([OrderStatus.DELIVERED, OrderStatus.CANCELED].includes(current.status)) {
-        return res.status(409).json({ error: `Order already ${current.status.toLowerCase()}` });
+        return res
+          .status(409)
+          .json({ error: `Order already ${current.status.toLowerCase()}` });
       }
       if (current.status === OrderStatus.ACTIVE) {
         return res.json({ ok: true, status: OrderStatus.ACTIVE, cancelReason: null });
@@ -266,10 +270,10 @@ export async function updateStatus(req: AuthenticatedRequest, res: Response) {
         return res.status(409).json({ error: `Cannot accept from ${current.status}` });
       }
 
-       // Make sure vendor is actually part of this order
+      // Make sure vendor is actually part of this order
       const vendorItems = await collectVendorItems(orderId, vendorId);
       if (vendorItems.length === 0) {
-        return res.status(404).json({ error: "Order not found for this vendor" });
+        return res.status(404).json({ error: 'Order not found for this vendor' });
       }
 
       // Transaction: deduct stock and mark order ACTIVE
@@ -280,7 +284,7 @@ export async function updateStatus(req: AuthenticatedRequest, res: Response) {
             const r = await ProductModel.updateOne(
               { _id: it.productId, vendor: vendorId, availableStock: { $gte: it.qty } },
               { $inc: { availableStock: -it.qty } },
-              { session }
+              { session },
             );
             if (r.matchedCount === 0) {
               throw new Error(`INSUFFICIENT:${it.productName || String(it.productId)}`);
@@ -288,23 +292,23 @@ export async function updateStatus(req: AuthenticatedRequest, res: Response) {
           }
           await OrderModel.updateOne(
             { _id: orderId, status: OrderStatus.PENDING },
-            { $set: { status: OrderStatus.ACTIVE }, $unset: { cancelReason: "" } },
-            { session }
+            { $set: { status: OrderStatus.ACTIVE }, $unset: { cancelReason: '' } },
+            { session },
           );
         });
 
         return res.json({ ok: true, status: OrderStatus.ACTIVE, cancelReason: null });
       } catch (e: any) {
-        if (e?.message?.startsWith("INSUFFICIENT:")) {
-          const name = e.message.split("INSUFFICIENT:")[1] || "an item";
+        if (e?.message?.startsWith('INSUFFICIENT:')) {
+          const name = e.message.split('INSUFFICIENT:')[1] || 'an item';
           return res.status(409).json({
             error: `Insufficient stock for ${name}.`,
-            code: "INSUFFICIENT_STOCK",
+            code: 'INSUFFICIENT_STOCK',
             item: name,
           });
         }
-        console.error("[accept txn] ERROR", e);
-        return res.status(500).json({ error: "Failed to accept order" });
+        console.error('[accept txn] ERROR', e);
+        return res.status(500).json({ error: 'Failed to accept order' });
       } finally {
         session.endSession();
       }
@@ -313,19 +317,280 @@ export async function updateStatus(req: AuthenticatedRequest, res: Response) {
         return res.status(409).json({ error: `Cannot reject from ${current.status}` });
       }
       if (!reason) {
-        return res.status(400).json({ error: "Cancel reason is required when rejecting" });
+        return res
+          .status(400)
+          .json({ error: 'Cancel reason is required when rejecting' });
       }
       const updated = await OrderModel.findOneAndUpdate(
         { _id: orderId, status: OrderStatus.PENDING },
         { $set: { status: OrderStatus.CANCELED, cancelReason: reason } },
-        { new: true }
+        { new: true },
       ).lean();
-      if (!updated) return res.status(409).json({ error: "Could not update order" });
+      if (!updated) return res.status(409).json({ error: 'Could not update order' });
 
-      return res.json({ ok: true, status: updated.status, cancelReason: updated.cancelReason ?? null });
+      return res.json({
+        ok: true,
+        status: updated.status,
+        cancelReason: updated.cancelReason ?? null,
+      });
     }
   } catch (err) {
-    console.error("[vendor.updateStatus] ERROR:", (err as any)?.message, err);
-    return res.status(500).json({ error: "Failed to update vendor decision" });
+    console.error('[vendor.updateStatus] ERROR:', (err as any)?.message, err);
+    return res.status(500).json({ error: 'Failed to update vendor decision' });
   }
 }
+
+/* ------------------------------------------------------------------ */
+/* Teammate (dev branch): product CRUD + vendor analytics              */
+/* ------------------------------------------------------------------ */
+
+// Add a new product
+export const addProduct = async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { userId } = req.user!;
+    const { name, price, description, imageUrl, category, availableStock } =
+      req.body;
+
+    // Validate required fields
+    if (!name || !description || !price || !category || !availableStock) {
+      return res.status(400).json({ message: 'All fields are required.' });
+    }
+
+    // Create new product
+    const newProduct = await createProduct({
+      name: name.trim(),
+      price,
+      description: description.trim(),
+      imageUrl: (imageUrl || '').trim(),
+      category,
+      availableStock,
+      vendor: new Types.ObjectId(userId),
+    });
+
+    res
+      .status(201)
+      .json({ message: 'Product added successfully.', product: newProduct });
+  } catch (error) {
+    console.error('Error adding product:', error);
+    res.status(500).json({
+      message: 'Failed to add product.',
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
+};
+
+// Get all vendor's products
+export const getAllProducts = async (
+  req: AuthenticatedRequest,
+  res: Response,
+) => {
+  try {
+    const { userId } = req.user!;
+    const products = await getVendorProducts(userId);
+    res.status(200).json({ products });
+  } catch (error) {
+    console.error('Error fetching products:', error);
+    res.status(500).json({
+      message: 'Failed to fetch products.',
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
+};
+
+export const editProductDetails = async (
+  req: AuthenticatedRequest,
+  res: Response,
+) => {
+  try {
+    const { userId } = req.user!;
+    const { productId } = req.params;
+    const updateData = req.body;
+
+    // Owner validate
+    const products: IProduct[] = await getVendorProducts(userId);
+    const targetProduct = products.find((p) => p._id.toString() === productId);
+
+    if (!targetProduct) {
+      return res
+        .status(404)
+        .json({ message: 'Product not found or access denied.' });
+    }
+
+    const updatedProduct = await editProduct(productId, updateData);
+    res.status(200).json({
+      message: 'Product updated successfully.',
+      product: updatedProduct,
+    });
+  } catch (error) {
+    console.error('Error updating product:', error);
+    res.status(500).json({
+      message: 'Failed to update product.',
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
+};
+
+export const deleteOneProduct = async (
+  req: AuthenticatedRequest,
+  res: Response,
+) => {
+  try {
+    const { userId } = req.user!;
+    const { productId } = req.params;
+
+    // Owner validate
+    const products: IProduct[] = await getVendorProducts(userId);
+    const targetProduct = products.find((p) => p._id.toString() === productId);
+
+    if (!targetProduct) {
+      return res
+        .status(404)
+        .json({ message: 'Product not found or access denied.' });
+    }
+
+    await deleteProduct(productId);
+    res.status(200).json({ message: 'Product deleted successfully.' });
+  } catch (error) {
+    console.error('Error deleting product:', error);
+    res.status(500).json({
+      message: 'Failed to delete product.',
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
+};
+
+export const getActiveOrders = async (
+  req: AuthenticatedRequest,
+  res: Response,
+) => {
+  try {
+    const { vendorId } = req.params;
+    const orders = await getVendorOrders(vendorId);
+    res
+      .status(200)
+      .json({ message: 'Active orders fetched successfully.', orders });
+  } catch (error) {
+    console.error('Error fetching active orders:', error);
+    res.status(500).json({
+      message: 'Failed to fetch active orders.',
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
+};
+
+export const getOrderHistory = async (
+  req: AuthenticatedRequest,
+  res: Response,
+) => {
+  try {
+    const { vendorId } = req.params;
+    const orders = await getVendorOrderHistory(vendorId);
+    res
+      .status(200)
+      .json({ message: 'Past orders fetched successfully.', orders });
+  } catch (error) {
+    console.error('Error fetching past orders:', error);
+    res.status(500).json({
+      message: 'Failed to fetch past orders.',
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
+};
+
+export const getProductSales = async (
+  req: AuthenticatedRequest,
+  res: Response,
+) => {
+  try {
+    const { productId } = req.params;
+    const totalSold = await getProductSalesCount(productId);
+    res
+      .status(200)
+      .json({ message: 'Product sales fetched successfully.', totalSold });
+  } catch (error) {
+    console.error('Error fetching product sales:', error);
+    res.status(500).json({
+      message: 'Failed to fetch product sales.',
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
+};
+
+export const getProduct = async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { productId } = req.params;
+    const product = await getOneProduct(productId);
+    res.status(200).json({ message: 'Product fetched successfully', product });
+  } catch (error) {
+    console.error('Error fetching product:', error);
+    res.status(500).json({
+      message: 'Failed to fetch product.',
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
+};
+
+export const updateVendor = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { username, businessName, businessAddress, ...updateData } = req.body;
+
+    // Check username uniqueness
+    if (username) {
+      const existingUser = await UserServices.usernameExists(username);
+      if (existingUser) {
+        return res.status(409).json({ message: 'Username already exists.' });
+      }
+      updateData.username = username;
+    }
+
+    // Check businessName uniqueness
+    if (businessName) {
+      const existingVendor = await VendorModel.findOne({ businessName });
+      if (existingVendor && existingVendor.id.toString() !== id) {
+        return res
+          .status(409)
+          .json({ message: 'Business name already exists.' });
+      }
+      updateData.businessName = businessName;
+    }
+
+    // Check businessAddress uniqueness
+    if (businessAddress) {
+      const existingVendor = await VendorModel.findOne({ businessAddress });
+      if (existingVendor && existingVendor.id.toString() !== id) {
+        return res
+          .status(409)
+          .json({ message: 'Business address already exists.' });
+      }
+      updateData.businessAddress = businessAddress;
+    }
+
+    const vendor = await VendorModel.findByIdAndUpdate(id, updateData, {
+      new: true,
+      runValidators: true,
+    }).select('-password');
+
+    if (!vendor) {
+      return res.status(404).json({ message: 'Vendor not found.' });
+    }
+
+    res.status(200).json({
+      vendor: {
+        id: vendor._id,
+        username: vendor.username,
+        email: vendor.email,
+        businessName: vendor.businessName,
+        businessAddress: vendor.businessAddress,
+        profilePicture: vendor.profilePicture,
+        role: vendor.role,
+      },
+    });
+  } catch (error) {
+    console.error('Error updating vendor:', error);
+    res.status(500).json({
+      message: 'Failed to update vendor.',
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
+};

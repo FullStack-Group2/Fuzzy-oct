@@ -3,6 +3,7 @@ import { UserRole } from './UserRole';
 
 export interface IUser extends Document {
   username: string;
+  email: string;
   password: string;
   role: UserRole;
   profilePicture: string;
@@ -11,6 +12,7 @@ export interface IUser extends Document {
 const userSchema = new Schema<IUser>(
   {
     username: { type: String, required: true, unique: true },
+    email: { type: String, required: true, unique: true, lowercase: true },
     password: { type: String, required: true, select: false },
     role: { type: String, enum: Object.values(UserRole), required: true },
     profilePicture: { type: String, required: false },

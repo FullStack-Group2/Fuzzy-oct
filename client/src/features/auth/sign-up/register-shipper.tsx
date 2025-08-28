@@ -30,7 +30,7 @@ const shipperRegistrationSchema = z.object({
     .email('Please enter a valid email address')
     .min(1, 'Email is required'),
   password: passwordValidationSchema,
-  assignedHub: z.string(),
+  distributionHub: z.string(),
   profilePicture: z.string().optional(),
 });
 
@@ -38,7 +38,7 @@ interface ShipperRegistrationData {
   username: string;
   email: string;
   password: string;
-  assignedHub?: string; // Allow undefined for initial state
+  distributionHub?: string; // Allow undefined for initial state
   profilePicture?: string;
 }
 
@@ -46,7 +46,7 @@ export interface RegisteredShipper {
   id: string;
   username: string;
   email: string;
-  assignedHub?: string;
+  distributionHub?: string;
   profilePicture: string;
   role: string;
 }
@@ -63,7 +63,7 @@ export const RegisterShipper: React.FC<RegisterShipperProps> = ({
     username: '',
     email: '',
     password: '',
-    assignedHub: undefined, // Start with undefined to show placeholder
+    distributionHub: undefined, // Start with undefined to show placeholder
     profilePicture: '',
   });
   const [loading, setLoading] = useState(false);
@@ -106,14 +106,14 @@ export const RegisterShipper: React.FC<RegisterShipperProps> = ({
   const handleSelectChange = (value: string) => {
     setFormData((prev) => ({
       ...prev,
-      assignedHub: value,
+      distributionHub: value,
     }));
     // Clear general error and field-specific error when user selects
     if (error) setError('');
-    if (fieldErrors.assignedHub) {
+    if (fieldErrors.distributionHub) {
       setFieldErrors((prev) => ({
         ...prev,
-        assignedHub: '',
+        distributionHub: '',
       }));
     }
   };
@@ -123,9 +123,9 @@ export const RegisterShipper: React.FC<RegisterShipperProps> = ({
       // Clear previous field errors
       setFieldErrors({});
 
-      // Check for undefined assignedHub first
-      if (!formData.assignedHub) {
-        setFieldErrors({ assignedHub: 'Please select an assigned hub' });
+      // Check for undefined distributionHub first
+      if (!formData.distributionHub) {
+        setFieldErrors({ distributionHub: 'Please select an assigned hub' });
         setError('Please select an assigned hub');
         return false;
       }
@@ -133,7 +133,7 @@ export const RegisterShipper: React.FC<RegisterShipperProps> = ({
       // Validate using Zod schema with complete data
       const completeData = {
         ...formData,
-        assignedHub: formData.assignedHub,
+        distributionHub: formData.distributionHub,
       };
       shipperRegistrationSchema.parse(completeData);
       return true;
@@ -174,7 +174,7 @@ export const RegisterShipper: React.FC<RegisterShipperProps> = ({
         username: formData.username,
         email: formData.email,
         password: formData.password,
-        assignedHubId: formData.assignedHub!, // Send as assignedHubId to match backend expectation
+        distributionHubId: formData.distributionHub!, // Send as distributionHubId to match backend expectation
         profilePicture: formData.profilePicture,
       };
 
@@ -277,15 +277,15 @@ export const RegisterShipper: React.FC<RegisterShipperProps> = ({
 
             {/* Assigned Distribution Hub Field */}
             <div className="space-y-2">
-              <Label htmlFor="assignedHub">Assigned distribution hub *</Label>
+              <Label htmlFor="distributionHub">Assigned distribution hub *</Label>
               <Select
-                value={formData.assignedHub}
+                value={formData.distributionHub}
                 onValueChange={handleSelectChange}
                 disabled={loading}
                 required
               >
                 <SelectTrigger
-                  className={`w-full ${fieldErrors.assignedHub ? 'border-red-500' : ''}`}
+                  className={`w-full ${fieldErrors.distributionHub ? 'border-red-500' : ''}`}
                 >
                   <SelectValue placeholder="Select your assigned hub" />
                 </SelectTrigger>
@@ -297,9 +297,9 @@ export const RegisterShipper: React.FC<RegisterShipperProps> = ({
                   ))}
                 </SelectContent>
               </Select>
-              {fieldErrors.assignedHub && (
+              {fieldErrors.distributionHub && (
                 <p className="text-red-500 text-sm">
-                  {fieldErrors.assignedHub}
+                  {fieldErrors.distributionHub}
                 </p>
               )}
             </div>

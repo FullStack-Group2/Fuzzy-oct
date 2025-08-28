@@ -60,7 +60,7 @@ export const modifyItemCart = async ({
   quantity: number;
 }) => {
   // 1. Check product stock
-  const productDoc = await ProductModel.find({_id: cartId});
+  const productDoc = await ProductModel.findOne({_id: cartId});
   console.log(productDoc);
   if (!productDoc) {
     throw new Error('Product not found');

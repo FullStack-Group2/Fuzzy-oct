@@ -95,7 +95,7 @@ export class UserServices {
       if (!user) {
         user = await ShipperModel.findById(userId)
           .select('+password')
-          .populate('assignedHub');
+          .populate('distributionHub');
       }
 
       return user;

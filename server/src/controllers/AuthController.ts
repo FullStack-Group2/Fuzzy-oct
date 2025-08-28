@@ -92,7 +92,7 @@ export const registerVendor = async (req: Request, res: Response) => {
   }
 };
 
-// Register Customer
+// Register Customer 
 export const registerCustomer = async (req: Request, res: Response) => {
   try {
     const { username, email, password, name, address, profilePicture } =
@@ -155,10 +155,7 @@ export const registerShipper = async (req: Request, res: Response) => {
   try {
     const { username, email, password, profilePicture } = req.body;
     const hubRaw =
-      req.body.distributionHub ??
-      req.body.assignedHubId ??
-      req.body.assignedHub ??
-      req.body.hub;
+      req.body.distributionHub;
 
     if (!username) {
       return res.status(400).json({ message: 'Username is required' });
@@ -170,12 +167,12 @@ export const registerShipper = async (req: Request, res: Response) => {
       return res.status(400).json({ message: 'Password is required' });
     }
     if (!hubRaw) {
-      return res.status(400).json({ message: 'Assigned hub is required' });
+      return res.status(400).json({ message: 'Distribution hub is required' });
     }
     if (!Types.ObjectId.isValid(hubRaw)) {
       return res
         .status(400)
-        .json({ message: 'Assigned hub must be a valid ObjectId' });
+        .json({ message: 'Distribution hub must be a valid ObjectId' });
     }
 
     const existingUser = await UserServices.usernameExists(username);
@@ -195,7 +192,6 @@ export const registerShipper = async (req: Request, res: Response) => {
       email: email.trim().toLowerCase(),
       password: hashedPassword,
       role: UserRole.SHIPPER,
-      // Keep your HEAD schema: store hub under distributionHub
       distributionHub: hub._id,
       profilePicture: profilePicture || '',
     });
@@ -252,19 +248,8 @@ export const login = async (req: Request, res: Response) => {
     // Prepare token payload (with hubId for shippers)
     let hubId: string | undefined;
     if (user.role === UserRole.SHIPPER) {
-      // support both schemas transparently
-      const shipper = await ShipperModel.findById(user._id)
-        .select('distributionHub assignedHub')
-        .populate('assignedHub', 'hubName hubLocation'); // no-op if field absent
-
-      if (shipper?.distributionHub) {
-        hubId = shipper.distributionHub.toString();
-      } else if ((shipper as any)?.assignedHub) {
-        const assigned = (shipper as any).assignedHub;
-        hubId = typeof assigned === 'object' && assigned?._id
-          ? assigned._id.toString()
-          : String(assigned);
-      }
+      const shipper = await ShipperModel.findById(user._id).select('distributionHub');
+      if (shipper?.distributionHub) hubId = shipper.distributionHub.toString();
     }
 
     const tokenPayload: TokenPayload = {
@@ -302,17 +287,8 @@ export const login = async (req: Request, res: Response) => {
         break;
       }
       case UserRole.SHIPPER: {
-        const shipper = await ShipperModel.findById(user._id)
-          .select('distributionHub assignedHub')
-          .populate('assignedHub', 'hubName hubLocation'); // safe if path missing
-        if (shipper) {
-          if (shipper.distributionHub) {
-            userData.distributionHub = shipper.distributionHub;
-          }
-          if ((shipper as any).assignedHub) {
-            userData.assignedHub = (shipper as any).assignedHub;
-          }
-        }
+        const shipper = await ShipperModel.findById(user._id).select('distributionHub');
+        if (shipper?.distributionHub) userData.distributionHub = shipper.distributionHub;
         break;
       }
     }

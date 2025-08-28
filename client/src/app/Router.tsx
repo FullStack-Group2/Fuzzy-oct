@@ -51,9 +51,7 @@ const LogoutWrapper = () => {
 
 export default function AppRouter() {
   return (
-    <BrowserRouter>
       <InnerRoutes />
-    </BrowserRouter>
   );
 }
 

@@ -246,8 +246,7 @@ export async function patchOrderStatus(
 
 /**
  * Get shipper by id (includes profile picture and hub info)
- * - Populates `assignedHub` if present in schema.
- * - If your schema also has `distributionHub`, you can populate it similarly.
+ * - Populates `distributionHub` if present in schema.
  */
 export const getShipperById = async (req: Request, res: Response) => {
   try {
@@ -255,7 +254,7 @@ export const getShipperById = async (req: Request, res: Response) => {
 
     const shipper = await ShipperModel.findById(id)
       .select('-password')
-      .populate('assignedHub', 'hubName hubLocation');
+      .populate('distributionHub', 'hubName hubLocation');
 
     if (!shipper) {
       return res.status(404).json({ message: 'Shipper not found.' });
@@ -267,7 +266,6 @@ export const getShipperById = async (req: Request, res: Response) => {
         username: shipper.username,
         email: shipper.email,
         role: shipper.role,
-        assignedHub: (shipper as any).assignedHub ?? undefined,
         distributionHub: (shipper as any).distributionHub ?? undefined,
         profilePicture: shipper.profilePicture,
       },
@@ -284,14 +282,13 @@ export const getShipperById = async (req: Request, res: Response) => {
 /**
  * Update shipper basic fields (username, hubs, profile picture, etc.)
  * - Enforces unique username
- * - Accepts either `assignedHub` or `distributionHub` ids if your model supports them
+ * - Accepts `distributionHub` ids if your model supports them
  */
 export const updateShipper = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const { username, assignedHub, distributionHub, ...rest } = req.body as {
+    const { username, distributionHub, ...rest } = req.body as {
       username?: string;
-      assignedHub?: string;
       distributionHub?: string;
       [k: string]: unknown;
     };
@@ -304,15 +301,6 @@ export const updateShipper = async (req: Request, res: Response) => {
         return res.status(409).json({ message: 'Username already exists.' });
       }
       updateData.username = username;
-    }
-
-    if (assignedHub !== undefined) {
-      if (!assignedHub || !Types.ObjectId.isValid(assignedHub)) {
-        return res
-          .status(400)
-          .json({ message: 'assignedHub must be a valid ObjectId.' });
-      }
-      updateData.assignedHub = new Types.ObjectId(assignedHub);
     }
 
     if (distributionHub !== undefined) {
@@ -329,7 +317,7 @@ export const updateShipper = async (req: Request, res: Response) => {
       runValidators: true,
     })
       .select('-password')
-      .populate('assignedHub', 'hubName hubLocation');
+      .populate('distributionHub', 'hubName hubLocation');
 
     if (!shipper) {
       return res.status(404).json({ message: 'Shipper not found.' });
@@ -340,7 +328,6 @@ export const updateShipper = async (req: Request, res: Response) => {
         id: shipper._id,
         username: shipper.username,
         email: shipper.email,
-        assignedHub: (shipper as any).assignedHub ?? undefined,
         distributionHub: (shipper as any).distributionHub ?? undefined,
         profilePicture: shipper.profilePicture,
         role: shipper.role,

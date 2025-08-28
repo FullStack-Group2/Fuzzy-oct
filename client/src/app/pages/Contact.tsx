@@ -6,25 +6,25 @@ const Contact = () => {
         <div 
             className="
                 flex flex-row items-center justify-center
-                bg-cover bg-center h-44
+                bg-cover bg-center h-44 lg:h-64
             "
             style={{ backgroundImage: `url('/background.png')` }}
         >
-            <div className='text-5xl font-bold text-center'>
+            <div className='text-5xl lg:text-7xl font-bold text-center'>
                 Contact us
             </div>
         </div>
 
-        <div className='mx-6 md:mx-16 mb-10'>
+        <div className='mx-6 md:mx-16 lg:mx-28 mb-10'>
             <div
                 className='flex flex-col md:flex-row my-5 md:my-10'
             >
-                <div className='flex flex-col flex-1 mr-0 md:mr-10 mt-2 lg:mt-4'>
-                    <div className='text-3xl font-semibold'>
+                <div className='flex flex-col flex-1 mr-0 md:mr-10 lg:mr-20 mt-2 lg:mt-0 [@media(min-width:1200px)]:mt-4 [@media(min-width:1380px)]:mt-9'>
+                    <div className='text-3xl lg:text-3xl [@media(min-width:1200px)]:text-4xl [@media(min-width:1380px)]:text-5xl font-semibold'>
                         Get in touch with us for your
                         luxury furniture needs
                     </div>
-                    <div className='text-xs font-extralight my-8 md:my-5 lg:my-10'>
+                    <div className='text-xs lg:text-lg [@media(min-width:1200px)]:text-xl font-extralight my-8 md:my-5 lg:my-10'>
                         Have questions about our collections, orders, or delivery? Our team is here to help you create your perfect home. We deliver across Ho Chi Minh City, Da Nang, and Ha Noi.
                     </div>
                 </div>
@@ -39,19 +39,19 @@ const Contact = () => {
             </div>
 
             <div className='flex flex-col md:flex-row justify-between pt-3 md:pt-0 lg:pt-6'>
-                <div className='flex flex-col [@media(min-width:768px)]:w-48 [@media(min-width:800px)]:w-52 [@media(min-width:860px)]:w-56 lg:w-72 mb-4 md:mb-0'>
-                    <div className='font-bold text-xs text-[#1E7A5A] border-b border-black pb-2'>Office Location</div>
-                    <div className='font-thin mt-2 text-[9px] md:text-[11px]'>702 Nguyen Van Linh Boulevard, Tan Hung Ward, Ho Chi Minh City</div>
+                <div className='flex flex-col w-full md:w-52 lg:w-60 [@media(min-width:1200px)]:w-72 [@media(min-width:1380px)]:w-96 mb-4 md:mb-0'>
+                    <div className='font-bold text-xs lg:text-xl text-[#1E7A5A] border-b border-black pb-2'>Office Location</div>
+                    <div className='font-thin mt-2 text-[9px] md:text-[11px] lg:text-[16px]'>702 Nguyen Van Linh Boulevard, Tan Hung Ward, Ho Chi Minh City</div>
                 </div>
 
-                <div className='flex flex-col [@media(min-width:768px)]:w-48 [@media(min-width:800px)]:w-52 [@media(min-width:860px)]:w-56 lg:w-72 mb-4 md:mb-0'>
-                    <div className='font-bold text-xs text-[#1E7A5A] border-b border-black pb-2'>Email</div>
-                    <div className='font-thin mt-2 text-[9px] md:text-[11px]'>fuzzy2025@gmail.com</div>
+                <div className='flex flex-col w-full md:w-52 lg:w-60 [@media(min-width:1200px)]:w-72 [@media(min-width:1380px)]:w-96 mb-4 md:mb-0'>
+                    <div className='font-bold text-xs lg:text-xl text-[#1E7A5A] border-b border-black pb-2'>Email</div>
+                    <div className='font-thin mt-2 text-[9px] md:text-[11px] lg:text-[16px]'>fuzzy2025@gmail.com</div>
                 </div>
 
-                <div className='flex flex-col [@media(min-width:768px)]:w-48 [@media(min-width:800px)]:w-52 [@media(min-width:860px)]:w-56 lg:w-72 mb-4 md:mb-0'>
-                    <div className='font-bold text-xs text-[#1E7A5A] border-b border-black pb-2'>Phone</div>
-                    <div className='font-thin mt-2 text-[9px] md:text-[11px]'>(+84) 0888844444</div>
+                <div className='flex flex-col w-full md:w-52 lg:w-60 [@media(min-width:1200px)]:w-72 [@media(min-width:1380px)]:w-96 mb-4 md:mb-0'>
+                    <div className='font-bold text-xs lg:text-xl text-[#1E7A5A] border-b border-black pb-2'>Phone</div>
+                    <div className='font-thin mt-2 text-[9px] md:text-[11px] lg:text-[16px]'>(+84) 0888844444</div>
                 </div>
             </div>
         </div>

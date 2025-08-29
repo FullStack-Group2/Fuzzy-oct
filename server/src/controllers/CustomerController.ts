@@ -304,7 +304,7 @@ export async function patchCustomerOrderStatus(
       {
         $set: {
           status: 'CANCELED',
-          ...(reason ? { cancelReason: `Customer: ${reason}` } : {}),
+          ...(reason ? { cancelReason: `Customer Canceled: ${reason}` } : {}),
         },
       },
       { new: true },

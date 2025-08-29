@@ -154,7 +154,7 @@ function InnerRoutes() {
             }
           />
           <Route
-            path="/customer/orders"
+            path="/customers/orders"
             element={
               <ProtectedRoute allowedRoles={['CUSTOMER']}>
                 <CustomerOrders />
@@ -162,7 +162,7 @@ function InnerRoutes() {
             }
           />
           <Route
-            path="/customer/orders/:orderId"
+            path="/customers/orders/:orderId"
             element={
               <ProtectedRoute allowedRoles={['CUSTOMER']}>
                 <CustomerOrderDetails />
@@ -170,7 +170,7 @@ function InnerRoutes() {
             }
           />
           <Route
-            path="/customer/orders/:orderId/cancel"
+            path="/customers/orders/:orderId/cancel"
             element={
               <ProtectedRoute allowedRoles={['CUSTOMER']}>
                 <CustomerCancelOrder />
@@ -204,7 +204,7 @@ function InnerRoutes() {
             }
           />
           <Route
-            path="/vendor/orders"
+            path="/vendors/orders"
             element={
               <ProtectedRoute allowedRoles={['VENDOR']}>
                 <VendorOrders />
@@ -212,7 +212,7 @@ function InnerRoutes() {
             }
           />
           <Route
-            path="/vendor/orders/:orderId"
+            path="/vendors/orders/:orderId"
             element={
               <ProtectedRoute allowedRoles={['VENDOR']}>
                 <VendorOrderDetails />
@@ -220,7 +220,7 @@ function InnerRoutes() {
             }
           />
           <Route
-            path="/vendor/orders/:orderId/reject"
+            path="/vendors/orders/:orderId/reject"
             element={
               <ProtectedRoute allowedRoles={['VENDOR']}>
                 <VendorCancelOrder />
@@ -230,7 +230,7 @@ function InnerRoutes() {
 
           {/* SHIPPER */}
           <Route
-            path="/shipper/orders"
+            path="/shippers/orders"
             element={
               <ProtectedRoute allowedRoles={['SHIPPER']}>
                 <ShipperOrders />
@@ -238,7 +238,7 @@ function InnerRoutes() {
             }
           />
           <Route
-            path="/shipper/orders/:orderId"
+            path="/shippers/orders/:orderId"
             element={
               <ProtectedRoute allowedRoles={['SHIPPER']}>
                 <ShipperOrderDetail />
@@ -246,7 +246,7 @@ function InnerRoutes() {
             }
           />
           <Route
-            path="/shipper/orders/:orderId/cancel"
+            path="/shippers/orders/:orderId/cancel"
             element={
               <ProtectedRoute allowedRoles={['SHIPPER']}>
                 <ShipperCancelOrder />

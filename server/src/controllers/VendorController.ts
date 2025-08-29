@@ -323,7 +323,7 @@ export async function updateStatus(req: AuthenticatedRequest, res: Response) {
       }
       const updated = await OrderModel.findOneAndUpdate(
         { _id: orderId, status: OrderStatus.PENDING },
-        { $set: { status: OrderStatus.CANCELED, cancelReason: reason } },
+        { $set: { status: OrderStatus.CANCELED, cancelReason: `Vendor Canceled: ${reason}` } },
         { new: true },
       ).lean();
       if (!updated) return res.status(409).json({ error: 'Could not update order' });

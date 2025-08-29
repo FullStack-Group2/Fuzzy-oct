@@ -14,7 +14,7 @@ function authHeaders(): HeadersInit {
 
 // Fetch all orders that belong to the logged-in customer
 export async function apiCustomerGetOrders(): Promise<CustomerOrderListDTO[]> {
-  const res = await fetch(`${API_BASE}/customer/orders`, {
+  const res = await fetch(`${API_BASE}/customers/orders`, {
     headers: authHeaders()
   });
   if (!res.ok) throw new Error("Failed to load orders");
@@ -25,7 +25,7 @@ export async function apiCustomerGetOrders(): Promise<CustomerOrderListDTO[]> {
 export async function apiCustomerGetOrderDetail(
   orderId: string
 ): Promise<CustomerOrderDetailDTO> {
-  const res = await fetch(`${API_BASE}/customer/orders/${orderId}`, {
+  const res = await fetch(`${API_BASE}/customers/orders/${orderId}`, {
     headers: authHeaders(),
   });
   if (!res.ok) throw new Error("Failed to load order");
@@ -37,7 +37,7 @@ export async function apiCustomerCancelOrder(
   orderId: string,
   reason: string,
 ): Promise<void> {
-  const res = await fetch(`${API_BASE}/customer/orders/${orderId}/status`, {
+  const res = await fetch(`${API_BASE}/customers/orders/${orderId}/status`, {
     method: "PATCH",
     headers: authHeaders(),
     body: JSON.stringify({ status: "CANCELED", reason }),

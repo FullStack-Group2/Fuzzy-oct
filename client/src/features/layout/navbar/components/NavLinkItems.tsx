@@ -5,13 +5,13 @@ export default function NavLinkItems({ role }: { role: Exclude<Role, null> }) {
   const menu = {
     CUSTOMER: [
       { name: 'Shop', path: '/shop' },
-      { name: 'Order', path: '/orders' },
+      { name: 'Order', path: `/customers/orders` },
     ],
     VENDOR: [
       { name: 'Product', path: '/products' },
-      { name: 'Order', path: '/orders' },
+      { name: 'Order', path: `/vendors/orders` },
     ],
-    SHIPPER: [{ name: 'Order', path: '/orders' }],
+    SHIPPER: [{ name: 'Order', path: `/shippers/orders` }],
   };
 
   return (

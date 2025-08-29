@@ -14,7 +14,7 @@ function authHeaders(): HeadersInit {
 
 // Fetch all vendor orders (pending & active, not rejected)
 export async function apiVendorGetOrders(): Promise<VendorOrderListDTO[]> {
-  const res = await fetch(`${API_BASE}/vendor/orders`, {
+  const res = await fetch(`${API_BASE}/vendors/orders`, {
     headers: authHeaders(),
   });
   if (!res.ok) throw new Error('Failed to load orders');
@@ -25,7 +25,7 @@ export async function apiVendorGetOrders(): Promise<VendorOrderListDTO[]> {
 export async function apiVendorGetOrderDetail(
   orderId: string,
 ): Promise<VendorOrderDetailDTO> {
-  const res = await fetch(`${API_BASE}/vendor/orders/${orderId}`, {
+  const res = await fetch(`${API_BASE}/vendors/orders/${orderId}`, {
     headers: authHeaders(),
   });
   if (!res.ok) throw new Error('Failed to load order');
@@ -36,7 +36,7 @@ export async function apiVendorGetOrderDetail(
 export async function apiVendorAcceptOrder(
   orderId: string,
 ): Promise<{ ok: true }> {
-  const res = await fetch(`${API_BASE}/vendor/orders/${orderId}/status`, {
+  const res = await fetch(`${API_BASE}/vendors/orders/${orderId}/status`, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json', ...authHeaders() },
     body: JSON.stringify({ action: 'ACCEPT' }),
@@ -49,7 +49,7 @@ export async function apiVendorRejectOrder(
   orderId: string,
   reason: string,
 ): Promise<{ ok: true }> {
-  const res = await fetch(`${API_BASE}/vendor/orders/${orderId}/status`, {
+  const res = await fetch(`${API_BASE}/vendors/orders/${orderId}/status`, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json', ...authHeaders() },
     body: JSON.stringify({ action: 'REJECT', reason }),

@@ -12,7 +12,7 @@ function authHeaders(): HeadersInit {
 
 // Fetch all active orders assigned to the shipper
 export async function apiGetActiveOrders(): Promise<OrderListDTO[]> {
-  const url = new URL(`${API_BASE}/shipper/orders`);
+  const url = new URL(`${API_BASE}/shippers/orders`);
   const res = await fetch(url, { headers: authHeaders() });
   if (!res.ok) throw new Error("Failed to load orders");
   return res.json();
@@ -20,7 +20,7 @@ export async function apiGetActiveOrders(): Promise<OrderListDTO[]> {
 
 // Fetch the details of a single order by its ID
 export async function apiGetOrderDetail(orderId: string): Promise<OrderDetailDTO> {
-  const res = await fetch(`${API_BASE}/shipper/orders/${orderId}`, {
+  const res = await fetch(`${API_BASE}/shippers/orders/${orderId}`, {
     headers: authHeaders(),
   });
   if (!res.ok) throw new Error("Failed to load order");
@@ -34,7 +34,7 @@ export async function apiPatchOrderStatus(
   status: "DELIVERED" | "CANCELED",
   reason?: string
 ) {
-  const res = await fetch(`${API_BASE}/shipper/orders/${orderId}/status`, {
+  const res = await fetch(`${API_BASE}/shippers/orders/${orderId}/status`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json", ...authHeaders() },
     body: JSON.stringify({ status, reason }),

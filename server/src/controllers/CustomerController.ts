@@ -93,17 +93,16 @@ export const createOrder = async (req: AuthenticatedRequest, res: Response) => {
   try {
     // extract request
     const { userId } = req.user!;
-
     // fetch item from db
     const order = await createOrderFromItem(userId);
     // return
 
     if (!order) {
-      res.status(500).json({
+      return res.status(500).json({
         message: 'Not available in stock.',
       });
     }
-    res.status(200).json({ message: 'Create order successfully', order });
+    return res.status(200).json({ message: 'Create order successfully', order });
   } catch (error) {
     console.error('Error fetching vendor:', error);
     res.status(500).json({

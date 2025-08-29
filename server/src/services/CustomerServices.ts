@@ -6,8 +6,9 @@ import Order from '../models/Order';
 import { orderBilling } from '../utils/OrderBilling';
 import { getTotalPrice } from '../utils/TotalPrice';
 import { ProductModel } from '../models/Product';
+import { chooseHub } from './HubService';
+import { splitOrder } from '../utils/SplitOrder';
 export const getCustomerCart = async (userId: string) => {
-  console.log(mongoose.modelNames());
 
   return CartItem.find({ customer: userId })
     .populate({ path: 'product', model: ProductModel })
@@ -21,7 +22,7 @@ export const deleteItemByProduct = async (
   userId: string,
   productId: string,
 ) => {
-  console.log(`check in deleteItem by product: ${userId} + ${productId}`)
+  console.log(`check in deleteItem by product: ${userId} + ${productId}`);
   return CartItem.findOneAndDelete({ customer: userId, _id: productId });
 };
 
@@ -49,7 +50,6 @@ export const addItemToCart = async ({
   return CartItem.create({ customer, product, quantity });
 };
 
-
 export const modifyItemCart = async ({
   customerId,
   cartId,
@@ -60,7 +60,7 @@ export const modifyItemCart = async ({
   quantity: number;
 }) => {
   // 1. Check product stock
-  const productDoc = await ProductModel.find({_id: cartId});
+  const productDoc = await ProductModel.find({ _id: cartId });
   console.log(productDoc);
   if (!productDoc) {
     throw new Error('Product not found');
@@ -68,15 +68,15 @@ export const modifyItemCart = async ({
 
   if (quantity > productDoc.availableStock) {
     throw new Error(
-      `Requested quantity (${quantity}) exceeds available stock (${productDoc.availableStock}).`
+      `Requested quantity (${quantity}) exceeds available stock (${productDoc.availableStock}).`,
     );
   }
 
   // 2. Update cart item
   const updatedCartItem = await CartItem.findOneAndUpdate(
-    { customer: customerId, _id:cartId },
+    { customer: customerId, _id: cartId },
     { $set: { quantity } },
-    { new: true, upsert: true } // upsert allows creating item if not exists
+    { new: true, upsert: true }, // upsert allows creating item if not exists
   ).populate('product');
 
   // 3. Return both product stock + cart quantity
@@ -85,66 +85,62 @@ export const modifyItemCart = async ({
     availableStock: productDoc.availableStock,
     quantity: updatedCartItem?.quantity,
   };
-}
+};
 
 export const createOrderFromItem = async (userId: string) => {
   const customer = userId;
   const orderDate = new Date();
   const status = OrderStatus.PENDING;
-  const hub = '68a0a96ad24f3fdeb3eec4a9';
-
+  const hub = await chooseHub();
   const cartItem = await getCustomerCart(userId);
-  if (checkStock(cartItem)) {
-    const order = await Order.create({
-      customer,
-      orderDate,
-      status,
-      totalPrice: 0,
-      hub,
-    });
+  const orders = await splitOrder(cartItem);
 
-    const orderItems = orderBilling(cartItem, order);
-    const totalPrice = getTotalPrice(orderItems);
-    // Lo co hang lay tu hn, co hang lay tu sg thi sao? -> don't need to care
-    // order.hub = getHub(cartItem);
-    order.totalPrice = totalPrice;
-    await order.save();
-
-    // insert
-    await OrderItem.insertMany(orderItems);
-
-    // Clear all item in the cart
-    await deleteAllItem(userId);
-
-    return order;
+  if (!checkStock(cartItem)) {
+    return null;
   }
-  return null;
+
+  const createdOrders = [];
+
+  for (const [vendorId, order] of orders) {
+
+    try {
+      const miniOrder = await Order.create({
+        customer,
+        orderDate,
+        status,
+        totalPrice: 0,
+        hub,
+      });
+
+      const orderItems = orderBilling(order, miniOrder);
+      const totalPrice = getTotalPrice(orderItems);
+      miniOrder.totalPrice = totalPrice;
+      await miniOrder.save();
+
+      await OrderItem.insertMany(orderItems);
+      createdOrders.push(miniOrder);
+    } catch (err) {
+      console.error('Failed to create order for vendor', vendorId, err);
+      throw new Error('Order item failed');
+    }
+  }
+
+  // Clear all item in the cart
+  await deleteAllItem(userId);
+  return { orders: createdOrders };
 };
 
 // Check quantity of the product from vendor, replace the 0 by later
 // Question on the query of the product's quantity from the shop, which route to be more efficient
 export const checkStock = (items: ICartItem[]): boolean => {
-  return items.every((e) => e.quantity > 0);
+  const ans = items.every((e) => e.quantity > 0);
+  return ans;
 };
 
-// customer co can biet hub nao khong - doc de thi thay co ve la khong
-/*
-Idea in hub:
-
-Moi city co 3 hub van chuyen, vendor chon hub, khi bam order thi update db hub, update cho customer as followed
-
-Moi item them 1 column la ngay du kien nhan hang, based on the distribution hub the vendor claims
-
-Nut feedback driver/don hang 
-
-lỡ đặt 3 hàng mà shop thiếu hàng thì sao
-*/
-
-
- export const getCustomerProducts = async () => {
+export const getCustomerProducts = async () => {
   return ProductModel.find({});
 };
 
- export const getStoreProducts = async (storeId: string) => {
-  return ProductModel.find({vendor: storeId});
+export const getStoreProducts = async (storeId: string) => {
+  return ProductModel.find({ vendor: storeId });
 };

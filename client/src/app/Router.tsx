@@ -21,6 +21,7 @@ import { useAuth } from '../stores/AuthProvider';
 import { ForgotPassword } from './pages/auth/ForgotPassword';
 import { Register } from './pages/auth/Register';
 import Profile from './pages/Profile';
+import Contact from './pages/Contact';
 
 // Wrapper component for Logout that injects user from context
 const LogoutWrapper = () => {
@@ -63,7 +64,14 @@ export default function AppRouter() {
       />
       <Route element={<Layout />}>
         {/* Public routes accessible to everyone */}
-
+        <Route
+          path="/contact"
+          element={
+            <PublicOnlyRoute>
+              <Contact />
+            </PublicOnlyRoute>
+          }
+        />
         {/* Protected routes that require authentication */}
         <Route
           path="/"

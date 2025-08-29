@@ -56,7 +56,7 @@ router.delete(
   vendorController.deleteOneProduct,
 );
 router.get(
-  'product/:productId/sales',
+  '/product/:productId/sales',
   authMiddleware,
   requireVendor,
   vendorController.getProductSales,

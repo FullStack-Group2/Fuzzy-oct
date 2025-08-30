@@ -4,17 +4,18 @@ import { OrderStatus } from './OrderStatus';
 
 export interface IOrder extends Document {
   customer: Schema.Types.ObjectId;
-  hub: Schema.Types.ObjectId;
+  distributionHub: Schema.Types.ObjectId;
   orderDate: Date;
   status: OrderStatus;
   totalPrice: number;
   orderItems: IOrderItem[]; // This will be a populated virtual field
+  cancelReason: string; // reason when vendor or shipper rejects
 }
 
 const orderSchema = new Schema<IOrder>(
   {
-    customer: { type: Schema.Types.ObjectId, ref: 'Customer', required: true },
-    hub: {
+    customer: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    distributionHub: {
       type: Schema.Types.ObjectId,
       ref: 'DistributionHub',
       required: true,
@@ -23,9 +24,10 @@ const orderSchema = new Schema<IOrder>(
     status: {
       type: String,
       enum: Object.values(OrderStatus),
-      default: OrderStatus.ACTIVE,
+      default: OrderStatus.PENDING,
     },
     totalPrice: { type: Number, required: true },
+    cancelReason: { type: String },
   },
   {
     // Important: Enable virtuals for toJSON and toObject

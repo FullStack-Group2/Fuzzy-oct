@@ -29,7 +29,7 @@ export interface AppUser {
   businessName?: string;
   businessAddress?: string;
   address?: string;
-  assignedHub?: {
+  distributionHub?: {
     _id: string;
     hubName: string;
     hubLocation: string;

@@ -4,11 +4,11 @@ import { UserModel, IUser } from './User';
 import { UserRole } from './UserRole';
 
 export interface IShipper extends IUser {
-  assignedHub: Types.ObjectId;
+  distributionHub: Types.ObjectId;
 }
 
 const shipperSchema = new Schema<IShipper>({
-  assignedHub: {
+  distributionHub: {
     type: Schema.Types.ObjectId,
     ref: 'DistributionHub',
     required: true,

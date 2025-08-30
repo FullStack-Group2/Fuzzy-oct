@@ -11,12 +11,14 @@ export default function Layout() {
       </div>
 
       {/* Main Content fills space */}
-      <main className="w-screen">
+      <main className="flex-1 w-full">
         <Outlet />
       </main>
 
       {/* Footer only appears after content ends */}
-      <Footer />
+      <footer className="mt-auto">
+        <Footer />
+      </footer>
     </section>
   );
 }

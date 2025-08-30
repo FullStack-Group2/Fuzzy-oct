@@ -44,6 +44,7 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
     setError('');
 
     try {
+      console.log(1);
       const response = await fetch('http://localhost:5001/api/auth/login', {
         method: 'POST',
         headers: {
@@ -54,6 +55,7 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
           password: formData.password,
         }),
       });
+      console.log(2);
 
       const data = await response.json();
 

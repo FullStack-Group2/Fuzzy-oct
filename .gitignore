@@ -190,3 +190,5 @@ coverage/
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+client/client_src.zip
+server/server_src.zip

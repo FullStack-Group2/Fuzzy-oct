@@ -11,7 +11,7 @@ export default function Layout() {
       </div>
 
       {/* Main Content fills space */}
-      <main className="flex-1 w-full">
+      <main className="flex-1 w-full x-3 md:px-6">
         <Outlet />
       </main>
 

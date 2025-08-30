@@ -50,7 +50,7 @@ export default function CustomerOrderDetails() {
   const ui = vendorUiStatus(order.status);
 
   return (
-    <main className="mx-auto max-w-5xl p-6">
+    <main className="mx-auto w-full max-w-7xl px-3 md:px-6 py-4">
       <OrderDetailHeader
         orderIndex={orderIndex}
         onClose={() => goClose(mutatedRef.current)}
@@ -58,7 +58,7 @@ export default function CustomerOrderDetails() {
 
       {order.status !== "CANCELED" && (
         <div className="mt-2 flex justify-center">
-          <OrderStatusBar status={ui} className="w-2/3 mx-auto" />
+          <OrderStatusBar status={ui} className="w-full md:w-2/3 mx-auto" />
         </div>
       )}
 
@@ -83,7 +83,7 @@ export default function CustomerOrderDetails() {
                 (location.state as any)?.backgroundLocation || location,
               orderIndex,
             }}
-            className="inline-flex items-center w-32 justify-center rounded-md bg-red-600 px-4 py-2 text-white hover:bg-red-700"
+            className="inline-flex items-center w-full sm:w-32 justify-center rounded-md bg-red-600 px-4 py-2 text-white hover:bg-red-700"
           >
             Cancel
           </Link>

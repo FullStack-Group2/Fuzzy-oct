@@ -42,7 +42,7 @@ export default function ShipperOrderDetail() {
       const res = await apiPatchOrderStatus(orderId, "DELIVERED");
       if (res.ok) {
         mutatedRef.current = true;
-        goClose(true); // close modal & refresh list
+        goClose(true);
       }
     } finally {
       setUpdating(null);
@@ -62,7 +62,7 @@ export default function ShipperOrderDetail() {
   }
 
   return (
-    <main className="mx-auto max-w-5xl p-6">
+    <main className="mx-auto w-full max-w-7xl px-3 md:px-6 py-4">
       <OrderDetailHeader orderIndex={orderIndex} onClose={() => goClose(mutatedRef.current)} />
 
       <p className="text-sm text-black">
@@ -72,18 +72,18 @@ export default function ShipperOrderDetail() {
 
       <ShipperOrderItemsTable items={order.items} subtotal={order.totalPrice} />
 
-      <div className="mt-6 flex gap-3 justify-center">
+      <div className="mt-6 flex flex-col sm:flex-row gap-3 justify-center">
         <button
           onClick={handleDeliver}
           disabled={updating === "deliver"}
-          className="w-32 rounded-md bg-green-600 px-4 py-2 text-white hover:bg-green-700 disabled:opacity-60"
+          className="w-full sm:w-32 rounded-md bg-green-600 px-4 py-2 text-white hover:bg-green-700 disabled:opacity-60"
         >
           {updating === "deliver" ? "Delivering…" : "Deliver"}
         </button>
         <Link
           to={`/shipper/orders/${order.id}/cancel`}
           state={{ backgroundLocation: (location.state as any)?.backgroundLocation || location, orderIndex }}
-          className="inline-flex items-center w-32 justify-center rounded-md bg-red-600 px-4 py-2 text-white hover:bg-red-700"
+          className="inline-flex items-center w-full sm:w-32 justify-center rounded-md bg-red-600 px-4 py-2 text-white hover:bg-red-700"
         >
           Cancel
         </Link>

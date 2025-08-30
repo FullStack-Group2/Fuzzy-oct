@@ -79,9 +79,9 @@ export default function VendorOrders() {
   }, [selectedStatuses, statusSortOrder]);
 
   return (
-    <main className="mx-auto max-w-5xl p-6">
-      <h1 className="text-2xl font-semibold mb-1">Vendor - Orders</h1>
-      <p className="text-sm text-gray-600 mb-4">All orders that include your products.</p>
+    <main className="mx-auto w-full max-w-7xl py-4 md:py-6">
+      <h1 className="text-xl md:text-2xl font-semibold mb-1">Vendor - Orders</h1>
+      <p className="text-xs md:text-sm text-gray-600 mb-4">All orders that include your products.</p>
 
       <VendorOrdersTable
         orders={orders}

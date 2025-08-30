@@ -53,14 +53,14 @@ export default function VendorRejectOrder() {
   }
 
   return (
-    <main className="mx-auto max-w-lg p-6">
+    <main className="mx-auto w-full max-w-lg px-3 md:px-6 py-4">
       <BackButton onClick={goDetails} className="absolute left-4 top-4" />
       <CloseButton
         onClick={() => goClose(false)}
         className="absolute right-4 top-4"
       />
 
-      <h1 className="text-2xl font-semibold mb-3">Reason</h1>
+      <h1 className="text-xl md:text-2xl font-semibold mb-3">Reason</h1>
       <p className="text-sm text-gray-600 mb-4">
         Choose one only
         <span aria-hidden="true" className="ml-1 text-red-600">
@@ -84,7 +84,7 @@ export default function VendorRejectOrder() {
             disabled={
               !reason || submitting || (reason === 'Other' && !notes.trim())
             }
-            className="rounded-md bg-red-600 px-4 py-2 text-white hover:bg-red-700 disabled:opacity-60"
+            className="w-full sm:w-auto rounded-md bg-red-600 px-4 py-2 text-white hover:bg-red-700 disabled:opacity-60"
           >
             {submitting ? 'Canceling...' : 'Cancel'}
           </button>

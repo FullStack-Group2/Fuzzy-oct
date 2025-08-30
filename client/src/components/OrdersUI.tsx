@@ -11,15 +11,15 @@ export function StatusBadge({ status }: { status?: OrderStatus }) {
     status === "PENDING"
       ? "text-gray-700"
       : status === "ACTIVE"
-      ? "text-blue-700"
-      : status === "DELIVERED"
-      ? "text-emerald-700"
-      : status === "CANCELED"
-      ? "text-red-700"
-      : "";
+        ? "text-blue-700"
+        : status === "DELIVERED"
+          ? "text-emerald-700"
+          : status === "CANCELED"
+            ? "text-red-700"
+            : "";
 
   return (
-    <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${cls}`}>
+    <span className={`inline-flex rounded-full px-2 py-0.5 text-[11px] md:text-xs font-medium ${cls}`}>
       {status}
     </span>
   );
@@ -58,7 +58,7 @@ export function BackButton({
 export function FunnelIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" {...props}>
-      <path d="M3 4.5A1.5 1.5 0 0 1 4.5 3h11A1.5 1.5 0 0 1 17 4.5a1.5 1.5 0 0 1-.44 1.06L12 10v5.5a1 1 0 0 1-1.53.85l-2-1.25A1 1 0 0 1 8 14.25V10L3.44 5.56A1.5 1.5 0 0 1 3 4.5Z"/>
+      <path d="M3 4.5A1.5 1.5 0 0 1 4.5 3h11A1.5 1.5 0 0 1 17 4.5a1.5 1.5 0 0 1-.44 1.06L12 10v5.5a1 1 0 0 1-1.53.85l-2-1.25A1 1 0 0 1 8 14.25V10L3.44 5.56A1.5 1.5 0 0 1 3 4.5Z" />
     </svg>
   );
 }
@@ -66,7 +66,7 @@ export function FunnelIcon(props: React.SVGProps<SVGSVGElement>) {
 export function SortAZIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" {...props}>
-      <path d="M3 4h8v2H3V4Zm0 5h6v2H3V9Zm0 5h4v2H3v-2Zm9-5.5h2.5V5l3.5 3.5-3.5 3.5V10.5H12Z"/>
+      <path d="M3 4h8v2H3V4Zm0 5h6v2H3V9Zm0 5h4v2H3v-2Zm9-5.5h2.5V5l3.5 3.5-3.5 3.5V10.5H12Z" />
     </svg>
   );
 }
@@ -74,7 +74,7 @@ export function SortAZIcon(props: React.SVGProps<SVGSVGElement>) {
 export function SortZAIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" {...props}>
-      <path d="M3 4h4v2H3V4Zm0 5h6v2H3V9Zm0 5h8v2H3v-2Zm6-4.5V12l-3.5-3.5L9 5v2.5h2.5V9H9Z"/>
+      <path d="M3 4h4v2H3V4Zm0 5h6v2H3V9Zm0 5h8v2H3v-2Zm6-4.5V12l-3.5-3.5L9 5v2.5h2.5V9H9Z" />
     </svg>
   );
 }
@@ -122,9 +122,9 @@ export function OrderDetailHeader({
   onClose: () => void;
 }) {
   return (
-    <div className="mb-4">
-      <CloseButton onClick={onClose} className="absolute right-4 top-4" />
-      <h1 className="absolute left-4 top-4 text-2xl font-semibold">
+    <div className="relative mb-4 min-h-[44px] md:min-h-[56px]">
+      <CloseButton onClick={onClose} className="absolute right-2 md:right-4 top-2 md:top-4" />
+      <h1 className="absolute left-2 md:left-4 top-2 md:top-4 text-xl md:text-2xl font-semibold">
         {orderIndex != null ? `#${orderIndex}` : ""}
       </h1>
     </div>
@@ -234,7 +234,7 @@ export function StatusHeader({
   return (
     <div className="relative" ref={ref}>
       <div className="flex items-center gap-2">
-        <span>Status</span>
+        <span className="text-sm md:text-base">Status</span>
         <button
           type="button"
           onClick={() => setOpen((v) => !v)}
@@ -257,7 +257,7 @@ export function StatusHeader({
       </div>
 
       {open && (
-        <div className="absolute z-10 mt-2 w-56 rounded-lg border bg-white p-3 shadow">
+        <div className="absolute right-0 z-10 mt-2 w-64 md:w-56 max-w-[calc(100vw-2rem)] rounded-lg border bg-white p-3 shadow">
           <div className="mb-2 text-xs font-medium text-gray-700">Show statuses</div>
           <div className="space-y-1">
             {ALL_STATUSES.map((s) => (
@@ -327,9 +327,8 @@ export function RejectReasonSelector({
         return (
           <label
             key={r}
-            className={`block cursor-pointer rounded-lg border p-3 transition-colors ${
-              active ? "border-blue-500" : "border-gray-300 hover:border-gray-400"
-            }`}
+            className={`block cursor-pointer rounded-lg border p-3 transition-colors ${active ? "border-blue-500" : "border-gray-300 hover:border-gray-400"
+              }`}
             onClick={() => {
               onChangeReason(r);
               if (!isOther) onChangeNotes("");

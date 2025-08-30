@@ -11,7 +11,7 @@ import {
 } from "@/components/OrdersUI";
 import {
   VendorOrderItemsTable,
-} from "@/components/VendorOrdersUi";
+} from "@/components/VendorOrdersUI";
 
 type LocationState = { orderIndex?: number };
 type Notice = { kind: "error" | "success" | "info"; text: string } | null;
@@ -76,12 +76,12 @@ export default function VendorOrderDetail() {
   const ui = vendorUiStatus(order.status);
 
   return (
-    <main className="mx-auto max-w-5xl p-6">
+    <main className="mx-auto w-full max-w-7xl px-3 md:px-6 py-4">
       <OrderDetailHeader orderIndex={orderIndex} onClose={() => goClose(mutatedRef.current)} />
 
       {order.status !== "CANCELED" && (
         <div className="mt-2 flex justify-center">
-          <OrderStatusBar status={ui} className="w-2/3 mx-auto" />
+          <OrderStatusBar status={ui} className="w-full md:w-2/3 mx-auto" />
         </div>
       )}
 
@@ -94,18 +94,18 @@ export default function VendorOrderDetail() {
       <VendorOrderItemsTable items={order.items} subtotal={order.vendorSubtotal} />
 
       {order.status === "PENDING" && (
-        <div className="mt-6 flex justify-center gap-3">
+        <div className="mt-6 flex flex-col sm:flex-row justify-center gap-3">
           <button
             onClick={onAccept}
             disabled={accepting}
-            className="inline-flex items-center w-32 justify-center rounded-md bg-green-600 px-4 py-2 text-white hover:bg-green-700 disabled:opacity-60"
+            className="inline-flex items-center w-full sm:w-32 justify-center rounded-md bg-green-600 px-4 py-2 text-white hover:bg-green-700 disabled:opacity-60"
           >
             {accepting ? "Accepting…" : "Accept"}
           </button>
           <Link
             to={`/vendor/orders/${order.id}/reject`}
             state={{ backgroundLocation: (location.state as any)?.backgroundLocation || location, orderIndex }}
-            className="inline-flex items-center w-32 justify-center rounded-md bg-red-600 px-4 py-2 text-white hover:bg-red-700"
+            className="inline-flex items-center w-full sm:w-32 justify-center rounded-md bg-red-600 px-4 py-2 text-white hover:bg-red-700"
           >
             Cancel
           </Link>
@@ -122,6 +122,10 @@ export default function VendorOrderDetail() {
 
       {order.status === "DELIVERED" && (
         <NoticeAlert title="Delivered" text="Your order has been delivered." tone="emerald" />
+      )}
+
+      {order.status === "ACTIVE" && (
+        <NoticeAlert title="Active" text="Your order is currently being delivered." tone="blue" />
       )}
     </main>
   );

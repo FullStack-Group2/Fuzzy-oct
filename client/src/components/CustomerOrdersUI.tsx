@@ -83,34 +83,35 @@ export function CustomerOrdersTable({
     return (
       <div>
         {ControlsBar}
-        <div className="rounded-lg border p-6 text-sm text-gray-600">{emptyHint}</div>;
+        <div className="rounded-lg border p-6 text-sm text-gray-600">{emptyHint}</div>
       </div>
     );
 
   return (
-    <div className="overflow-x-auto rounded-lg border">
+    <div className="overflow-x-auto rounded-lg border max-h-[70vh]">
       <table className="min-w-full text-left">
-        <thead className="bg-gray-50 text-gray-700 text-sm">
+        <thead className="bg-gray-50 text-gray-700 text-xs md:text-sm sticky top-0 z-10">
           <tr>
-            <th className="px-4 py-3 w-16">No.</th>
-            <th className="px-4 py-3">Order ID</th>
-            <th className="px-4 py-3">Vendor</th>
-            <th className="px-4 py-3">
+            <th className="px-2 py-2 md:px-4 md:py-3 w-16 hidden md:table-cell">No.</th>
+            <th className="px-2 py-2 md:px-4 md:py-3">Order ID</th>
+            <th className="px-2 py-2 md:px-4 md:py-3">Vendor</th>
+            <th className="px-2 py-2 md:px-4 md:py-3">
               <StatusHeader
                 selected={sel}
                 onChangeSelected={setSel}
                 sortOrder={srt}
                 onChangeSortOrder={setSrt}
-              /></th>
-            <th className="px-4 py-3">Total</th>
-            <th className="px-4 py-3">Action</th>
+              />
+            </th>
+            <th className="px-2 py-2 md:px-4 md:py-3 hidden md:table-cell">Total</th>
+            <th className="px-2 py-2 md:px-4 md:py-3">Action</th>
           </tr>
         </thead>
         <tbody className="divide-y">
           {visibleOrders.length === 0 ? (
             // --- “No results” row that keeps header visible and offers a quick reset ---
             <tr>
-              <td colSpan={6} className="px-4 py-6 text-sm text-gray-600">
+              <td colSpan={6} className="px-3 py-6 text-sm text-gray-600">
                 No orders match the current filters.
                 <button
                   onClick={clearAll}
@@ -122,19 +123,25 @@ export function CustomerOrdersTable({
             </tr>
           ) : (
             visibleOrders.map((o, idx) => (
-              <tr key={o.id} className="text-sm">
-                <td className="px-4 py-3 font-medium">{idx + 1}</td>
-                <td className="px-4 py-3 font-mono text-gray-500">{o.id}</td>
-                <td className="px-4 py-3">{o.vendorName}</td>
-                <td className="px-4 py-3">
+              <tr key={o.id} className="text-xs md:text-sm">
+                <td className="px-2 py-2 md:px-4 md:py-3 font-medium hidden md:table-cell">
+                  {idx + 1}
+                </td>
+                <td className="px-2 py-2 md:px-4 md:py-3 font-mono text-gray-500 max-w-[140px] md:max-w-none truncate">
+                  {o.id}
+                </td>
+                <td className="px-2 py-2 md:px-4 md:py-3">{o.vendorName}</td>
+                <td className="px-2 py-2 md:px-4 md:py-3">
                   <StatusBadge status={o.status} />
                 </td>
-                <td className="px-4 py-3">${o.totalPrice.toFixed(2)}</td>
-                <td className="px-4 py-3">
+                <td className="px-2 py-2 md:px-4 md:py-3 hidden md:table-cell">
+                  ${o.totalPrice.toFixed(2)}
+                </td>
+                <td className="px-2 py-2 md:px-4 md:py-3">
                   <Link
                     to={`/customer/orders/${o.id}`}
                     state={{ backgroundLocation: location, orderIndex: idx + 1 }}
-                    className="inline-flex items-center rounded-md bg-black text-white px-3 py-1.5 text-sm hover:bg-black/85 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2"
+                    className="inline-flex items-center rounded-md bg-black text-white px-2.5 py-1 text-xs md:px-3 md:py-1.5 md:text-sm hover:bg-black/85 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2"
                   >
                     View
                   </Link>
@@ -157,41 +164,61 @@ export function CustomerOrderItemsTable({
   subtotal: number;
 }) {
   return (
-    <div className="mt-6 overflow-x-auto rounded-lg border">
+    <div className="mt-4 md:mt-6 overflow-x-auto rounded-lg border">
       <table className="min-w-full text-left">
-        <thead className="bg-gray-50 text-gray-700 text-sm">
+        <thead className="bg-gray-50 text-gray-700 text-xs md:text-sm">
           <tr>
-            <th className="px-4 py-3">Product name</th>
-            <th className="px-4 py-3">Price</th>
-            <th className="px-4 py-3">Qty</th>
-            <th className="px-4 py-3">Subtotal</th>
+            <th className="px-2 py-2 md:px-4 md:py-3">Product name</th>
+            <th className="px-2 py-2 md:px-4 md:py-3 hidden md:table-cell text-right">Price</th>
+            <th className="px-2 py-2 md:px-4 md:py-3 hidden md:table-cell text-right">Qty</th>
+            <th className="px-2 py-2 md:px-4 md:py-3 text-right">Subtotal</th>
           </tr>
         </thead>
         <tbody className="divide-y">
           {items.map((it) => (
-            <tr key={it.id} className="text-sm">
-              <td className="px-4 py-3">
+            <tr key={it.id} className="text-xs md:text-sm">
+              <td className="px-2 py-3 md:px-4">
                 <div className="flex items-center gap-3">
                   <img
                     src={it.imageUrl}
                     alt={it.productName}
-                    className="h-12 w-12 rounded object-cover"
+                    className="h-10 w-10 md:h-12 md:w-12 rounded object-cover"
+                    loading="lazy"
                   />
-                  <span>{it.productName}</span>
+                  <div className="min-w-0">
+                    <div className="truncate">{it.productName}</div>
+                    <div className="mt-1 md:hidden text-[11px] text-gray-600">
+                      ${it.priceAtPurchase.toFixed(2)} × {it.quantity}
+                    </div>
+                  </div>
                 </div>
               </td>
-              <td className="px-4 py-3">${it.priceAtPurchase.toFixed(2)}</td>
-              <td className="px-4 py-3">{it.quantity}</td>
-              <td className="px-4 py-3">${it.subtotal.toFixed(2)}</td>
+              <td className="px-2 py-3 md:px-4 hidden md:table-cell text-right">
+                ${it.priceAtPurchase.toFixed(2)}
+              </td>
+              <td className="px-2 py-3 md:px-4 hidden md:table-cell text-right">
+                {it.quantity}
+              </td>
+              <td className="px-2 py-3 md:px-4 text-right font-medium">
+                ${it.subtotal.toFixed(2)}
+              </td>
             </tr>
           ))}
         </tbody>
         <tfoot className="bg-gray-50">
-          <tr>
-            <td></td>
-            <td></td>
-            <td className="px-4 py-3 font-medium">Total price</td>
-            <td className="px-4 py-3 font-semibold">${subtotal.toFixed(2)}</td>
+          <tr className="hidden md:table-row">
+            <td className="px-2 py-3 md:px-4"></td>
+            <td className="px-2 py-3 md:px-4"></td>
+            <td className="px-2 py-3 md:px-4 font-medium text-right">Total price</td>
+            <td className="px-2 py-3 md:px-4 font-semibold text-right">
+              ${subtotal.toFixed(2)}
+            </td>
+          </tr>
+          <tr className="md:hidden">
+            <td className="px-2 py-3 font-medium">Total price</td>
+            <td className="px-2 py-3 font-semibold text-right">
+              ${subtotal.toFixed(2)}
+            </td>
           </tr>
         </tfoot>
       </table>

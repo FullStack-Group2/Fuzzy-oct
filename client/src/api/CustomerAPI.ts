@@ -7,14 +7,17 @@ import API_BASE from "./API";
 // Build the request headers (attach Content-Type and Authorization if token exists)
 function authHeaders(): HeadersInit {
   const token = localStorage.getItem("token");
-  const headers: Record<string, string> = {"Content-Type": "application/json"};
+  const headers: Record<string, string> = { "Content-Type": "application/json" };
   if (token) headers.Authorization = `Bearer ${token}`;
   return headers;
 }
 
 // Fetch all orders that belong to the logged-in customer
-export async function apiCustomerGetOrders(): Promise<CustomerOrderListDTO[]> {
-  const res = await fetch(`${API_BASE}/customers/orders`, {
+export async function apiCustomerGetOrders(
+  params?: URLSearchParams,
+): Promise<CustomerOrderListDTO[]> {
+  const qs = params ? `?${params.toString()}` : '';
+  const res = await fetch(`${API_BASE}/customers/orders${qs}`, {
     headers: authHeaders()
   });
   if (!res.ok) throw new Error("Failed to load orders");
@@ -47,7 +50,7 @@ export async function apiCustomerCancelOrder(
     try {
       const t = await res.json();
       if (t?.error) msg = t.error;
-    } catch {}
+    } catch { }
     throw new Error(msg);
   }
 }

@@ -90,6 +90,17 @@ async function vendorNameByOrderIds(orderIds: Types.ObjectId[]) {
   return map;
 }
 
+const ALLOWED = new Set(['ACTIVE', 'PENDING']);
+
+function parseStatusFilter(q: unknown): string[] | undefined {
+  if (!q) return;
+  const raw = Array.isArray(q) ? q : String(q).split(',');
+  const list = raw
+    .map(s => String(s).trim().toUpperCase())
+    .filter(s => ALLOWED.has(s));
+  return list.length ? list : undefined;
+}
+
 // -----------------------------
 // Orders (Customer-owned)
 // -----------------------------
@@ -110,7 +121,12 @@ export async function listCustomerOrders(
     }
     const customer = new Types.ObjectId(customerIdStr);
 
-    const orders = await OrderModel.find({ customer })
+    const statuses = parseStatusFilter((req as any).query?.status);
+
+    const match: any = { customer };
+    if (statuses) match.status = { $in: statuses };
+
+    const orders = await OrderModel.find(match)
       .select('status totalPrice totalprice createdAt')
       .sort({ createdAt: -1 })
       .lean()
@@ -186,9 +202,9 @@ export async function getCustomerOrderDetail(
 
     const products = validProductIds.length
       ? await ProductModel.find({ _id: { $in: validProductIds } })
-          .select('name imageUrl price vendor')
-          .lean()
-          .exec()
+        .select('name imageUrl price vendor')
+        .lean()
+        .exec()
       : [];
 
     const productMap = new Map(products.map((p) => [String(p._id), p as any]));

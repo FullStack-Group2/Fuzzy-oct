@@ -1,5 +1,5 @@
-import React, { useMemo } from "react";
-import { Link, Location, To, NavigateFunction } from "react-router-dom";
+import React, { useEffect, useRef, useState } from "react";
+import { Location, To, NavigateFunction } from "react-router-dom";
 
 /* ---------- Small UI atoms ---------- */
 type OrderStatus = "PENDING" | "ACTIVE" | "DELIVERED" | "CANCELED";
@@ -52,6 +52,30 @@ export function BackButton({
     <button onClick={onClick} className={`${className}`}>
       {children}
     </button>
+  );
+}
+
+export function FunnelIcon(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" {...props}>
+      <path d="M3 4.5A1.5 1.5 0 0 1 4.5 3h11A1.5 1.5 0 0 1 17 4.5a1.5 1.5 0 0 1-.44 1.06L12 10v5.5a1 1 0 0 1-1.53.85l-2-1.25A1 1 0 0 1 8 14.25V10L3.44 5.56A1.5 1.5 0 0 1 3 4.5Z"/>
+    </svg>
+  );
+}
+
+export function SortAZIcon(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" {...props}>
+      <path d="M3 4h8v2H3V4Zm0 5h6v2H3V9Zm0 5h4v2H3v-2Zm9-5.5h2.5V5l3.5 3.5-3.5 3.5V10.5H12Z"/>
+    </svg>
+  );
+}
+
+export function SortZAIcon(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" {...props}>
+      <path d="M3 4h4v2H3V4Zm0 5h6v2H3V9Zm0 5h8v2H3v-2Zm6-4.5V12l-3.5-3.5L9 5v2.5h2.5V9H9Z"/>
+    </svg>
   );
 }
 
@@ -160,6 +184,111 @@ export function NoticeAlert({
           </button>
         )}
       </div>
+    </div>
+  );
+}
+
+/* ---------- Status header with filter + sort ---------- */
+const ALL_STATUSES = ["PENDING", "ACTIVE", "DELIVERED", "CANCELED"] as const;
+type Status = (typeof ALL_STATUSES)[number];
+
+function useOutsideClose<T extends HTMLElement>(open: boolean, onClose: () => void) {
+  const ref = useRef<T | null>(null);
+  useEffect(() => {
+    if (!open) return;
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) onClose();
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [open, onClose]);
+  return ref;
+}
+
+export function StatusHeader({
+  selected,
+  onChangeSelected,
+  sortOrder,
+  onChangeSortOrder,
+}: {
+  selected: Status[];
+  onChangeSelected: (next: Status[]) => void;
+  sortOrder: "asc" | "desc" | undefined;
+  onChangeSortOrder: (next: "asc" | "desc" | undefined) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const ref = useOutsideClose<HTMLDivElement>(open, () => setOpen(false));
+
+  const toggleStatus = (s: Status) => {
+    onChangeSelected(
+      selected.includes(s) ? selected.filter((x) => x !== s) : [...selected, s]
+    );
+  };
+
+  const clearFilter = () => onChangeSelected([]);
+  const icon =
+    sortOrder === "asc" ? <SortAZIcon className="h-4 w-4" /> :
+      sortOrder === "desc" ? <SortZAIcon className="h-4 w-4" /> :
+        <SortAZIcon className="h-4 w-4 opacity-40" />;
+
+  return (
+    <div className="relative" ref={ref}>
+      <div className="flex items-center gap-2">
+        <span>Status</span>
+        <button
+          type="button"
+          onClick={() => setOpen((v) => !v)}
+          className="inline-flex items-center gap-1 rounded border px-2 py-1 text-xs hover:bg-gray-50"
+          title="Filter statuses"
+        >
+          <FunnelIcon className="h-4 w-4" />
+          {selected.length ? `${selected.length} filter` : "Filter"}
+        </button>
+        <button
+          type="button"
+          onClick={() =>
+            onChangeSortOrder(sortOrder === "asc" ? "desc" : sortOrder === "desc" ? undefined : "asc")
+          }
+          className="inline-flex items-center gap-1 rounded border px-2 py-1 text-xs hover:bg-gray-50"
+          title={sortOrder ? `Sort: ${sortOrder.toUpperCase()}` : "Sort A→Z"}
+        >
+          {icon}
+        </button>
+      </div>
+
+      {open && (
+        <div className="absolute z-10 mt-2 w-56 rounded-lg border bg-white p-3 shadow">
+          <div className="mb-2 text-xs font-medium text-gray-700">Show statuses</div>
+          <div className="space-y-1">
+            {ALL_STATUSES.map((s) => (
+              <label key={s} className="flex items-center gap-2 text-sm">
+                <input
+                  type="checkbox"
+                  checked={selected.includes(s)}
+                  onChange={() => toggleStatus(s)}
+                />
+                <span>{s}</span>
+              </label>
+            ))}
+          </div>
+          <div className="mt-3 flex items-center justify-between">
+            <button
+              className="text-xs text-gray-600 hover:underline"
+              onClick={clearFilter}
+              type="button"
+            >
+              Clear
+            </button>
+            <button
+              className="rounded bg-black px-2 py-1 text-xs text-white"
+              onClick={() => setOpen(false)}
+              type="button"
+            >
+              Done
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

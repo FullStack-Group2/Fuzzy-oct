@@ -13,8 +13,11 @@ function authHeaders(): HeadersInit {
 }
 
 // Fetch all vendor orders (pending & active, not rejected)
-export async function apiVendorGetOrders(): Promise<VendorOrderListDTO[]> {
-  const res = await fetch(`${API_BASE}/vendors/orders`, {
+export async function apiVendorGetOrders(
+  params?: URLSearchParams,
+): Promise<VendorOrderListDTO[]> {
+  const qs = params ? `?${params.toString()}` : "";
+  const res = await fetch(`${API_BASE}/vendors/orders${qs}`, {
     headers: authHeaders(),
   });
   if (!res.ok) throw new Error('Failed to load orders');

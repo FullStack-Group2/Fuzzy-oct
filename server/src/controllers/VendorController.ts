@@ -80,18 +80,34 @@ async function findOrderIdsForVendor(vendorId: Types.ObjectId): Promise<string[]
   return Array.from(ids);
 }
 
+const ALLOWED = new Set(['ACTIVE', 'DELIVERED', 'CANCELED']);
+
+function parseStatusFilter(q: unknown): string[] | undefined {
+  if (!q) return;
+  const raw = Array.isArray(q) ? q : String(q).split(',');
+  const list = raw
+    .map(s => String(s).trim().toUpperCase())
+    .filter(s => ALLOWED.has(s));
+  return list.length ? list : undefined;
+}
+
 // List all vendor-visible orders (only those containing this vendor’s products)
 export async function getAllOrders(req: AuthenticatedRequest, res: Response) {
   try {
     if (!req.user || req.user.role !== 'VENDOR') {
       return res.status(403).json({ error: 'Forbidden' });
     }
-    const vendorId = new Types.ObjectId(req.user.userId);
+    const vendorId = new Types.ObjectId(req.user.userId);    
 
     const orderIds = await findOrderIdsForVendor(vendorId);
     if (orderIds.length === 0) return res.json([]);
 
-    const orders = await OrderModel.find({ _id: { $in: orderIds } })
+    const statuses = parseStatusFilter(req.query.status);
+
+    const match: any = { _id: { $in: orderIds } };
+    if (statuses) match.status = { $in: statuses };
+
+    const orders = await OrderModel.find(match)
       .populate({ path: 'customer', select: 'name address' })
       .sort({ orderDate: -1 })
       .lean()

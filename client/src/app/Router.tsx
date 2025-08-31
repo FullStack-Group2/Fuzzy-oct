@@ -1,11 +1,12 @@
-// src/Router.tsx
-import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
+import { Routes, Route, useLocation } from 'react-router-dom';
+import type { Location } from 'react-router-dom';
 
 import {
   ProtectedRoute,
   PublicOnlyRoute,
 } from '../features/auth/ProtectedRoute';
 
+import Layout from './Layout';
 import NotFound from './pages/NotFound';
 import Home from './pages';
 import Orders from './pages/Orders';
@@ -21,28 +22,26 @@ import { Logout } from './pages/auth/Logout';
 import { ForgotPassword } from './pages/auth/ForgotPassword';
 import { Register } from './pages/auth/Register';
 
-import Layout from './Layout';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import Contact from './pages/Contact';
+import Profile from './pages/Profile';
 
 import ShipperOrders from './pages/shipper/ShipperOrders';
 import ShipperOrderDetail from './pages/shipper/ShipperOrderDetails';
 import ShipperCancelOrder from './pages/shipper/ShipperCancelOrder';
 
-import PrivacyPolicy from './pages/PrivacyPolicy';
-
 import VendorOrders from './pages/vendor/VendorOrders';
 import VendorOrderDetails from './pages/vendor/VendorOrderDetails';
 import VendorCancelOrder from './pages/vendor/VendorCancelOrder';
-
-import Modal from '@/components/Modal';
 
 import CustomerCancelOrder from './pages/customer/CustomerCancelOrder';
 import CustomerOrders from './pages/customer/CustomerOrders';
 import CustomerOrderDetails from './pages/customer/CustomerOrderDetails';
 
-import Profile from './pages/Profile';
+import Modal from '@/components/Modal';
 import { useAuth } from '../stores/AuthProvider';
 
-// Wrapper for Logout if it needs user from context (from dev branch)
+// Wrapper for Logout if it needs user from context
 const LogoutWrapper = () => {
   const { user } = useAuth();
   if (!user) return null;
@@ -50,9 +49,7 @@ const LogoutWrapper = () => {
 };
 
 export default function AppRouter() {
-  return (
-      <InnerRoutes />
-  );
+  return <InnerRoutes />;
 }
 
 function InnerRoutes() {
@@ -65,8 +62,16 @@ function InnerRoutes() {
       {/* Base routes (render page content). If a backgroundLocation exists, these render "behind" a modal. */}
       <Routes location={backgroundLocation || location}>
         <Route element={<Layout />}>
-          {/* Public route */}
+          {/* Public routes */}
           <Route path="/privacy" element={<PrivacyPolicy />} />
+          <Route
+            path="/contact"
+            element={
+              <PublicOnlyRoute>
+                <Contact />
+              </PublicOnlyRoute>
+            }
+          />
 
           {/* Auth (public-only) */}
           <Route
@@ -262,8 +267,9 @@ function InnerRoutes() {
       {/* Modal routes (render on top when backgroundLocation exists) */}
       {backgroundLocation && (
         <Routes>
+          {/* SHIPPER (fixed to plural paths) */}
           <Route
-            path="/shipper/orders/:orderId"
+            path="/shippers/orders/:orderId"
             element={
               <ProtectedRoute allowedRoles={['SHIPPER']}>
                 <Modal>
@@ -273,7 +279,7 @@ function InnerRoutes() {
             }
           />
           <Route
-            path="/shipper/orders/:orderId/cancel"
+            path="/shippers/orders/:orderId/cancel"
             element={
               <ProtectedRoute allowedRoles={['SHIPPER']}>
                 <Modal>
@@ -282,8 +288,10 @@ function InnerRoutes() {
               </ProtectedRoute>
             }
           />
+
+          {/* VENDOR (fixed to plural paths) */}
           <Route
-            path="/vendor/orders/:orderId"
+            path="/vendors/orders/:orderId"
             element={
               <ProtectedRoute allowedRoles={['VENDOR']}>
                 <Modal>
@@ -293,7 +301,7 @@ function InnerRoutes() {
             }
           />
           <Route
-            path="/vendor/orders/:orderId/reject"
+            path="/vendors/orders/:orderId/reject"
             element={
               <ProtectedRoute allowedRoles={['VENDOR']}>
                 <Modal>
@@ -302,8 +310,10 @@ function InnerRoutes() {
               </ProtectedRoute>
             }
           />
+
+          {/* CUSTOMER (fixed to plural paths) */}
           <Route
-            path="/customer/orders/:orderId"
+            path="/customers/orders/:orderId"
             element={
               <ProtectedRoute allowedRoles={['CUSTOMER']}>
                 <Modal>
@@ -313,7 +323,7 @@ function InnerRoutes() {
             }
           />
           <Route
-            path="/customer/orders/:orderId/cancel"
+            path="/customers/orders/:orderId/cancel"
             element={
               <ProtectedRoute allowedRoles={['CUSTOMER']}>
                 <Modal>

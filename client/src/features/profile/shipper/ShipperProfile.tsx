@@ -7,7 +7,7 @@ interface ShipperData {
   id: string;
   username: string;
   email: string;
-  assignedHub?:
+  distributionHub?:
     | {
         _id: string;
         hubName: string;
@@ -264,10 +264,10 @@ export const ShipperProfile: React.FC = () => {
             </label>
             <div className="bg-gray-50 p-3 rounded-lg border">
               <p className="text-gray-900">
-                {shipper.assignedHub
-                  ? typeof shipper.assignedHub === 'string'
-                    ? shipper.assignedHub
-                    : `${shipper.assignedHub.hubName} - ${shipper.assignedHub.hubLocation}`
+                {shipper.distributionHub
+                  ? typeof shipper.distributionHub === 'string'
+                    ? shipper.distributionHub
+                    : `${shipper.distributionHub.hubName} - ${shipper.distributionHub.hubLocation}`
                   : 'Not assigned'}
               </p>
             </div>

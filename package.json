@@ -25,6 +25,9 @@
     "typescript": "^5.3.3"
   },
   "dependencies": {
-    "tsx": "^4.20.5"
+    "lucide-react": "^0.542.0",
+    "radix-ui": "^1.4.3",
+    "tsx": "^4.20.5",
+    "twilio": "^5.8.2"
   }
 }

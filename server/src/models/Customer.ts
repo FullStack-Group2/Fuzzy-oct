@@ -1,4 +1,3 @@
-// customer.ts
 import { Schema } from 'mongoose';
 import { UserModel, IUser } from './User';
 import { UserRole } from './UserRole';

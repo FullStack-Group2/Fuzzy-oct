@@ -205,7 +205,7 @@ const FAQ: React.FC = () => {
           </div>
 
           {/* Content */}
-          <div className="w-full bg-white p-4 shadow rounded-md">
+          <div className="w-2/3 bg-white p-4 shadow rounded-md m-8">
             <p className="text-2xl sm:text-[30px] font-bold mb-3">{activeSection.label}</p>
             <div className="border-gray-200 mb-4"></div>
 

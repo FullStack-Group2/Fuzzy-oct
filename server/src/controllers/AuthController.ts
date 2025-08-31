@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import bcrypt from 'bcrypt';
+import { Types } from 'mongoose';
 
 import { VendorModel } from '../models/Vendor';
 import { CustomerModel } from '../models/Customer';
@@ -20,11 +21,14 @@ interface TokenPayload {
   userId: string;
   username: string;
   role: UserRole;
+  hubId?: string;
 }
+
 const client = twilio(
   process.env.TWILIO_ACCOUNT_SID,
   process.env.TWILIO_AUTH_TOKEN,
 );
+
 // Register Vendor
 export const registerVendor = async (req: Request, res: Response) => {
   try {
@@ -44,18 +48,13 @@ export const registerVendor = async (req: Request, res: Response) => {
       });
     }
 
-    // Check if username already exists
-
     const existingUser = await UserServices.usernameExists(username);
-
     if (existingUser) {
       return res.status(409).json({ message: 'Username already exists' });
     }
 
-    // Hash password
     const hashedPassword = await bcrypt.hash(password, 12);
 
-    // Create vendor
     const vendor = await createVendor({
       username: username.trim(),
       email: email.trim().toLowerCase(),
@@ -66,7 +65,6 @@ export const registerVendor = async (req: Request, res: Response) => {
       profilePicture: profilePicture || '',
     });
 
-    // Generate JWT token
     const tokenPayload: TokenPayload = {
       userId: vendor.id.toString(),
       username: vendor.username,
@@ -94,7 +92,7 @@ export const registerVendor = async (req: Request, res: Response) => {
   }
 };
 
-// Register Customer
+// Register Customer 
 export const registerCustomer = async (req: Request, res: Response) => {
   try {
     const { username, email, password, name, address, profilePicture } =
@@ -106,16 +104,13 @@ export const registerCustomer = async (req: Request, res: Response) => {
       });
     }
 
-    // Check if username already exists
     const existingUser = await UserServices.usernameExists(username);
     if (existingUser) {
       return res.status(409).json({ message: 'Username already exists' });
     }
 
-    // Hash password
     const hashedPassword = await bcrypt.hash(password, 12);
 
-    // Create customer
     const customer = new CustomerModel({
       username: username.trim(),
       email: email.trim().toLowerCase(),
@@ -128,7 +123,6 @@ export const registerCustomer = async (req: Request, res: Response) => {
 
     await customer.save();
 
-    // Generate JWT token
     const tokenPayload: TokenPayload = {
       userId: customer.id.toString(),
       username: customer.username,
@@ -152,7 +146,6 @@ export const registerCustomer = async (req: Request, res: Response) => {
     });
   } catch (error: unknown) {
     console.error('Customer Registration Error:', error);
-
     res.status(500).json({ message: 'Internal server error' });
   }
 };
@@ -160,48 +153,55 @@ export const registerCustomer = async (req: Request, res: Response) => {
 // Register Shipper
 export const registerShipper = async (req: Request, res: Response) => {
   try {
-    const { username, email, password, assignedHubId, profilePicture } =
-      req.body;
+    const { username, email, password, profilePicture } = req.body;
+    const hubRaw =
+      req.body.distributionHub;
 
-    if (!username || !email || !password || !assignedHubId) {
-      return res.status(400).json({
-        message: 'Username, email, password, and assigned hub are required',
-      });
+    if (!username) {
+      return res.status(400).json({ message: 'Username is required' });
+    }
+    if (!email) {
+      return res.status(400).json({ message: 'Email is required' });
+    }
+    if (!password) {
+      return res.status(400).json({ message: 'Password is required' });
+    }
+    if (!hubRaw) {
+      return res.status(400).json({ message: 'Distribution hub is required' });
+    }
+    if (!Types.ObjectId.isValid(hubRaw)) {
+      return res
+        .status(400)
+        .json({ message: 'Distribution hub must be a valid ObjectId' });
     }
 
-    // Check if username already exists
     const existingUser = await UserServices.usernameExists(username);
     if (existingUser) {
       return res.status(409).json({ message: 'Username already exists' });
     }
-    const hub = await DistributionHub.findById(assignedHubId);
+
+    const hub = await DistributionHub.findById(hubRaw);
     if (!hub) {
       return res.status(404).json({ message: 'Assigned hub not found' });
     }
 
-    // Hash password
     const hashedPassword = await bcrypt.hash(password, 12);
 
-    // Create shipper
-    const shipper = new ShipperModel({
+    const shipper = await ShipperModel.create({
       username: username.trim(),
       email: email.trim().toLowerCase(),
       password: hashedPassword,
       role: UserRole.SHIPPER,
-      assignedHub: hub._id,
+      distributionHub: hub._id,
       profilePicture: profilePicture || '',
     });
 
-    await shipper.save();
-
-    // Populate hub details for response
-    await shipper.populate('assignedHub', 'hubName hubLocation');
-
-    // Generate JWT token
+    // Build JWT with hubId for shipper
     const tokenPayload: TokenPayload = {
       userId: shipper.id.toString(),
       username: shipper.username,
-      role: shipper.role,
+      role: UserRole.SHIPPER,
+      hubId: shipper.distributionHub?.toString(),
     };
 
     const token = signJWT(tokenPayload);
@@ -212,7 +212,7 @@ export const registerShipper = async (req: Request, res: Response) => {
         id: shipper._id,
         username: shipper.username,
         email: shipper.email,
-        assignedHub: shipper.assignedHub,
+        distributionHub: shipper.distributionHub,
         profilePicture: shipper.profilePicture,
         role: shipper.role,
       },
@@ -230,33 +230,36 @@ export const login = async (req: Request, res: Response) => {
     const { username, password } = req.body;
 
     if (!username || !password) {
-      return res.status(400).json({
-        message: 'Username and password are required',
-      });
+      return res
+        .status(400)
+        .json({ message: 'Username and password are required' });
     }
 
     const user = await UserServices.findByUserName(username);
     if (!user) {
-      res.status(401).json({ message: 'Invalid credentials' });
-      return;
-    }
-    // Verify password
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) {
-      res.status(401).json({ message: 'Invalid credentials' });
-      return;
+      return res.status(401).json({ message: 'Invalid credentials' });
     }
 
-    // Generate JWT token
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      return res.status(401).json({ message: 'Invalid credentials' });
+    }
+
+    // Prepare token payload (with hubId for shippers)
+    let hubId: string | undefined;
+    if (user.role === UserRole.SHIPPER) {
+      const shipper = await ShipperModel.findById(user._id).select('distributionHub');
+      if (shipper?.distributionHub) hubId = shipper.distributionHub.toString();
+    }
+
     const tokenPayload: TokenPayload = {
       userId: user.id.toString(),
       username: user.username,
       role: user.role,
+      ...(hubId ? { hubId } : {}),
     };
-
     const token = signJWT(tokenPayload);
 
-    // Prepare user data (without password)
     const userData: Record<string, unknown> = {
       id: user._id,
       username: user.username,
@@ -265,7 +268,7 @@ export const login = async (req: Request, res: Response) => {
       profilePicture: user.profilePicture,
     };
 
-    // Fetch role-specific data
+    // Attach role-specific extras (merge of HEAD + dev)
     switch (user.role) {
       case UserRole.VENDOR: {
         const vendor = await VendorModel.findById(user._id);
@@ -284,25 +287,18 @@ export const login = async (req: Request, res: Response) => {
         break;
       }
       case UserRole.SHIPPER: {
-        const shipper = await ShipperModel.findById(user._id).populate(
-          'assignedHub',
-          'hubName hubLocation',
-        );
-        if (shipper) {
-          userData.assignedHub = shipper.assignedHub;
-        }
+        const shipper = await ShipperModel.findById(user._id).select('distributionHub');
+        if (shipper?.distributionHub) userData.distributionHub = shipper.distributionHub;
         break;
       }
     }
 
-    return res.status(200).json({
-      message: 'Login successful',
-      user: userData,
-      token,
-    });
-  } catch (error) {
-    console.error('Login Error:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    return res
+      .status(200)
+      .json({ message: 'Login successful', user: userData, token });
+  } catch (err) {
+    console.error('Login Error:', err);
+    return res.status(500).json({ message: 'Internal server error' });
   }
 };
 
@@ -326,7 +322,6 @@ export const forgotPassword = async (req: Request, res: Response) => {
       return res.status(400).json({ message: 'Email is required' });
     }
 
-    // Check if user exists in your DB
     const user = await UserServices.findByEmail(email);
     if (!user) {
       return res.status(404).json({ message: 'Email is not registered' });
@@ -334,7 +329,6 @@ export const forgotPassword = async (req: Request, res: Response) => {
 
     console.log(`Sending OTP to email: ${email}`);
 
-    // Send OTP via Twilio Verify with timeout
     try {
       const verificationPromise = client.verify.v2
         .services(process.env.TWILIO_VERIFY_SERVICE_SID!)
@@ -378,11 +372,11 @@ export const forgotPassword = async (req: Request, res: Response) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 };
+
 interface TwilioError {
   message?: string;
   code?: string | number;
 }
-
 interface TwilioVerificationCheck {
   status: string;
   sid?: string;
@@ -397,14 +391,13 @@ export const verifyResetCode = async (req: Request, res: Response) => {
 
     console.log(`Attempting to verify OTP for email: ${email}, code: ${code}`);
 
-    // Add timeout and retry logic
     let verificationCheck: TwilioVerificationCheck;
     try {
       const verificationPromise = client.verify.v2
         .services(process.env.TWILIO_VERIFY_SERVICE_SID!)
         .verificationChecks.create({
           to: email,
-          code: code.toString(), // Ensure code is string
+          code: code.toString(),
         });
 
       const timeoutPromise = new Promise<never>((_, reject) =>
@@ -420,7 +413,6 @@ export const verifyResetCode = async (req: Request, res: Response) => {
 
       const error = twilioError as TwilioError;
 
-      // Handle specific Twilio errors
       if (error.code === 20404) {
         return res.status(400).json({
           message: 'Verification code has expired or is invalid',
@@ -475,25 +467,22 @@ export const resetForgotPassword = async (req: Request, res: Response) => {
         .json({ message: 'Email, new password, and reset token are required' });
     }
 
-    // Verify the reset token
     if (!verifyResetToken(email, resetToken)) {
       return res
         .status(400)
         .json({ message: 'Invalid or expired reset token' });
     }
 
-    // Find user by email to get the userId
     const user = await UserServices.findByEmail(email);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    // Update password using userId
     const result = await UserServices.updatePassword(user.id, newPassword);
-
     console.log('Password reset result:', result);
-    //  Delete token so it can't be reused
+
     deleteResetToken(email);
+
     res.status(200).json({ status: 'Password reset successful' });
   } catch (error) {
     console.error('Reset Password Error:', error);
@@ -505,7 +494,6 @@ export const changePassword = async (req: Request, res: Response) => {
   try {
     const userId = req.params.id;
 
-    // Find user with password field included
     const user = await UserServices.findByIdWithPassword(userId);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
@@ -518,7 +506,6 @@ export const changePassword = async (req: Request, res: Response) => {
       });
     }
 
-    // Check if password field exists
     if (!user.password) {
       console.error('User password field is missing');
       return res
@@ -526,7 +513,6 @@ export const changePassword = async (req: Request, res: Response) => {
         .json({ message: 'User authentication data is corrupted' });
     }
 
-    // Verify current password
     const isPasswordValid = await bcrypt.compare(
       currentPassword,
       user.password,
@@ -537,7 +523,6 @@ export const changePassword = async (req: Request, res: Response) => {
       return res.status(401).json({ message: 'Current password is incorrect' });
     }
 
-    // Update password in database
     const result = await UserServices.updatePassword(userId, newPassword);
     console.log('Password change result:', result);
 

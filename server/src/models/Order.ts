@@ -27,7 +27,7 @@ const orderSchema = new Schema<IOrder>(
       default: OrderStatus.PENDING,
     },
     totalPrice: { type: Number, required: true },
-    cancelReason: { type: String },
+    cancelReason: { nullable: true, type: String },
   },
   {
     // Important: Enable virtuals for toJSON and toObject

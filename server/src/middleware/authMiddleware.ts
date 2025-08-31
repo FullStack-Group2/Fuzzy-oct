@@ -1,10 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 
-import { VendorModel } from '../models/Vendor';
-import { CustomerModel } from '../models/Customer';
-import { ShipperModel } from '../models/Shipper';
 import { UserRole } from '../models/UserRole';
+import { UserServices } from '../services/UserServices';
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
@@ -42,10 +40,11 @@ export const authMiddleware = async (
     }
 
     // Extract token safely (supports both slice and split approaches)
-    const token = authHeader.slice(7).trim() || authHeader.split(' ')[1];
+    const token = authHeader.split(' ')[1];
     let decoded: TokenPayload;
     try {
       decoded = jwt.verify(token, JWT_SECRET) as TokenPayload;
+      console.log('Decoded JWT:', decoded);
     } catch {
       return res.status(401).json({ message: 'Invalid token.' });
     }
@@ -53,7 +52,7 @@ export const authMiddleware = async (
     // Verify the user still exists and attach role-specific context
     switch (decoded.role) {
       case UserRole.VENDOR: {
-        const vendor = await VendorModel.findById(decoded.userId).lean();
+        const vendor = await UserServices.findById(decoded.userId);
         if (!vendor) return res.status(401).json({ message: 'User no longer exists.' });
         req.user = {
           userId: decoded.userId,
@@ -63,7 +62,9 @@ export const authMiddleware = async (
         break;
       }
       case UserRole.CUSTOMER: {
-        const customer = await CustomerModel.findById(decoded.userId).lean();
+        const customer = await UserServices.findById(decoded.userId);
+        console.log("decode user id", decoded.userId)
+        console.log("customer",customer)
         if (!customer) return res.status(401).json({ message: 'User no longer exists.' });
         req.user = {
           userId: decoded.userId,
@@ -74,9 +75,7 @@ export const authMiddleware = async (
       }
       case UserRole.SHIPPER: {
         // Keep HEAD behavior: surface hubId from shipper.distributionHub onto req.user
-        const shipper = await ShipperModel.findById(decoded.userId)
-          .select('distributionHub')
-          .lean();
+        const shipper = await UserServices.findById(decoded.userId);
         if (!shipper) return res.status(401).json({ message: 'User no longer exists.' });
 
         const raw = (shipper as any).distributionHub;

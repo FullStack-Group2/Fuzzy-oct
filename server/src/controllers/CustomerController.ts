@@ -431,9 +431,10 @@ export const createOrder = async (
   try {
     const { userId } = req.user!;
     const order = await createOrderFromItem(userId);
+    console.log('Created order:', order);
 
     if (!order) {
-      return return res.status(500).json({
+      return res.status(500).json({
         message: 'Not available in stock.',
       });
     }

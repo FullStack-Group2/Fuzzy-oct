@@ -22,12 +22,13 @@ app.use('/uploads', express.static('uploads'));
 // This is where we mount our API routes
 app.use('/api', routes);
 
-app.get('/', (req, res) => {
-  res.send('API is running...');
-});
-
+// Register dev routes before starting the server
 if (process.env.NODE_ENV !== "production") {
   app.use("/api/dev", devLoginRoutes);
 }
+
+app.get('/', (req, res) => {
+  res.send('API is running...');
+});
 
 export default app;

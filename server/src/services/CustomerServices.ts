@@ -40,6 +40,7 @@ export const addItemToCart = async ({
   quantity: number;
 }) => {
   const item = await CartItem.findOne({ customer, product });
+  console.log('Checking cart item:', { customer, product });
 
   // cong them quantity
   if (item) {
@@ -93,7 +94,9 @@ export const createOrderFromItem = async (userId: string) => {
   const status = OrderStatus.PENDING;
   const hub = await chooseHub();
   const cartItem = await getCustomerCart(userId);
+  console.log('Cart items for order creation:', cartItem);
   const orders = await splitOrder(cartItem);
+  console.log('Split orders by vendor:', orders);
 
   if (!checkStock(cartItem)) {
     return null;
@@ -109,10 +112,12 @@ export const createOrderFromItem = async (userId: string) => {
         orderDate,
         status,
         totalPrice: 0,
-        hub,
+        distributionHub: hub,
       });
+      console.log('Minited order:', miniOrder);
 
       const orderItems = orderBilling(order, miniOrder);
+      console.log('Order items:', orderItems);
       const totalPrice = getTotalPrice(orderItems);
       miniOrder.totalPrice = totalPrice;
       await miniOrder.save();

@@ -25,7 +25,7 @@ router.use('/vendors', vendorRoutes);
 router.use('/customers', customerRoutes);
 router.use('/shippers', shipperRoutes);
 router.use('/hubs', hubRoutes);
-router.use('/distributionHub', hubRoutes);           // legacy
-router.use('/products', vendorRoutes);               // legacy: product endpoints lived under vendor
+router.use('/distributionHub', hubRoutes); // legacy
+router.use('/products', vendorRoutes); // legacy: product endpoints lived under vendor
 
 export default router;

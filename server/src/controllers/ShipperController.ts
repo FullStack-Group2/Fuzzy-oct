@@ -59,10 +59,7 @@ export async function listActiveOrders(
 /**
  * Get details of a single ACTIVE order in this shipper's hub
  */
-export async function getOrderDetail(
-  req: AuthenticatedRequest,
-  res: Response,
-) {
+export async function getOrderDetail(req: AuthenticatedRequest, res: Response) {
   try {
     if (!req.user || req.user.role !== 'SHIPPER') {
       return res.status(403).json({ error: 'Forbidden' });

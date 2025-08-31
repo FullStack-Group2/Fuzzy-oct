@@ -34,9 +34,9 @@ export const authMiddleware = async (
 
     const authHeader = req.headers.authorization || '';
     if (!authHeader.startsWith('Bearer ')) {
-      return res
-        .status(401)
-        .json({ message: 'Access denied. No token provided or invalid format.' });
+      return res.status(401).json({
+        message: 'Access denied. No token provided or invalid format.',
+      });
     }
 
     // Extract token safely (supports both slice and split approaches)
@@ -53,7 +53,8 @@ export const authMiddleware = async (
     switch (decoded.role) {
       case UserRole.VENDOR: {
         const vendor = await UserServices.findById(decoded.userId);
-        if (!vendor) return res.status(401).json({ message: 'User no longer exists.' });
+        if (!vendor)
+          return res.status(401).json({ message: 'User no longer exists.' });
         req.user = {
           userId: decoded.userId,
           username: decoded.username,
@@ -63,9 +64,10 @@ export const authMiddleware = async (
       }
       case UserRole.CUSTOMER: {
         const customer = await UserServices.findById(decoded.userId);
-        console.log("decode user id", decoded.userId)
-        console.log("customer",customer)
-        if (!customer) return res.status(401).json({ message: 'User no longer exists.' });
+        console.log('decode user id', decoded.userId);
+        console.log('customer', customer);
+        if (!customer)
+          return res.status(401).json({ message: 'User no longer exists.' });
         req.user = {
           userId: decoded.userId,
           username: decoded.username,
@@ -76,11 +78,14 @@ export const authMiddleware = async (
       case UserRole.SHIPPER: {
         // Keep HEAD behavior: surface hubId from shipper.distributionHub onto req.user
         const shipper = await UserServices.findById(decoded.userId);
-        if (!shipper) return res.status(401).json({ message: 'User no longer exists.' });
+        if (!shipper)
+          return res.status(401).json({ message: 'User no longer exists.' });
 
         const raw = (shipper as any).distributionHub;
         const hubId =
-          raw && typeof raw === 'object' && 'toString' in raw ? raw.toString() : (raw as string | undefined);
+          raw && typeof raw === 'object' && 'toString' in raw
+            ? raw.toString()
+            : (raw as string | undefined);
 
         req.user = {
           userId: decoded.userId,

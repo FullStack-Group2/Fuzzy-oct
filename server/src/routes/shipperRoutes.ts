@@ -1,6 +1,9 @@
 import { Router, Response, NextFunction } from 'express';
 import * as shipperController from '../controllers/ShipperController';
-import { authMiddleware, AuthenticatedRequest } from '../middleware/authMiddleware';
+import {
+  authMiddleware,
+  AuthenticatedRequest,
+} from '../middleware/authMiddleware';
 import { requireShipper } from '../middleware/roleMiddleware';
 
 const router = Router();
@@ -34,7 +37,11 @@ router.use(authMiddleware, requireShipper);
 // HEAD branch order operations (active orders in hub, details, status updates)
 router.get('/orders', ensureHubInRequest, shipperController.listActiveOrders);
 router.get('/orders/:id', ensureHubInRequest, shipperController.getOrderDetail);
-router.patch('/orders/:id/status', ensureHubInRequest, shipperController.patchOrderStatus);
+router.patch(
+  '/orders/:id/status',
+  ensureHubInRequest,
+  shipperController.patchOrderStatus,
+);
 
 // dev branch profile endpoints
 router.get('/:id', shipperController.getShipperById);

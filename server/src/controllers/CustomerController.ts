@@ -96,8 +96,8 @@ function parseStatusFilter(q: unknown): string[] | undefined {
   if (!q) return;
   const raw = Array.isArray(q) ? q : String(q).split(',');
   const list = raw
-    .map(s => String(s).trim().toUpperCase())
-    .filter(s => ALLOWED.has(s));
+    .map((s) => String(s).trim().toUpperCase())
+    .filter((s) => ALLOWED.has(s));
   return list.length ? list : undefined;
 }
 
@@ -141,9 +141,7 @@ export async function listCustomerOrders(
     const dto = orders.map((o) => ({
       id: String(o._id),
       status: String(o.status ?? '').toUpperCase(),
-      totalPrice: Number(
-        (o as any).totalPrice ?? (o as any).totalprice ?? 0,
-      ),
+      totalPrice: Number((o as any).totalPrice ?? (o as any).totalprice ?? 0),
       vendorName: vendorNameMap.get(String(o._id)) || 'Unknown vendor',
     }));
 
@@ -202,9 +200,9 @@ export async function getCustomerOrderDetail(
 
     const products = validProductIds.length
       ? await ProductModel.find({ _id: { $in: validProductIds } })
-        .select('name imageUrl price vendor')
-        .lean()
-        .exec()
+          .select('name imageUrl price vendor')
+          .lean()
+          .exec()
       : [];
 
     const productMap = new Map(products.map((p) => [String(p._id), p as any]));
@@ -248,9 +246,7 @@ export async function getCustomerOrderDetail(
     const computedTotal = mappedItems.reduce((s, it) => s + it.subtotal, 0);
     const storedTotal = Number(order.totalPrice ?? order.totalprice ?? 0);
     const totalPrice =
-      storedTotal > 0
-        ? storedTotal
-        : Math.round(computedTotal * 100) / 100;
+      storedTotal > 0 ? storedTotal : Math.round(computedTotal * 100) / 100;
 
     const customerAddress =
       order?.customer?.address ??
@@ -296,10 +292,9 @@ export async function patchCustomerOrderStatus(
       return res.status(400).json({ error: 'Invalid order id' });
     }
 
-    const raw =
-      (typeof req.body?.status === 'string' ? req.body.status : '')
-        .trim()
-        .toUpperCase();
+    const raw = (typeof req.body?.status === 'string' ? req.body.status : '')
+      .trim()
+      .toUpperCase();
     if (!raw) return res.status(400).json({ error: 'Missing status in body' });
     if (!ALLOWED_TARGET.has(raw)) {
       return res
@@ -376,9 +371,7 @@ export const addToCart = async (req: AuthenticatedRequest, res: Response) => {
       quantity,
     });
 
-    res
-      .status(200)
-      .json({ message: 'Product added successfully.', cartItems });
+    res.status(200).json({ message: 'Product added successfully.', cartItems });
   } catch (error) {
     console.error('Error adding to cart:', error);
     res.status(500).json({
@@ -424,10 +417,7 @@ export const updateCartItem = async (
 };
 
 // Create order from cart items
-export const createOrder = async (
-  req: AuthenticatedRequest,
-  res: Response,
-) => {
+export const createOrder = async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { userId } = req.user!;
     const order = await createOrderFromItem(userId);
@@ -438,7 +428,9 @@ export const createOrder = async (
         message: 'Not available in stock.',
       });
     }
-    return res.status(200).json({ message: 'Create order successfully', order });
+    return res
+      .status(200)
+      .json({ message: 'Create order successfully', order });
   } catch (error) {
     console.error('Error creating order:', error);
     res.status(500).json({
@@ -515,9 +507,7 @@ export const updateCustomer = async (req: Request, res: Response) => {
     if (username) {
       const existingUser = await UserServices.usernameExists(username);
       if (existingUser) {
-        return res
-          .status(409)
-          .json({ message: 'Username already exists.' });
+        return res.status(409).json({ message: 'Username already exists.' });
       }
       (updateData as any).username = username;
     }

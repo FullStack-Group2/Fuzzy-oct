@@ -9,7 +9,6 @@ import { ProductModel } from '../models/Product';
 import { chooseHub } from './HubService';
 import { splitOrder } from '../utils/SplitOrder';
 export const getCustomerCart = async (userId: string) => {
-
   return CartItem.find({ customer: userId })
     .populate({ path: 'product', model: ProductModel })
     .exec();
@@ -61,7 +60,7 @@ export const modifyItemCart = async ({
   quantity: number;
 }) => {
   // 1. Check product stock
-  const productDoc = await ProductModel.findOne({_id: cartId});
+  const productDoc = await ProductModel.findOne({ _id: cartId });
   console.log(productDoc);
   if (!productDoc) {
     throw new Error('Product not found');
@@ -105,7 +104,6 @@ export const createOrderFromItem = async (userId: string) => {
   const createdOrders = [];
 
   for (const [vendorId, order] of orders) {
-
     try {
       const miniOrder = await Order.create({
         customer,

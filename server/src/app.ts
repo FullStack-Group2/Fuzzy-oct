@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import connectDB from './config/database';
 import routes from './routes';
-import devLoginRoutes from "./routes/devLoginRoutes";
+import devLoginRoutes from './routes/devLoginRoutes';
 
 // Connect to Database
 connectDB();
@@ -23,8 +23,8 @@ app.use('/uploads', express.static('uploads'));
 app.use('/api', routes);
 
 // Register dev routes before starting the server
-if (process.env.NODE_ENV !== "production") {
-  app.use("/api/dev", devLoginRoutes);
+if (process.env.NODE_ENV !== 'production') {
+  app.use('/api/dev', devLoginRoutes);
 }
 
 app.get('/', (req, res) => {

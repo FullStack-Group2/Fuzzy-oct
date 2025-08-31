@@ -51,7 +51,7 @@ async function addItemToCart(itemId: string, quantity: number) {
   try {
     console.log(' Adding item to cart:', { itemId, quantity });
     console.log(' Using token:', token ? 'Present' : 'Missing');
-    
+
     const response = await fetch(
       `${SUBSCRIPTION_SERVICE_URL}/api/customers/cart`,
       {
@@ -67,8 +67,8 @@ async function addItemToCart(itemId: string, quantity: number) {
         }),
       },
     );
-    console.log("Cart response:", response);
-    
+    console.log('Cart response:', response);
+
     if (!response.ok) {
       const errorData = await response.text();
       console.log('Cart error data:', errorData);
@@ -79,7 +79,7 @@ async function addItemToCart(itemId: string, quantity: number) {
 
     // Parse JSON data
     const data = await response.json();
-    console.log("item added to cart:", data);
+    console.log('item added to cart:', data);
     return data;
   } catch (err) {
     console.error(' Add item error:', err);
@@ -101,7 +101,7 @@ async function orderItem() {
       },
     );
 
-    console.log("response2:", response);
+    console.log('response2:', response);
     if (!response.ok) {
       throw new Error(
         `Order item failed: ${response.status} ${response.statusText}`,
@@ -110,7 +110,7 @@ async function orderItem() {
 
     // Parse JSON data
     const data = await response.json();
-    console.log("Order item response:", data);
+    console.log('Order item response:', data);
     return data;
   } catch (err) {
     console.error('Order error: ', err);

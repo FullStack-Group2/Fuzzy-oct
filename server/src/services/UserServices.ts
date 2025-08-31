@@ -15,7 +15,7 @@ export class UserServices {
    * @returns Promise<AnyUser | null> - The user document or null if not found
    */
   static async findByUserName(username: string): Promise<AnyUser | null> {
-    return UserModel.findOne({ username }).select("+password");
+    return UserModel.findOne({ username }).select('+password');
   }
 
   /**

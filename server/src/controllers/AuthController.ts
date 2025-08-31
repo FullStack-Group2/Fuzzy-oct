@@ -92,7 +92,7 @@ export const registerVendor = async (req: Request, res: Response) => {
   }
 };
 
-// Register Customer 
+// Register Customer
 export const registerCustomer = async (req: Request, res: Response) => {
   try {
     const { username, email, password, name, address, profilePicture } =
@@ -154,8 +154,7 @@ export const registerCustomer = async (req: Request, res: Response) => {
 export const registerShipper = async (req: Request, res: Response) => {
   try {
     const { username, email, password, profilePicture } = req.body;
-    const hubRaw =
-      req.body.distributionHub;
+    const hubRaw = req.body.distributionHub;
 
     if (!username) {
       return res.status(400).json({ message: 'Username is required' });
@@ -248,7 +247,9 @@ export const login = async (req: Request, res: Response) => {
     // Prepare token payload (with hubId for shippers)
     let hubId: string | undefined;
     if (user.role === UserRole.SHIPPER) {
-      const shipper = await ShipperModel.findById(user._id).select('distributionHub');
+      const shipper = await ShipperModel.findById(user._id).select(
+        'distributionHub',
+      );
       if (shipper?.distributionHub) hubId = shipper.distributionHub.toString();
     }
 
@@ -287,8 +288,11 @@ export const login = async (req: Request, res: Response) => {
         break;
       }
       case UserRole.SHIPPER: {
-        const shipper = await ShipperModel.findById(user._id).select('distributionHub');
-        if (shipper?.distributionHub) userData.distributionHub = shipper.distributionHub;
+        const shipper = await ShipperModel.findById(user._id).select(
+          'distributionHub',
+        );
+        if (shipper?.distributionHub)
+          userData.distributionHub = shipper.distributionHub;
         break;
       }
     }

@@ -60,7 +60,9 @@ export const getVendorById = async (req: Request, res: Response) => {
 /* ------------------------------------------------------------------ */
 
 // Helper: find all orderIds that contain products from this vendor
-async function findOrderIdsForVendor(vendorId: Types.ObjectId): Promise<string[]> {
+async function findOrderIdsForVendor(
+  vendorId: Types.ObjectId,
+): Promise<string[]> {
   const items = await OrderItemModel.find({})
     .select('order product')
     .populate({
@@ -86,8 +88,8 @@ function parseStatusFilter(q: unknown): string[] | undefined {
   if (!q) return;
   const raw = Array.isArray(q) ? q : String(q).split(',');
   const list = raw
-    .map(s => String(s).trim().toUpperCase())
-    .filter(s => ALLOWED.has(s));
+    .map((s) => String(s).trim().toUpperCase())
+    .filter((s) => ALLOWED.has(s));
   return list.length ? list : undefined;
 }
 
@@ -97,7 +99,7 @@ export async function getAllOrders(req: AuthenticatedRequest, res: Response) {
     if (!req.user || req.user.role !== 'VENDOR') {
       return res.status(403).json({ error: 'Forbidden' });
     }
-    const vendorId = new Types.ObjectId(req.user.userId);    
+    const vendorId = new Types.ObjectId(req.user.userId);
 
     const orderIds = await findOrderIdsForVendor(vendorId);
     if (orderIds.length === 0) return res.json([]);
@@ -128,7 +130,10 @@ export async function getAllOrders(req: AuthenticatedRequest, res: Response) {
 }
 
 // Get details of a single order, filtered to only this vendor’s items
-export async function getOrderDetails(req: AuthenticatedRequest, res: Response) {
+export async function getOrderDetails(
+  req: AuthenticatedRequest,
+  res: Response,
+) {
   try {
     if (!req.user || req.user.role !== 'VENDOR') {
       return res.status(403).json({ error: 'Forbidden' });
@@ -141,20 +146,20 @@ export async function getOrderDetails(req: AuthenticatedRequest, res: Response) 
     const vendorId = new Types.ObjectId(req.user.userId);
 
     // Ensure the order actually contains this vendor’s products
-    const relevantItemExists = await OrderItemModel.exists({ order: orderId }).then(
-      async (exists) => {
-        if (!exists) return false;
-        const items = await OrderItemModel.find({ order: orderId })
-          .select('product')
-          .populate({
-            path: 'product',
-            select: '_id vendor',
-            match: { vendor: vendorId },
-          })
-          .lean();
-        return items.some((it: any) => !!it.product);
-      },
-    );
+    const relevantItemExists = await OrderItemModel.exists({
+      order: orderId,
+    }).then(async (exists) => {
+      if (!exists) return false;
+      const items = await OrderItemModel.find({ order: orderId })
+        .select('product')
+        .populate({
+          path: 'product',
+          select: '_id vendor',
+          match: { vendor: vendorId },
+        })
+        .lean();
+      return items.some((it: any) => !!it.product);
+    });
     if (!relevantItemExists) {
       return res.status(404).json({ error: 'Order not found' });
     }
@@ -216,7 +221,9 @@ export async function getOrderDetails(req: AuthenticatedRequest, res: Response) 
       id: String(order._id),
       status: String(order.status ?? '').toUpperCase(),
       vendorDecision: String(order.vendorDecision ?? '').toUpperCase(),
-      orderDate: order.orderDate ? new Date(order.orderDate).toISOString() : null,
+      orderDate: order.orderDate
+        ? new Date(order.orderDate).toISOString()
+        : null,
       totalPrice,
       customerName: order.customer?.name ?? 'Unknown',
       customerAddress: order.customer?.address ?? 'Unknown',
@@ -225,13 +232,20 @@ export async function getOrderDetails(req: AuthenticatedRequest, res: Response) 
       vendorRejectReason: order.vendorRejectReason ?? null,
     });
   } catch (err) {
-    console.error('[vendor.getOrderDetails] ERROR:', (err as any)?.message, err);
+    console.error(
+      '[vendor.getOrderDetails] ERROR:',
+      (err as any)?.message,
+      err,
+    );
     return res.status(500).json({ error: 'Failed to load order' });
   }
 }
 
 // Helper: collect only this vendor’s items from an order
-async function collectVendorItems(orderId: Types.ObjectId, vendorId: Types.ObjectId) {
+async function collectVendorItems(
+  orderId: Types.ObjectId,
+  vendorId: Types.ObjectId,
+) {
   const items = await OrderItemModel.find({ order: orderId })
     .select('product quantity')
     .populate({
@@ -274,22 +288,32 @@ export async function updateStatus(req: AuthenticatedRequest, res: Response) {
     if (!current) return res.status(404).json({ error: 'Order not found' });
 
     if (isAccept) {
-      if ([OrderStatus.DELIVERED, OrderStatus.CANCELED].includes(current.status)) {
+      if (
+        [OrderStatus.DELIVERED, OrderStatus.CANCELED].includes(current.status)
+      ) {
         return res
           .status(409)
           .json({ error: `Order already ${current.status.toLowerCase()}` });
       }
       if (current.status === OrderStatus.ACTIVE) {
-        return res.json({ ok: true, status: OrderStatus.ACTIVE, cancelReason: null });
+        return res.json({
+          ok: true,
+          status: OrderStatus.ACTIVE,
+          cancelReason: null,
+        });
       }
       if (current.status !== OrderStatus.PENDING) {
-        return res.status(409).json({ error: `Cannot accept from ${current.status}` });
+        return res
+          .status(409)
+          .json({ error: `Cannot accept from ${current.status}` });
       }
 
       // Make sure vendor is actually part of this order
       const vendorItems = await collectVendorItems(orderId, vendorId);
       if (vendorItems.length === 0) {
-        return res.status(404).json({ error: 'Order not found for this vendor' });
+        return res
+          .status(404)
+          .json({ error: 'Order not found for this vendor' });
       }
 
       // Transaction: deduct stock and mark order ACTIVE
@@ -298,22 +322,35 @@ export async function updateStatus(req: AuthenticatedRequest, res: Response) {
         await session.withTransaction(async () => {
           for (const it of vendorItems) {
             const r = await ProductModel.updateOne(
-              { _id: it.productId, vendor: vendorId, availableStock: { $gte: it.qty } },
+              {
+                _id: it.productId,
+                vendor: vendorId,
+                availableStock: { $gte: it.qty },
+              },
               { $inc: { availableStock: -it.qty } },
               { session },
             );
             if (r.matchedCount === 0) {
-              throw new Error(`INSUFFICIENT:${it.productName || String(it.productId)}`);
+              throw new Error(
+                `INSUFFICIENT:${it.productName || String(it.productId)}`,
+              );
             }
           }
           await OrderModel.updateOne(
             { _id: orderId, status: OrderStatus.PENDING },
-            { $set: { status: OrderStatus.ACTIVE }, $unset: { cancelReason: '' } },
+            {
+              $set: { status: OrderStatus.ACTIVE },
+              $unset: { cancelReason: '' },
+            },
             { session },
           );
         });
 
-        return res.json({ ok: true, status: OrderStatus.ACTIVE, cancelReason: null });
+        return res.json({
+          ok: true,
+          status: OrderStatus.ACTIVE,
+          cancelReason: null,
+        });
       } catch (e: any) {
         if (e?.message?.startsWith('INSUFFICIENT:')) {
           const name = e.message.split('INSUFFICIENT:')[1] || 'an item';
@@ -330,7 +367,9 @@ export async function updateStatus(req: AuthenticatedRequest, res: Response) {
       }
     } else {
       if (current.status !== OrderStatus.PENDING) {
-        return res.status(409).json({ error: `Cannot reject from ${current.status}` });
+        return res
+          .status(409)
+          .json({ error: `Cannot reject from ${current.status}` });
       }
       if (!reason) {
         return res
@@ -339,10 +378,16 @@ export async function updateStatus(req: AuthenticatedRequest, res: Response) {
       }
       const updated = await OrderModel.findOneAndUpdate(
         { _id: orderId, status: OrderStatus.PENDING },
-        { $set: { status: OrderStatus.CANCELED, cancelReason: `Vendor Canceled: ${reason}` } },
+        {
+          $set: {
+            status: OrderStatus.CANCELED,
+            cancelReason: `Vendor Canceled: ${reason}`,
+          },
+        },
         { new: true },
       ).lean();
-      if (!updated) return res.status(409).json({ error: 'Could not update order' });
+      if (!updated)
+        return res.status(409).json({ error: 'Could not update order' });
 
       return res.json({
         ok: true,
@@ -546,20 +591,25 @@ export const getProduct = async (req: AuthenticatedRequest, res: Response) => {
   }
 };
 
-export const productInventoryDecrease = async (req: AuthenticatedRequest, res: Response) => {
+export const productInventoryDecrease = async (
+  req: AuthenticatedRequest,
+  res: Response,
+) => {
   try {
     const { productId } = req.params;
     const { amount } = req.body;
     const parsedAmount = Number(amount);
 
-    console.log(parsedAmount)
-    
+    console.log(parsedAmount);
+
     if (isNaN(parsedAmount)) {
       return res.status(400).json({ message: 'Invalid amount provided.' });
     }
 
     if (!productId || !amount) {
-      return res.status(400).json({ message: 'Product ID and amount are required.' });
+      return res
+        .status(400)
+        .json({ message: 'Product ID and amount are required.' });
     }
 
     const product = await getOneProduct(productId);

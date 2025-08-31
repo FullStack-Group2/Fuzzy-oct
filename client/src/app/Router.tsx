@@ -64,12 +64,11 @@ function InnerRoutes() {
         <Route element={<Layout />}>
           {/* Public routes */}
           <Route path="/privacy" element={<PrivacyPolicy />} />
+
           <Route
             path="/contact"
             element={
-              <PublicOnlyRoute>
                 <Contact />
-              </PublicOnlyRoute>
             }
           />
 

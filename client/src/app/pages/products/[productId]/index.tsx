@@ -34,7 +34,7 @@ export const ProductDetail: React.FC = () => {
     "categories": null, // missing
     "description": null,
     "vendor": null,
-    "salePercentage": 0 // missing
+    "sale": 0 
   })
   const [quantity, setQuantity] = useState(0);
   const [shop, setShop] = useState({
@@ -69,7 +69,7 @@ export const ProductDetail: React.FC = () => {
                 <h4 className="text-gray-800 text-2xl  font-bold">{item.price} vnd</h4>
 
                 {/* Sale */}
-                {item.salePercentage != 0 && < p className="text-gray-500 text-md"><s>{item.price * (1 - item.salePercentage)} vnd</s> <span className="text-sm ml-1.5">Tax included</span></p>}
+                {item.sale != 0 && < p className="text-gray-500 text-md"><s>{item.price * (1 - item.sale)} vnd</s> <span className="text-sm ml-1.5">Tax included</span></p>}
               </div>
             </div>
 

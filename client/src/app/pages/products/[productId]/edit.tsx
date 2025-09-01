@@ -15,6 +15,7 @@ export const EditProduct: React.FC = () => {
     price: product?.price || '',
     availableStock: product?.availableStock || '',
     imageUrl: product?.imageUrl || '',
+    sale: product?.sale,
   });
 
   const [errors, setErrors] = useState({
@@ -22,6 +23,7 @@ export const EditProduct: React.FC = () => {
     description: '',
     price: '',
     availableStock: '',
+    sale: '',
   });
 
   const handleInputChange = (
@@ -46,6 +48,7 @@ export const EditProduct: React.FC = () => {
       price: product?.price || '',
       availableStock: product?.availableStock || '',
       imageUrl: product?.imageUrl || '',
+      sale: product?.sale || '',
     });
   };
 
@@ -63,6 +66,7 @@ export const EditProduct: React.FC = () => {
       description: '',
       price: '',
       availableStock: '',
+      sale: '',
     };
 
     let isValid = true;
@@ -132,6 +136,7 @@ export const EditProduct: React.FC = () => {
             price: String(updated.price ?? formData.price),
             availableStock: String(updated.availableStock ?? formData.availableStock),
             imageUrl: updated.imageUrl ?? formData.imageUrl,
+            sale: updated.sale ?? formData.sale,
           });
 
           navigate('.', { replace: true, state: { product: updated } });
@@ -274,21 +279,33 @@ export const EditProduct: React.FC = () => {
           />
           {errors.availableStock && <p className="text-red-500 text-sm mt-1">{errors.availableStock}</p>}
         </div>
+
+        {/* Sale Field */}
+        <label className="block text-gray-700 mb-2">Sale percentage</label>
+        <input
+          type="text"
+          name="sale"
+          value={formData.sale}
+          onChange={handleInputChange}
+          className={`w-full border rounded-lg p-2 ${errors.sale ? 'border-red-500' : 'border-gray-300'}`}
+        />
+        {errors.sale && <p className="text-red-500 text-sm mt-1">{errors.sale}</p>}
+
         <div className="col-span-1 md:col-span-2 justify-end text-right mt-4 mb-2">
-            <button
-              type="button"
-              onClick={handleReset}
-              className="bg-black text-white rounded-lg px-4 py-2 mr-2"
-            >
-              Reset
-            </button>
-            <button
-              type="button"
-              onClick={handleApplyEdit}
-              className="bg-green-700 text-white rounded-lg px-4 py-2"
-            >
-              Apply edit
-            </button>
+          <button
+            type="button"
+            onClick={handleReset}
+            className="bg-black text-white rounded-lg px-4 py-2 mr-2"
+          >
+            Reset
+          </button>
+          <button
+            type="button"
+            onClick={handleApplyEdit}
+            className="bg-green-700 text-white rounded-lg px-4 py-2"
+          >
+            Apply edit
+          </button>
         </div>
       </form>
     </div>

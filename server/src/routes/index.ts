@@ -3,8 +3,6 @@ import { Router } from 'express';
 // Keep import names consistent (all lowerCamelCase)
 import authRoutes from './authRoutes';
 import uploadRoutes from './uploadRoutes';
-import vendorRoutes from './vendorRoutes';
-import customerRoutes from './customerRoutes';
 import shipperRoutes from './shipperRoutes';
 
 // Hubs: file name diverged across branches
@@ -13,6 +11,9 @@ import shipperRoutes from './shipperRoutes';
 // Prefer the shorter 'hubRoutes' module; if your project actually exports from
 // 'distributionHubRoutes', you can re-export from 'hubRoutes.ts' to keep this import stable.
 import hubRoutes from './hubRoutes';
+import customerRoutes from './customerRoutes';
+import vendorRoutes from './vendorRoutes';
+import aiRoutes from './aiRoutes';
 
 const router = Router();
 
@@ -25,6 +26,7 @@ router.use('/vendors', vendorRoutes);
 router.use('/customers', customerRoutes);
 router.use('/shippers', shipperRoutes);
 router.use('/hubs', hubRoutes);
+router.use('/ai', aiRoutes);
 router.use('/distributionHub', hubRoutes); // legacy
 router.use('/products', vendorRoutes); // legacy: product endpoints lived under vendor
 

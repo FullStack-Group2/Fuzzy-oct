@@ -22,14 +22,8 @@ function calculateTotal(products: any[]): number {
   }, 0);
 }
 
-
 export default function Cart() {
-  const {
-    cart,
-    loading,
-    error,
-    createOrder,
-  } = useShopCart();
+  const { cart, loading, error, createOrder } = useShopCart();
 
   const [isOpen, setIsOpen] = useState(false);
 
@@ -74,10 +68,7 @@ export default function Cart() {
 
         <main className="h-[calc(100%-140px)] py-10 overflow-y-auto flex flex-col gap-5">
           {cart.map((item, index) => (
-            <CartItem
-              key={index}
-              dataItem={item}
-            />
+            <CartItem key={index} dataItem={item} />
           ))}
         </main>
 

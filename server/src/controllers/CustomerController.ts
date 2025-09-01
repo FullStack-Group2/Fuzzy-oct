@@ -415,7 +415,6 @@ export const updateCartItem = async (
     res.status(500).json({ message: 'Failed to update cart item' });
   }
 };
-
 // Create order from cart items
 export const createOrder = async (req: AuthenticatedRequest, res: Response) => {
   try {

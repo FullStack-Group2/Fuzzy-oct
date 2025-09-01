@@ -18,10 +18,10 @@ const Shop = () => {
           Shop page
         </div>
       </header>
-        
+
       <section className="w-[90vw] mx-auto mb-5 flex flex-col lg:flex-row lg:justify-between gap-5">
-        <FilterBar/>
-        <div className='w-full lg:w-[73%]'>
+        <FilterBar />
+        <div className="w-full lg:w-[73%]">
           <ShopPage index={pageIndex} />
 
           <ShopPagination pageIndex={pageIndex} setPageIndex={setPageIndex} />

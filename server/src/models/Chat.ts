@@ -13,4 +13,4 @@ const ChatSchema = new Schema<IChatSchema>({
   message: { type: String, required: true },
   createdAt: { type: Date, default: Date.now },
 });
-export const ChatModel = model<IChatSchema>('Product', ChatSchema);
+export const ChatModel = model<IChatSchema>('Chat', ChatSchema);

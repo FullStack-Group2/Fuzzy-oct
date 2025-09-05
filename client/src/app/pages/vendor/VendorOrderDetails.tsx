@@ -103,7 +103,7 @@ export default function VendorOrderDetail() {
             {accepting ? "Accepting…" : "Accept"}
           </button>
           <Link
-            to={`/vendor/orders/${order.id}/reject`}
+            to={`/vendors/orders/${order.id}/reject`}
             state={{ backgroundLocation: (location.state as any)?.backgroundLocation || location, orderIndex }}
             className="inline-flex items-center w-full sm:w-32 justify-center rounded-md bg-red-600 px-4 py-2 text-white hover:bg-red-700"
           >

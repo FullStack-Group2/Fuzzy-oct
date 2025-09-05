@@ -29,7 +29,7 @@ export default function ShipperCancelOrder() {
 
   function goDetails() {
     if (!orderId) return goClose(false);
-    goTo(`/shipper/orders/${orderId}`, { backgroundLocation, orderIndex });
+    goTo(`/shippers/orders/${orderId}`, { backgroundLocation, orderIndex });
   }
 
   async function onSubmit(e: FormEvent) {

@@ -54,7 +54,7 @@ export default function ShipperOrderDetail() {
     return (
       <main className="p-6">
         <div className="mb-4">
-          <Link to="/shipper/orders" className="underline">←</Link>
+          <Link to="/shippers/orders" className="underline">←</Link>
         </div>
         <p className="text-sm text-red-600">Order not found.</p>
       </main>
@@ -81,7 +81,7 @@ export default function ShipperOrderDetail() {
           {updating === "deliver" ? "Delivering…" : "Deliver"}
         </button>
         <Link
-          to={`/shipper/orders/${order.id}/cancel`}
+          to={`/shippers/orders/${order.id}/cancel`}
           state={{ backgroundLocation: (location.state as any)?.backgroundLocation || location, orderIndex }}
           className="inline-flex items-center w-full sm:w-32 justify-center rounded-md bg-red-600 px-4 py-2 text-white hover:bg-red-700"
         >

@@ -45,7 +45,7 @@ export function ShipperOrdersTable({
               </td>
               <td className="px-2 py-2 md:px-4 md:py-3">
                 <Link
-                  to={`/shipper/orders/${o.id}`}
+                  to={`/shippers/orders/${o.id}`}
                   state={{ backgroundLocation: location, orderIndex: idx + 1 }}
                   className="inline-flex items-center rounded-md bg-black text-white px-2.5 py-1 text-xs md:px-3 md:py-1.5 md:text-sm hover:bg-black/85 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2"
                 >

@@ -31,7 +31,7 @@ export default function VendorRejectOrder() {
   function goDetails() {
     if (!orderId) return goClose(false);
     const state = { backgroundLocation, orderIndex };
-    goTo(`/vendor/orders/${orderId}`, state);
+    goTo(`/vendors/orders/${orderId}`, state);
   }
 
   async function onSubmit(e: FormEvent) {

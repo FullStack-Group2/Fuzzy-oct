@@ -1,14 +1,14 @@
 import Slider from '@/components/ui/slider';
 import React from 'react';
 
-interface PriceSliderProps {
+interface FilterByPriceSliderProps {
   value: Array<number>;
   setValue: any;
   step: number;
   max: number;
 }
 
-const PriceSlider: React.FC<PriceSliderProps> = ({
+const FilterByPriceSlider: React.FC<FilterByPriceSliderProps> = ({
   value,
   setValue,
   step,
@@ -17,7 +17,7 @@ const PriceSlider: React.FC<PriceSliderProps> = ({
   const [from, to] = value;
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="w-full flex flex-col gap-3">
       <h1 className="text-xl font-semibold">Filter by price</h1>
       <Slider
         value={value}
@@ -33,4 +33,4 @@ const PriceSlider: React.FC<PriceSliderProps> = ({
     </div>
   );
 };
-export default PriceSlider;
+export default FilterByPriceSlider;

@@ -29,7 +29,12 @@ export const getVendorById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ error: "Invalid vendor ID" });
+    }
+    console.log(`check id: ${id}`);
     const vendor = await VendorModel.findById(id).select('-password');
+    console.log(`check vendor: ${JSON.stringify(vendor)}`)
     if (!vendor) {
       return res.status(404).json({ message: 'Vendor not found.' });
     }

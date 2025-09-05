@@ -8,37 +8,39 @@ import {
   PaginationPrevious,
 } from '@/components/ui/pagination';
 
+import { useUpdateSearchParam } from '../hooks/useUpdateSearchParam';
 import { useShopProducts } from '../stores/ShopProductDataContext';
+import { Skeleton } from '@/components/ui/skeleton';
 
+const ShopPagination: React.FC = () => {
+  const { data, loading, error } = useShopProducts();
 
-type ShopPaginationProps = {
-  pageIndex: number;
-  setPageIndex: React.Dispatch<React.SetStateAction<number>>;
-};
-
-
-const ShopPagination: React.FC<ShopPaginationProps> = ({
-  pageIndex,
-  setPageIndex,
-}) => {
-  const { products, loading, error } = useShopProducts();
-  
-  if (loading) return <p>is Loading...</p>;
-  if (error) return <p>{error}</p>;
-
-  const MAX_PAGE = Math.ceil(products.length / 9);
+  if (loading)
+    return (
+      <Pagination>
+        <div className='flex gap-2'>
+          <Skeleton className="w-16 h-7" />
+          <Skeleton className="w-7 h-7" />
+          <Skeleton className="w-7 h-7" />
+          <Skeleton className="w-7 h-7" />
+          <Skeleton className="w-16 h-7" />
+        </div>
+      </Pagination>
+    );
+  if (error) return <></>;
+  const updateSearchParam = useUpdateSearchParam();
 
   // calculate the window of pages to show (3 pages)
-  let start = Math.max(1, pageIndex - 1);
-  let end = Math.min(MAX_PAGE, pageIndex + 1);
+  let start = Math.max(1, data.pageIndex - 1);
+  let end = Math.min(data.totalPages, data.pageIndex + 1);
 
   // adjust if near the start
-  if (pageIndex === 1) {
-    end = Math.min(MAX_PAGE, 3);
+  if (data.pageIndex === 1) {
+    end = Math.min(data.totalPages, 3);
   }
   // adjust if near the end
-  if (pageIndex === MAX_PAGE) {
-    start = Math.max(1, MAX_PAGE - 2);
+  if (data.pageIndex === data.totalPages) {
+    start = Math.max(1, data.totalPages - 2);
   }
 
   const pages = [];
@@ -53,9 +55,10 @@ const ShopPagination: React.FC<ShopPaginationProps> = ({
         <PaginationItem>
           <PaginationPrevious
             href="#"
-            onClick={(e:any) => {
+            onClick={(e: any) => {
               e.preventDefault();
-              if (pageIndex > 1) setPageIndex(pageIndex - 1);
+              if (data.pageIndex > 1)
+                updateSearchParam({ page: String(data.pageIndex - 1) });
             }}
           />
         </PaginationItem>
@@ -66,10 +69,10 @@ const ShopPagination: React.FC<ShopPaginationProps> = ({
             <PaginationItem>
               <PaginationLink
                 href="#"
-                isActive={pageIndex === 1}
-                onClick={(e:any) => {
+                isActive={data.pageIndex === 1}
+                onClick={(e: any) => {
                   e.preventDefault();
-                  setPageIndex(1);
+                  updateSearchParam({ page: String(1) });
                 }}
               >
                 1
@@ -84,10 +87,10 @@ const ShopPagination: React.FC<ShopPaginationProps> = ({
           <PaginationItem key={page}>
             <PaginationLink
               href="#"
-              isActive={pageIndex === page}
-              onClick={(e:any) => {
+              isActive={data.pageIndex === page}
+              onClick={(e: any) => {
                 e.preventDefault();
-                setPageIndex(page);
+                updateSearchParam({ page: String(page) });
               }}
             >
               {page}
@@ -96,19 +99,19 @@ const ShopPagination: React.FC<ShopPaginationProps> = ({
         ))}
 
         {/* Last page + ellipsis if needed */}
-        {end < MAX_PAGE && (
+        {end < data.totalPages && (
           <>
-            {end < MAX_PAGE - 1 && <PaginationEllipsis />}
+            {end < data.totalPages - 1 && <PaginationEllipsis />}
             <PaginationItem>
               <PaginationLink
                 href="#"
-                isActive={pageIndex === MAX_PAGE}
-                onClick={(e:any) => {
+                isActive={data.pageIndex === data.totalPages}
+                onClick={(e: any) => {
                   e.preventDefault();
-                  setPageIndex(MAX_PAGE);
+                  updateSearchParam({ page: String(data.totalPages) });
                 }}
               >
-                {MAX_PAGE}
+                {data.totalPages}
               </PaginationLink>
             </PaginationItem>
           </>
@@ -118,9 +121,10 @@ const ShopPagination: React.FC<ShopPaginationProps> = ({
         <PaginationItem>
           <PaginationNext
             href="#"
-            onClick={(e:any) => {
+            onClick={(e: any) => {
               e.preventDefault();
-              if (pageIndex < MAX_PAGE) setPageIndex(pageIndex + 1);
+              if (data.pageIndex < data.totalPages)
+                updateSearchParam({ page: String(data.pageIndex + 1) });
             }}
           />
         </PaginationItem>

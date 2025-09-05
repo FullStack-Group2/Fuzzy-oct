@@ -6,18 +6,19 @@ import { requireCustomer } from '../middleware/roleMiddleware';
 
 const router = Router();
 
-// Product browsing
+//Product
 router.get(
   '/products',
   authMiddleware,
   requireCustomer,
   customerController.getAllProducts,
 );
+
 router.get(
-  '/stores/:storeId',
+  '/products/:productId',
   authMiddleware,
   requireCustomer,
-  customerController.getProductByStore,
+  customerController.getProduct,
 );
 
 // Cart

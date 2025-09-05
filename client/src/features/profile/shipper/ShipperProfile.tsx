@@ -2,6 +2,7 @@ import { Button } from '@/components/ui/button';
 import React, { useState, useCallback, useEffect } from 'react';
 import { ChangePassword } from '@/features/auth/sign-up/ChangePassword';
 import { useAuth } from '../../../stores/AuthProvider';
+import toast from 'react-hot-toast';
 
 interface ShipperData {
   id: string;
@@ -37,7 +38,7 @@ export const ShipperProfile: React.FC = () => {
     try {
       const token = localStorage.getItem('token');
       if (!token) {
-        alert('Authentication required. Please log in again.');
+        toast.error('Authentication required. Please log in again.');
         logout();
         return;
       }
@@ -57,12 +58,12 @@ export const ShipperProfile: React.FC = () => {
         setShipper(data.shipper);
       } else {
         console.error('Failed to fetch shipper');
-        alert('Shipper not found or failed to load');
+        toast.error('Shipper not found or failed to load');
         setShipper(null);
       }
     } catch (error) {
       console.error('Error fetching shipper:', error);
-      alert('Error fetching shipper data');
+      toast.error('Error fetching shipper data');
       setShipper(null);
     } finally {
       setLoading(false);
@@ -82,7 +83,7 @@ export const ShipperProfile: React.FC = () => {
       );
 
       if (!token) {
-        alert('Authentication required. Please log in again.');
+        toast.error('Authentication required. Please log in again.');
         logout();
         return;
       }
@@ -110,15 +111,15 @@ export const ShipperProfile: React.FC = () => {
         console.log('Update successful:', data);
         setShipper(data.shipper);
         setIsEditing(false);
-        alert('Profile updated successfully!');
+        toast.success('Profile updated successfully!');
       } else {
         const errorData = await response.json();
         console.error('Update failed:', errorData);
-        alert(errorData.message || 'Failed to update profile');
+        toast.error(errorData.message || 'Failed to update profile');
       }
     } catch (error) {
       console.error('Error updating shipper:', error);
-      alert('Error updating profile');
+      toast.error('Error updating profile');
     } finally {
       setUpdating(false);
     }
@@ -328,7 +329,7 @@ export const ShipperProfile: React.FC = () => {
             <ChangePassword
               onPasswordChanged={() => {
                 setShowChangePassword(false);
-                alert('Password changed successfully!');
+                toast.success('Password changed successfully!');
               }}
               onCancel={() => setShowChangePassword(false)}
             />

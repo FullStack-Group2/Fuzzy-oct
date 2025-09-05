@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ImageIcon } from '@radix-ui/react-icons';
+import toast from 'react-hot-toast';
 
 export enum ProductCategory {
   SOFAS = 'SOFAS',
@@ -127,7 +128,7 @@ export const AddProduct: React.FC = () => {
         } else {
           const errorData = await imageResponse.json();
           console.error('Error uploading image:', errorData);
-          alert('Failed to upload image');
+          toast.error('Failed to upload image');
           return;
         }
       }
@@ -156,7 +157,7 @@ export const AddProduct: React.FC = () => {
       );
 
       if (productResponse.ok) {
-        alert('Product added successfully');
+        toast.success('Product added successfully');
         setFormData({
           name: '',
           description: '',
@@ -169,11 +170,11 @@ export const AddProduct: React.FC = () => {
       } else {
         const errorData = await productResponse.json();
         console.error('Error adding product:', errorData); // Log backend response
-        alert(`Failed to add product: ${errorData.message}`);
+        toast.error(`Failed to add product: ${errorData.message}`);
       }
     } catch (error) {
       console.error('Error adding product:', error);
-      alert('Error adding product');
+      toast.error('Error adding product');
     }
   };
 

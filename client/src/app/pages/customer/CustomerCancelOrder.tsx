@@ -27,7 +27,7 @@ export default function CustomerCancelOrder() {
 
   function goDetails() {
     if (!orderId) return goClose(false);
-    goTo(`/customer/orders/${orderId}`, { backgroundLocation, orderIndex });
+    goTo(`/customers/orders/${orderId}`, { backgroundLocation, orderIndex });
   }
 
   async function onSubmit(e: FormEvent) {

@@ -17,7 +17,9 @@ const userSchema = new Schema<IUser>(
     role: { type: String, enum: Object.values(UserRole), required: true },
     profilePicture: { type: String, required: false },
   },
-  { timestamps: true },
+  { timestamps: true, 
+    discriminatorKey: 'role' //fix cannot discriminate role --> will using default __t if not have this
+  },
 );
 
 export const UserModel = model<IUser>('User', userSchema);

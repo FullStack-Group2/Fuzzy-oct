@@ -6,18 +6,20 @@ import OrderItemModel from '../models/OrderItem';
 import { ProductModel } from '../models/Product';
 import { UserModel } from '../models/User';
 import { CustomerModel } from '../models/Customer';
+import { VendorModel } from '../models/Vendor';
+import { ProductCategory } from '../models/ProductCategory';
 
 import { AuthenticatedRequest } from '../middleware/authMiddleware';
 import { UserServices } from '../services/UserServices';
 
 import {
+  getProducts,
+  getOneProduct,
   addItemToCart,
   createOrderFromItem,
   deleteItemByProduct,
   getCustomerCart,
   getCustomerCartByObjectId,
-  getCustomerProducts,
-  getStoreProducts,
   modifyItemCart,
 } from '../services/CustomerServices';
 
@@ -390,6 +392,9 @@ export const updateCartItem = async (
     const { itemId, quantity } = req.body;
     const { userId } = req.user!;
 
+    // console.log(
+    //   `check data in updateCart Item:\n userId:${userId} \nitemId: ${itemId},\n quantity: ${quantity}`,
+    // );
     if (quantity <= 0) {
       return res
         .status(400)
@@ -398,7 +403,7 @@ export const updateCartItem = async (
 
     const updatedItem = await modifyItemCart({
       customerId: userId,
-      cartId: itemId,
+      itemId: itemId,
       quantity,
     });
 
@@ -539,35 +544,131 @@ export const updateCustomer = async (req: Request, res: Response) => {
   }
 };
 
-// Product browsing
-export const getAllProducts = async (
-  req: AuthenticatedRequest,
-  res: Response,
-) => {
+// -----------------------------
+// Product
+// -----------------------------
+
+const toNumOrNull = (v: unknown): number | null => {
+  if (v === undefined || v === null || v === '') return null;
+  const n = Number(v);
+  return Number.isFinite(n) ? n : null;
+};
+
+const nonNegative = (n: number | null) => (n !== null && n >= 0 ? n : null);
+
+const validCategory = (v: unknown): v is ProductCategory =>
+  typeof v === 'string' &&
+  (Object.values(ProductCategory) as string[]).includes(v);
+
+export const getAllProducts = async (req: Request, res: Response) => {
+  const PAGE_SIZE = 4;
   try {
-    const products = await getCustomerProducts();
-    res.status(200).json({ products });
+    // console.log(`check request: ${JSON.stringify(req.query)}`);
+    // ----- read raw query -----
+    const rawVendor = (req.query.vendor as string | undefined) ?? null;
+    const rawMin = toNumOrNull(req.query.minPrice);
+    const rawMax = toNumOrNull(req.query.maxPrice);
+    const rawCategory = (req.query.category as string | undefined) ?? null;
+    const rawKeyword =
+      (req.query.keyword as string | undefined)?.trim() ?? null;
+    const rawPage = toNumOrNull(req.query.page);
+    const rawOrder = (req.query.order as string | undefined)?.toLowerCase(); // 'asc' | 'desc'
+
+    // ----- validate numbers -----
+    const minPrice = nonNegative(rawMin);
+    const maxPrice = nonNegative(rawMax);
+
+    // Reject if both present and min > max
+    if (minPrice !== null && maxPrice !== null && minPrice > maxPrice) {
+      return res
+        .status(400)
+        .json({ error: 'minPrice is larger than maxPrice' });
+    }
+
+    // vendor must be non-empty string
+    const vendor = rawVendor && rawVendor.trim().length > 0 ? rawVendor : null;
+
+    // page must be >= 1 (default 1)
+    const page = rawPage && rawPage >= 1 ? rawPage : 1;
+
+    // category must be from enum (else ignore)
+    const category =
+      rawCategory && validCategory(rawCategory) ? rawCategory : null;
+
+    // keyword empty => ignore
+    const keyword = rawKeyword && rawKeyword.length > 0 ? rawKeyword : null;
+
+    // order must be 'asc' or 'desc' (else no sorting)
+    const priceOrder =
+      rawOrder === 'asc' || rawOrder === 'desc'
+        ? (rawOrder as 'asc' | 'desc')
+        : null;
+
+    // console.log(`check request query after validated: \n minPrice: ${minPrice}\n maxPrice: ${maxPrice}\n category: ${category} \n keyword: ${keyword} \n page: ${page}\n pageSize ${PAGE_SIZE} priceOrder: ${priceOrder}`)
+    // ----- call service -----
+    const result = await getProducts(
+      { minPrice, maxPrice, category, keyword, vendor },
+      { page, pageSize: PAGE_SIZE },
+      { priceOrder },
+    );
+
+    return res.status(200).json(result);
   } catch (error) {
     console.error('Error fetching products:', error);
-    res.status(500).json({
+    return res.status(500).json({
       message: 'Failed to fetch products.',
       error: error instanceof Error ? error.message : 'Unknown error',
     });
   }
 };
 
-export const getProductByStore = async (
-  req: AuthenticatedRequest,
-  res: Response,
-) => {
+export const getProduct = async (req: Request, res: Response) => {
   try {
-    const { storeId } = req.params;
-    const products = await getStoreProducts(storeId);
-    res.status(200).json({ products });
+    const { productId } = req.params;
+    const data = await getOneProduct(productId);
+    if (!data) {
+      return res
+        .status(404)
+        .json({ message: 'product or vendor information not found.' });
+    }
+    res.status(200).json({
+      message: 'fetched successfully',
+      product: data.product,
+      vendor: data.vendor,
+    });
   } catch (error) {
-    console.error('Error fetching products:', error);
+    console.error('Error fetching:', error);
     res.status(500).json({
-      message: 'Failed to fetch products.',
+      message: 'Failed to fetch.',
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
+};
+
+export const getVendorById = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    const vendor = await VendorModel.findById(id).select('-password');
+    if (!vendor) {
+      return res.status(404).json({ message: 'Vendor not found.' });
+    }
+
+    res.status(200).json({
+      vendor: {
+        id: vendor._id,
+        username: vendor.username,
+        email: vendor.email,
+        role: vendor.role,
+        businessName: vendor.businessName,
+        businessAddress: vendor.businessAddress,
+        profilePicture: vendor.profilePicture,
+      },
+    });
+  } catch (error) {
+    console.error('Error fetching vendor:', error);
+    res.status(500).json({
+      message: 'Failed to fetch vendor.',
       error: error instanceof Error ? error.message : 'Unknown error',
     });
   }

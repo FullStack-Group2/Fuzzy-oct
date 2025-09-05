@@ -1,9 +1,10 @@
 import { Link } from 'react-router-dom';
 import { RiArrowUpDoubleLine } from 'react-icons/ri';
+import { useAuth } from '@/stores/AuthProvider';
 
 export default function Footer() {
   return (
-    <footer className="w-screen bg-[#1E7A5A] text-white px-6 md:px-12 lg:px-20 py-12">
+    <footer className="w-full bg-[#1E7A5A] text-white px-6 md:px-12 lg:px-20 py-12">
       <div className="w-full">
         {/* Top Section */}
         <div className="flex items-center  flex-col md:flex-row md:justify-between md:items-start space-y-10 md:space-y-0">
@@ -36,6 +37,7 @@ export default function Footer() {
 }
 
 function LinkItems() {
+  const { user } = useAuth();
   return (
     <div className="grid  gap-x-12 gap-y-4 text-sm justify-items-center grid-cols-1 md:grid-cols-2">
       <Link to="/" className="hover:underline">
@@ -53,9 +55,15 @@ function LinkItems() {
       <Link to="/contact" className="hover:underline">
         Contact
       </Link>
-      <Link to="/auth/login" className="hover:underline">
-        Login
-      </Link>
+      {!user ? (
+        <Link to="/auth/login" className="hover:underline">
+          Login
+        </Link>
+      ) : (
+        <Link to="/auth/logout" className="hover:underline">
+          Logout
+        </Link>
+      )}
       <div className="md:hidden">
         <BackToTopButton />
       </div>

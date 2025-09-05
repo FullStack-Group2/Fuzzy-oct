@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ProductCategory } from '../add'; // Import ProductCategory enum
+import toast from 'react-hot-toast';
 
 export const EditProduct: React.FC = () => {
   const location = useLocation();
@@ -120,7 +121,7 @@ export const EditProduct: React.FC = () => {
       );
 
       if (response.ok) {
-        alert('Product updated successfully');
+        toast.success('Product updated successfully');
         const data = await response.json().catch(() => null);
         const updated = data?.product;
 
@@ -137,11 +138,11 @@ export const EditProduct: React.FC = () => {
           navigate('.', { replace: true, state: { product: updated } });
         }
       } else {
-        alert('Failed to update product');
+        toast.error('Failed to update product');
       }
     } catch (error) {
       console.error('Error updating product:', error);
-      alert('Error updating product');
+      toast.error('Error updating product');
     }
   };
 

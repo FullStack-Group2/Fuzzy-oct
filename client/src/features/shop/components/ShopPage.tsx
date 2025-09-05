@@ -1,29 +1,35 @@
+import { useEffect } from 'react';
+import toast from 'react-hot-toast';
+
 import ShopCardItem from './ShopCardItem';
 import { useShopProducts } from '../stores/ShopProductDataContext';
+import { Skeleton } from '@/components/ui/skeleton';
 
-type ShopPageProps = {
-  index: number; // current page index (1-based: 1, 2, 3, ...)
-};
+const ShopPage: React.FC = () => {
+  const 
+  { data, loading, error } = useShopProducts();
+  useEffect(() => {
+    if (error) {
+      toast.error(error);
+    }
+  }, [error]);
 
-const ShopPage: React.FC<ShopPageProps> = ({ index }) => {
-  const { products, loading, error } = useShopProducts();
-
-  const ITEMS_PER_PAGE = 9;
-
-  // calculate start + end indexes
-  const start = (index - 1) * ITEMS_PER_PAGE;
-  const end = start + ITEMS_PER_PAGE;
-
-  // slice products for this page
-  const currentProducts = products.slice(start, end);
-
-  if (loading) return <p>is Loading...</p>;
-  if (error) return <p>{error}</p>;
-  if (currentProducts.length === 0) return <p>No products found on this page.</p>;
+  if (loading)
+    return (
+      <body className="w-full h-auto grid grid-cols-1 gap-14 md:grid-cols-2 lg:grid-cols-3 my-10">
+        <Skeleton className="w-full aspect-[17/25]" />
+        <Skeleton className="w-full aspect-[17/25]" />
+        <Skeleton className="w-full aspect-[17/25]" />
+        <Skeleton className="w-full aspect-[17/25]" />
+        <Skeleton className="w-full aspect-[17/25]" />
+        <Skeleton className="w-full aspect-[17/25]" />
+      </body>
+    );
+  if (error) return <></>;
 
   return (
-    <div className="w-full h-auto grid grid-cols-1 gap-14 md:grid-cols-2 lg:grid-cols-3">
-      {currentProducts.map((product) => (
+    <body className="w-full h-auto grid grid-cols-1 gap-14 md:grid-cols-2 lg:grid-cols-3 my-10">
+      {data.products.map((product: any) => (
         <ShopCardItem
           key={product._id}
           id={product._id}
@@ -32,7 +38,7 @@ const ShopPage: React.FC<ShopPageProps> = ({ index }) => {
           itemPrice={product.price}
         />
       ))}
-    </div>
+    </body>
   );
 };
 

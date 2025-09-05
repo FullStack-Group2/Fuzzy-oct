@@ -2,6 +2,7 @@ import { Button } from '@/components/ui/button';
 import React, { useState } from 'react';
 import { useAuth } from '../../../stores/AuthProvider';
 import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 
 interface LogoutProps {
   onLogoutSuccess?: () => void;
@@ -22,10 +23,10 @@ export const Logout: React.FC<LogoutProps> = ({ onLogoutSuccess }) => {
       console.log('Logout successful');
       onLogoutSuccess?.();
       navigate('/auth/login');
-      alert('Logged out successfully!');
+      toast.success('Logged out successfully!');
     } catch (error) {
       console.error('Error during logout:', error);
-      alert('Network error during logout.');
+      toast.error('Network error during logout.');
     } finally {
       setLoading(false);
     }

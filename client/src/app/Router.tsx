@@ -40,6 +40,7 @@ import CustomerOrderDetails from './pages/customer/CustomerOrderDetails';
 
 import Modal from '@/components/Modal';
 import { useAuth } from '../stores/AuthProvider';
+import ChatPanel from './pages/ChatPanel';
 
 // Wrapper for Logout if it needs user from context
 const LogoutWrapper = () => {
@@ -68,7 +69,7 @@ function InnerRoutes() {
           <Route
             path="/contact"
             element={
-                <Contact />
+              <Contact />
             }
           />
 
@@ -183,6 +184,13 @@ function InnerRoutes() {
           />
 
           {/* VENDOR */}
+          <Route path="/chat"
+            element={
+              <ProtectedRoute allowedRoles={['VENDOR']}>
+                <ChatPanel />
+              </ProtectedRoute>
+
+            } />
           <Route
             path="/products"
             element={

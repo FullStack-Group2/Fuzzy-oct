@@ -327,7 +327,7 @@ export async function updateStatus(req: AuthenticatedRequest, res: Response) {
                 vendor: vendorId,
                 availableStock: { $gte: it.qty },
               },
-              { $inc: { availableStock: -it.qty } },
+              // { $inc: { availableStock: -it.qty } },
               { session },
             );
             if (r.matchedCount === 0) {

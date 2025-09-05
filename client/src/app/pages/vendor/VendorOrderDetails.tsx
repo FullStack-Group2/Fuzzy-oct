@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { apiVendorAcceptOrder, apiVendorGetOrderDetail } from "@/api/VendorAPI";
 import type { VendorOrderDetailDTO } from "@/models/VendorDTO";
-import OrderStatusBar from "@/components/OrderStatusBar"; // keep your existing component
+import OrderStatusBar from "@/components/OrderStatusBar";
 import {
   NoticeAlert,
   OrderDetailHeader,

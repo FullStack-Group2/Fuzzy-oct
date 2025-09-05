@@ -47,7 +47,7 @@ export default function OrderStatusBar({ status, className = "" }: Props) {
               key={step.key}
               className="flex flex-col items-center text-center"
             >
-              {/* Circle node (put your icon inside later) */}
+              {/* Circle node (put icon inside later) */}
               <div
                 className={`flex h-8 w-8 items-center justify-center rounded-full ring-2 ${circleClasses}`}
               >

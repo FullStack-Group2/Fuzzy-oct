@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import Toc, { TocItem } from "../../components/TableOfContent";
 
-// Tiny utility (or use your own)
 const cls = (...s: (string | false | null | undefined)[]) => s.filter(Boolean).join(" ");
 
 type Section = {
@@ -11,7 +10,6 @@ type Section = {
 };
 
 export default function PrivacyPolicy() {
-    // ----- content model (easy to edit/reorder) -----
     const sections: Section[] = useMemo(
         () => [
             {
@@ -144,7 +142,7 @@ export default function PrivacyPolicy() {
         [sections]
     );
 
-    // ----- scroll spy -----
+    // Scroll spy
     const [active, setActive] = useState<string | null>(sections[0].id);
     useEffect(() => {
         const obs = new IntersectionObserver(

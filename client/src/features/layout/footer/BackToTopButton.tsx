@@ -1,3 +1,10 @@
+// RMIT University Vietnam
+// Course: COSC2769 - Full Stack Development
+// Semester: 2025B
+// Assessment: Assignment 02
+// Author: 
+// ID: 
+
 import { RiArrowUpDoubleLine } from 'react-icons/ri';
 
 export default function BackToTopButton() {

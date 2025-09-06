@@ -1,3 +1,10 @@
+// RMIT University Vietnam
+// Course: COSC2769 - Full Stack Development
+// Semester: 2025B
+// Assessment: Assignment 02
+// Author: 
+// ID: 
+
 import mongoose from 'mongoose';
 import CartItem, { ICartItem } from '../models/CartItem';
 import { OrderStatus } from '../models/OrderStatus';

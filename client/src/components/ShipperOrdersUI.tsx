@@ -1,4 +1,10 @@
-// src/components/ShipperOrdersUI.tsx
+// RMIT University Vietnam
+// Course: COSC2769 - Full Stack Development
+// Semester: 2025B
+// Assessment: Assignment 02
+// Author: Truong Quoc Tri
+// ID: 4010989
+
 import { Link, Location } from "react-router-dom";
 import type { OrderListDTO, OrderDetailDTO } from "@/models/ShipperDTO";
 
@@ -45,7 +51,7 @@ export function ShipperOrdersTable({
               </td>
               <td className="px-2 py-2 md:px-4 md:py-3">
                 <Link
-                  to={`/shipper/orders/${o.id}`}
+                  to={`/shippers/orders/${o.id}`}
                   state={{ backgroundLocation: location, orderIndex: idx + 1 }}
                   className="inline-flex items-center rounded-md bg-black text-white px-2.5 py-1 text-xs md:px-3 md:py-1.5 md:text-sm hover:bg-black/85 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2"
                 >

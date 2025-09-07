@@ -1,3 +1,10 @@
+// RMIT University Vietnam
+// Course: COSC2769 - Full Stack Development
+// Semester: 2025B
+// Assessment: Assignment 02
+// Author: Truong Quoc Tri, 
+// ID: 4010989, 
+
 import { Routes, Route, useLocation } from 'react-router-dom';
 import type { Location } from 'react-router-dom';
 
@@ -18,7 +25,6 @@ import Shop from './pages/Shop';
 import StoreDetail from './pages/stores/[storeId]';
 
 import { Login } from './pages/auth/Login';
-import { Logout } from './pages/auth/Logout';
 import { ForgotPassword } from './pages/auth/ForgotPassword';
 import { Register } from './pages/auth/Register';
 
@@ -45,7 +51,7 @@ import { useAuth } from '../stores/AuthProvider';
 const LogoutWrapper = () => {
   const { user } = useAuth();
   if (!user) return null;
-  return <Logout />;
+  // return <Logout />;
 };
 
 export default function AppRouter() {

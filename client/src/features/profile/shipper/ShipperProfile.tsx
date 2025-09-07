@@ -1,3 +1,10 @@
+// RMIT University Vietnam
+// Course: COSC2769 - Full Stack Development
+// Semester: 2025B
+// Assessment: Assignment 02
+// Author: 
+// ID: 
+
 import { Button } from '@/components/ui/button';
 import React, { useState, useCallback, useEffect } from 'react';
 import { ChangePassword } from '@/features/auth/sign-up/ChangePassword';

@@ -1,3 +1,10 @@
+// RMIT University Vietnam
+// Course: COSC2769 - Full Stack Development
+// Semester: 2025B
+// Assessment: Assignment 02
+// Author: 
+// ID: 
+
 import mongoose from 'mongoose';
 import CartItem, { ICartItem } from '../models/CartItem';
 import { OrderStatus } from '../models/OrderStatus';
@@ -8,6 +15,8 @@ import { getTotalPrice } from '../utils/TotalPrice';
 import { ProductModel } from '../models/Product';
 import { chooseHub } from './HubService';
 import { splitOrder } from '../utils/SplitOrder';
+import { productQuantity } from './ProductService';
+let productBought = [];
 export const getCustomerCart = async (userId: string) => {
   return CartItem.find({ customer: userId })
     .populate({ path: 'product', model: ProductModel })
@@ -135,11 +144,49 @@ export const createOrderFromItem = async (userId: string) => {
 
 // Check quantity of the product from vendor, replace the 0 by later
 // Question on the query of the product's quantity from the shop, which route to be more efficient
-export const checkStock = (items: ICartItem[]): boolean => {
-  const ans = items.every((e) => e.quantity > 0);
-  return ans;
-};
+// productInventoryDecrease
+export const checkStock = async (items: ICartItem[]): Promise<boolean> => {
+  try {
+    // Lấy toàn bộ ID sản phẩm từ giỏ hàng
+    const productIds = items.map(item => item.product);
 
+    // Lấy tất cả sản phẩm trong DB
+    const products = await ProductModel.find({ _id: { $in: productIds } }).exec();
+
+    // Sắp xếp products theo đúng thứ tự items[]
+    const sortedProducts = productIds.map(
+      id => products.find(p => p._id.toString() === id.toString())!
+    );
+
+    // 1️⃣ Kiểm tra tồn kho trước khi cập nhật
+    for (let i = 0; i < items.length; i++) {
+      const cartItem = items[i];
+      const product = sortedProducts[i];
+
+      if (!product) {
+        console.warn(`⚠️ Product ${cartItem.product} không tồn tại`);
+        return false;
+      }
+
+      if (product.availableStock < cartItem.quantity) {
+        console.warn(`⚠️ Product ${product.name} chỉ còn ${product.availableStock}, yêu cầu ${cartItem.quantity}`);
+        return false;
+      }
+    }
+
+    // 2️⃣ Trừ tồn kho nếu tất cả sản phẩm còn hàng
+    for (let i = 0; i < items.length; i++) {
+      const product = sortedProducts[i];
+      product.availableStock -= items[i].quantity;
+      await product.save();
+    }
+
+    return true;
+  } catch (error) {
+    console.error("❌ Lỗi khi kiểm tra tồn kho:", error);
+    return false;
+  }
+};
 export const getCustomerProducts = async () => {
   return ProductModel.find({});
 };

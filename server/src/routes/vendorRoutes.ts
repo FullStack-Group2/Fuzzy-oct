@@ -1,3 +1,10 @@
+// RMIT University Vietnam
+// Course: COSC2769 - Full Stack Development
+// Semester: 2025B
+// Assessment: Assignment 02
+// Author: Truong Quoc Tri
+// ID: 4010989
+
 import { Router } from 'express';
 
 import * as vendorController from '../controllers/VendorController';
@@ -80,7 +87,7 @@ router.get(
   requireVendor,
   vendorController.getProductSales,
 );
-// router.post/(‘/orders’, authMiddleware, requireVendor, vendorController.cancelOrder)
+
 router.put(
   '/:id',
   authMiddleware,

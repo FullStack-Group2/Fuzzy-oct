@@ -1,5 +1,12 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { useAuth } from '@/stores/AuthProvider';
+// RMIT University Vietnam
+// Course: COSC2769 - Full Stack Development
+// Semester: 2025B
+// Assessment: Assignment 02
+// Author: 
+// ID: 
+
+import React, { createContext, useContext, useState, useEffect } from "react";
+import { useAuth } from "@/stores/AuthProvider";
 
 type ShopProductContextType = {
   products: any[];

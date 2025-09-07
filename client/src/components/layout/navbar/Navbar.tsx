@@ -1,3 +1,10 @@
+// RMIT University Vietnam
+// Course: COSC2769 - Full Stack Development
+// Semester: 2025B
+// Assessment: Assignment 02
+// Author: 
+// ID: 
+
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/stores/AuthProvider';
 
@@ -6,7 +13,6 @@ import SearchBar from '@/features/layout/navbar/components/SearchBar';
 import ProfileDropdown from '@/features/layout/navbar/components/ProfileDropDown';
 import MobileMenuDropDown from '@/features/layout/navbar/components/MobileMenuDropDown';
 import Cart from '@/features/layout/navbar/components/cart/Cart';
-import { ShopCartDataProvider } from '@/features/layout/navbar/stores/ShopCartDataContext';
 
 export default function Navbar() {
   const { user } = useAuth();

@@ -1,3 +1,10 @@
+// RMIT University Vietnam
+// Course: COSC2769 - Full Stack Development
+// Semester: 2025B
+// Assessment: Assignment 02
+// Author: Truong Quoc Tri
+// ID: 4010989
+
 import { Router, Response, NextFunction } from 'express';
 import * as shipperController from '../controllers/ShipperController';
 import {
@@ -8,11 +15,6 @@ import { requireShipper } from '../middleware/roleMiddleware';
 
 const router = Router();
 
-/**
- * Ensure hubId is available for shipper requests that need it.
- * We rely on authMiddleware (merged earlier) to put hubId on req.user for SHIPPER.
- * If a route wants hubId in query (HEAD behavior), we mirror it into req.query.hubId.
- */
 function ensureHubInRequest(
   req: AuthenticatedRequest,
   res: Response,

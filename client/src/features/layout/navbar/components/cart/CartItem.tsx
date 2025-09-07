@@ -1,3 +1,10 @@
+// RMIT University Vietnam
+// Course: COSC2769 - Full Stack Development
+// Semester: 2025B
+// Assessment: Assignment 02
+// Author: 
+// ID: 
+
 import React from 'react';
 import { CiTrash } from 'react-icons/ci';
 import { useShopCart } from '../../stores/ShopCartDataContext';

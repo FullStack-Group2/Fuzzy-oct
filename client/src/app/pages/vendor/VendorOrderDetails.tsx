@@ -1,8 +1,15 @@
+// RMIT University Vietnam
+// Course: COSC2769 - Full Stack Development
+// Semester: 2025B
+// Assessment: Assignment 02
+// Author: Truong Quoc Tri
+// ID: 4010989
+
 import { useEffect, useRef, useState } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { apiVendorAcceptOrder, apiVendorGetOrderDetail } from "@/api/VendorAPI";
 import type { VendorOrderDetailDTO } from "@/models/VendorDTO";
-import OrderStatusBar from "@/components/OrderStatusBar"; // keep your existing component
+import OrderStatusBar from "@/components/OrderStatusBar";
 import {
   NoticeAlert,
   OrderDetailHeader,
@@ -103,7 +110,7 @@ export default function VendorOrderDetail() {
             {accepting ? "Accepting…" : "Accept"}
           </button>
           <Link
-            to={`/vendor/orders/${order.id}/reject`}
+            to={`/vendors/orders/${order.id}/reject`}
             state={{ backgroundLocation: (location.state as any)?.backgroundLocation || location, orderIndex }}
             className="inline-flex items-center w-full sm:w-32 justify-center rounded-md bg-red-600 px-4 py-2 text-white hover:bg-red-700"
           >

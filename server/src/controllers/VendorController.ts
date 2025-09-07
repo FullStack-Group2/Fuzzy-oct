@@ -1,3 +1,10 @@
+// RMIT University Vietnam
+// Course: COSC2769 - Full Stack Development
+// Semester: 2025B
+// Assessment: Assignment 02
+// Author: Truong Quoc Tri
+// ID: 4010989
+
 import { Request, Response } from 'express';
 import mongoose, { Types } from 'mongoose';
 
@@ -327,7 +334,7 @@ export async function updateStatus(req: AuthenticatedRequest, res: Response) {
                 vendor: vendorId,
                 availableStock: { $gte: it.qty },
               },
-              { $inc: { availableStock: -it.qty } },
+              // { $inc: { availableStock: -it.qty } },
               { session },
             );
             if (r.matchedCount === 0) {
@@ -376,6 +383,17 @@ export async function updateStatus(req: AuthenticatedRequest, res: Response) {
           .status(400)
           .json({ error: 'Cancel reason is required when rejecting' });
       }
+
+      const vendorItems = await collectVendorItems(orderId, vendorId);
+      if (vendorItems.length > 0) {
+        for (const it of vendorItems) {
+          await ProductModel.updateOne(
+            { _id: it.productId, vendor: vendorId },
+            { $inc: { availableStock: it.qty } },
+          );
+        }
+      }
+
       const updated = await OrderModel.findOneAndUpdate(
         { _id: orderId, status: OrderStatus.PENDING },
         {

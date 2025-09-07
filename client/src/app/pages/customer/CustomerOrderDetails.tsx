@@ -1,3 +1,10 @@
+// RMIT University Vietnam
+// Course: COSC2769 - Full Stack Development
+// Semester: 2025B
+// Assessment: Assignment 02
+// Author: Truong Quoc Tri
+// ID: 4010989
+
 import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams, Link } from "react-router-dom";
 import type { CustomerOrderDetailDTO } from "@/models/CustomerDTO";
@@ -40,7 +47,7 @@ export default function CustomerOrderDetails() {
     return (
       <main className="p-6">
         <div className="mb-4">
-          <Link to="/customer/orders" className="underline">←</Link>
+          <Link to="/customers/orders" className="underline">←</Link>
         </div>
         <p className="text-sm text-red-600">Order not found.</p>
       </main>
@@ -77,7 +84,7 @@ export default function CustomerOrderDetails() {
       {order.status === "PENDING" && (
         <div className="mt-6 flex justify-center">
           <Link
-            to={`/customer/orders/${order.id}/cancel`}
+            to={`/customers/orders/${order.id}/cancel`}
             state={{
               backgroundLocation:
                 (location.state as any)?.backgroundLocation || location,

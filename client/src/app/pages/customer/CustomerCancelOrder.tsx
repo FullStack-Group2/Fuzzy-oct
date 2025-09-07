@@ -1,3 +1,10 @@
+// RMIT University Vietnam
+// Course: COSC2769 - Full Stack Development
+// Semester: 2025B
+// Assessment: Assignment 02
+// Author: Truong Quoc Tri
+// ID: 4010989
+
 import { FormEvent, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { apiCustomerCancelOrder } from "@/api/CustomerAPI";
@@ -27,7 +34,7 @@ export default function CustomerCancelOrder() {
 
   function goDetails() {
     if (!orderId) return goClose(false);
-    goTo(`/customer/orders/${orderId}`, { backgroundLocation, orderIndex });
+    goTo(`/customers/orders/${orderId}`, { backgroundLocation, orderIndex });
   }
 
   async function onSubmit(e: FormEvent) {

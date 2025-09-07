@@ -47,8 +47,8 @@ export default function CustomerCancelOrder() {
       const merged = reason === "Other" && notes ? notes : reason;
       await apiCustomerCancelOrder(orderId, merged);
       goClose(true);
-    } catch (err: any) {
-      setError(err?.message || "Failed to cancel order. Please try again.");
+    } catch (err) {
+      setError((err as Error)?.message || "Failed to cancel order");
     } finally {
       setSubmitting(false);
     }

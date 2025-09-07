@@ -48,8 +48,8 @@ import { useAuth } from '../stores/AuthProvider';
 import Faq from './pages/Faq';
 import { ProductDetailDataProvider } from '@/features/shop/stores/ProductDetailDataContext';
 import { ShopProductDataProvider } from '@/features/shop/stores/ShopProductDataContext';
-import About from './pages/About';
 import { toast, Toaster, ToastBar } from 'react-hot-toast';
+import About from './pages/About';
 
 // Wrapper for Logout if it needs user from context
 const LogoutWrapper = () => {

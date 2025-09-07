@@ -9,6 +9,7 @@ import {
   PasswordRequirements,
   passwordValidationSchema,
 } from '@/features/auth/sign-up/PasswordValidation';
+import toast from 'react-hot-toast';
 
 // Zod schema for customer registration validation
 const customerRegistrationSchema = z.object({
@@ -155,7 +156,7 @@ export const RegisterCustomer: React.FC<RegisterCustomerProps> = ({
         localStorage.setItem('token', data.token);
 
         onRegistrationSuccess?.(data.Customer);
-        alert('Customer registration successful!');
+        toast.success('Customer registration successful!');
       } else {
         setError(data.message || 'Registration failed');
         console.error('Registration failed:', data);

@@ -18,7 +18,7 @@ const ShopPagination: React.FC = () => {
   if (loading)
     return (
       <Pagination>
-        <div className='flex gap-2'>
+        <div className="flex gap-2">
           <Skeleton className="w-16 h-7" />
           <Skeleton className="w-7 h-7" />
           <Skeleton className="w-7 h-7" />
@@ -49,87 +49,91 @@ const ShopPagination: React.FC = () => {
   }
 
   return (
-    <Pagination>
-      <PaginationContent>
-        {/* Previous */}
-        <PaginationItem>
-          <PaginationPrevious
-            href="#"
-            onClick={(e: any) => {
-              e.preventDefault();
-              if (data.pageIndex > 1)
-                updateSearchParam({ page: String(data.pageIndex - 1) });
-            }}
-          />
-        </PaginationItem>
-
-        {/* First page + ellipsis if needed */}
-        {start > 1 && (
-          <>
+    <>
+      {data.products.length > 0 && (
+        <Pagination>
+          <PaginationContent>
+            {/* Previous */}
             <PaginationItem>
-              <PaginationLink
+              <PaginationPrevious
                 href="#"
-                isActive={data.pageIndex === 1}
                 onClick={(e: any) => {
                   e.preventDefault();
-                  updateSearchParam({ page: String(1) });
+                  if (data.pageIndex > 1)
+                    updateSearchParam({ page: String(data.pageIndex - 1) });
                 }}
-              >
-                1
-              </PaginationLink>
+              />
             </PaginationItem>
-            {start > 2 && <PaginationEllipsis />}
-          </>
-        )}
 
-        {/* Middle pages (3 at a time) */}
-        {pages.map((page) => (
-          <PaginationItem key={page}>
-            <PaginationLink
-              href="#"
-              isActive={data.pageIndex === page}
-              onClick={(e: any) => {
-                e.preventDefault();
-                updateSearchParam({ page: String(page) });
-              }}
-            >
-              {page}
-            </PaginationLink>
-          </PaginationItem>
-        ))}
+            {/* First page + ellipsis if needed */}
+            {start > 1 && (
+              <>
+                <PaginationItem>
+                  <PaginationLink
+                    href="#"
+                    isActive={data.pageIndex === 1}
+                    onClick={(e: any) => {
+                      e.preventDefault();
+                      updateSearchParam({ page: String(1) });
+                    }}
+                  >
+                    1
+                  </PaginationLink>
+                </PaginationItem>
+                {start > 2 && <PaginationEllipsis />}
+              </>
+            )}
 
-        {/* Last page + ellipsis if needed */}
-        {end < data.totalPages && (
-          <>
-            {end < data.totalPages - 1 && <PaginationEllipsis />}
+            {/* Middle pages (3 at a time) */}
+            {pages.map((page) => (
+              <PaginationItem key={page}>
+                <PaginationLink
+                  href="#"
+                  isActive={data.pageIndex === page}
+                  onClick={(e: any) => {
+                    e.preventDefault();
+                    updateSearchParam({ page: String(page) });
+                  }}
+                >
+                  {page}
+                </PaginationLink>
+              </PaginationItem>
+            ))}
+
+            {/* Last page + ellipsis if needed */}
+            {end < data.totalPages && (
+              <>
+                {end < data.totalPages - 1 && <PaginationEllipsis />}
+                <PaginationItem>
+                  <PaginationLink
+                    href="#"
+                    isActive={data.pageIndex === data.totalPages}
+                    onClick={(e: any) => {
+                      e.preventDefault();
+                      updateSearchParam({ page: String(data.totalPages) });
+                    }}
+                  >
+                    {data.totalPages}
+                  </PaginationLink>
+                </PaginationItem>
+              </>
+            )}
+
+            {/* Next */}
             <PaginationItem>
-              <PaginationLink
+              <PaginationNext
                 href="#"
-                isActive={data.pageIndex === data.totalPages}
                 onClick={(e: any) => {
                   e.preventDefault();
-                  updateSearchParam({ page: String(data.totalPages) });
+                  if (data.pageIndex < data.totalPages)
+                    updateSearchParam({ page: String(data.pageIndex + 1) });
                 }}
-              >
-                {data.totalPages}
-              </PaginationLink>
+              />
             </PaginationItem>
-          </>
-        )}
-
-        {/* Next */}
-        <PaginationItem>
-          <PaginationNext
-            href="#"
-            onClick={(e: any) => {
-              e.preventDefault();
-              if (data.pageIndex < data.totalPages)
-                updateSearchParam({ page: String(data.pageIndex + 1) });
-            }}
-          />
-        </PaginationItem>
-      </PaginationContent>
-    </Pagination>
+          </PaginationContent>
+        </Pagination>
+      )}
+    </>
   );
 };
 

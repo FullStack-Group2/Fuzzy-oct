@@ -6,6 +6,7 @@ import { useShopCart } from '@/features/layout/navbar/stores/ShopCartDataContext
 import { useProductDetail } from '@/features/shop/stores/ProductDetailDataContext';
 import { AiOutlineShopping } from 'react-icons/ai';
 import { Skeleton } from '@/components/ui/skeleton';
+import NotFoundProduct from '@/features/shop/components/NotFoundProduct';
 
 const ProductDetail = () => {
   const [quantity, setQuantity] = useState(1);
@@ -64,7 +65,7 @@ const ProductDetail = () => {
         {/*--------------------------------------------------------------*/}
       </section>
     );
-  if (error) return <></>;
+  if (error) return <NotFoundProduct/>;
 
   function currentCartQuantityOfProduct() {
     const productInCart = cart.find((item) => item.product._id == product._id);

@@ -1,6 +1,14 @@
+// RMIT University Vietnam
+// Course: COSC2769 - Full Stack Development
+// Semester: 2025B
+// Assessment: Assignment 02
+// Author: Tran Tu Tam
+// ID: s3999159
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ImageIcon } from '@radix-ui/react-icons';
+import { uploadProductImage, createProduct } from '@/api/VendorAPI';
 
 export enum ProductCategory {
   SOFAS = 'SOFAS',
@@ -73,10 +81,14 @@ export const AddProduct: React.FC = () => {
 
     if (!formData.name) {
       newErrors.name = 'Name is required';
+    } else if (formData.name.length < 10 || formData.name.length > 20) {
+      newErrors.name = 'Name must be between 10 and 20 characters';
     }
 
     if (!formData.description) {
       newErrors.description = 'Description is required';
+    } else if (formData.description.length > 500) {
+      newErrors.description = 'Description must not exceed 500 characters';
     }
 
     if (!formData.price) {
@@ -107,29 +119,7 @@ export const AddProduct: React.FC = () => {
       let imageUrl = '';
 
       if (formData.image) {
-        const formDataForImage = new FormData();
-        formDataForImage.append('image', formData.image);
-
-        const imageResponse = await fetch(
-          'http://localhost:5001/api/upload/image',
-          {
-            method: 'POST',
-            headers: {
-              Authorization: token,
-            },
-            body: formDataForImage,
-          },
-        );
-
-        if (imageResponse.ok) {
-          const imageData = await imageResponse.json();
-          imageUrl = imageData.image.url;
-        } else {
-          const errorData = await imageResponse.json();
-          console.error('Error uploading image:', errorData);
-          alert('Failed to upload image');
-          return;
-        }
+        imageUrl = await uploadProductImage(token, formData.image);
       }
 
       const productData = {
@@ -141,39 +131,28 @@ export const AddProduct: React.FC = () => {
         imageUrl,
       };
 
-      console.log('Submitting product data:', productData); // Log productData for debugging
+      console.log('Submitting product data:', productData);
 
-      const productResponse = await fetch(
-        'http://localhost:5001/api/vendors/add-product',
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: token,
-          },
-          body: JSON.stringify(productData),
-        },
-      );
+      await createProduct(token, productData);
 
-      if (productResponse.ok) {
-        alert('Product added successfully');
-        setFormData({
-          name: '',
-          description: '',
-          category: '', // Updated field name
-          price: '',
-          availableStock: '',
-          image: null,
-        });
-        setImagePreview(null);
-      } else {
-        const errorData = await productResponse.json();
-        console.error('Error adding product:', errorData); // Log backend response
-        alert(`Failed to add product: ${errorData.message}`);
-      }
+      alert('Product added successfully');
+      setFormData({
+        name: '',
+        description: '',
+        category: '', // Updated field name
+        price: '',
+        availableStock: '',
+        image: null,
+      });
+      setImagePreview(null);
     } catch (error) {
-      console.error('Error adding product:', error);
-      alert('Error adding product');
+      if (error instanceof Error) {
+        console.error('Error adding product:', error.message);
+        alert(`Error adding product: ${error.message}`);
+      } else {
+        console.error('Unexpected error adding product:', error);
+        alert('An unexpected error occurred while adding the product.');
+      }
     }
   };
 

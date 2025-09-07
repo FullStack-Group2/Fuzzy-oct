@@ -1,6 +1,24 @@
+// RMIT University Vietnam
+// Course: COSC2769 - Full Stack Development
+// Semester: 2025B
+// Assessment: Assignment 02
+// Author: Tran Tu Tam
+// ID: s3999159
+
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ProductCategory } from '../add'; // Import ProductCategory enum
+import { updateProduct } from '@/api/VendorAPI';
+
+// Define an interface for the updated product
+interface UpdatedProduct {
+  name?: string;
+  description?: string;
+  category?: string;
+  price?: number;
+  availableStock?: number;
+  imageUrl?: string;
+}
 
 export const EditProduct: React.FC = () => {
   const location = useLocation();
@@ -103,38 +121,32 @@ export const EditProduct: React.FC = () => {
     }
 
     try {
-      const response = await fetch(
-        `http://localhost:5001/api/vendors/product/${product?._id}`,
-        {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: token || '',
-          },
-          body: JSON.stringify({
-            ...formData,
-            price: Number(formData.price),
-            availableStock: Number(formData.availableStock),
-          }),
-        },
-      );
+      const payload = {
+        ...formData,
+        price: Number(formData.price),
+        availableStock: Number(formData.availableStock),
+      };
 
-      if (response.ok) {
+      const data = await updateProduct(product?._id, token, payload);
+
+      if (data) {
         alert('Product updated successfully');
-        const data = await response.json().catch(() => null);
         const updated = data?.product;
 
+        // Ensure the updated object is typed properly
         if (updated && typeof updated === 'object') {
+          const typedUpdated = updated as UpdatedProduct;
+
           setFormData({
-            name: updated.name ?? formData.name,
-            description: updated.description ?? formData.description,
-            category: updated.category ?? formData.category, // Updated field name
-            price: String(updated.price ?? formData.price),
-            availableStock: String(updated.availableStock ?? formData.availableStock),
-            imageUrl: updated.imageUrl ?? formData.imageUrl,
+            name: typedUpdated.name ?? formData.name,
+            description: typedUpdated.description ?? formData.description,
+            category: typedUpdated.category ?? formData.category, // Updated field name
+            price: String(typedUpdated.price ?? formData.price),
+            availableStock: String(typedUpdated.availableStock ?? formData.availableStock),
+            imageUrl: typedUpdated.imageUrl ?? formData.imageUrl,
           });
 
-          navigate('.', { replace: true, state: { product: updated } });
+          navigate('.', { replace: true, state: { product: typedUpdated } });
         }
       } else {
         alert('Failed to update product');

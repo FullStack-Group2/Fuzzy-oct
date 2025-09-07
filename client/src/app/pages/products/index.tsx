@@ -1,3 +1,10 @@
+// RMIT University Vietnam
+// Course: COSC2769 - Full Stack Development
+// Semester: 2025B
+// Assessment: Assignment 02
+// Author: Tran Tu Tam
+// ID: s3999159
+
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -14,6 +21,7 @@ import { UploadIcon } from '@radix-ui/react-icons';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import autoTable from 'jspdf-autotable';
+import { getProductsWithSales, deleteProduct } from '@/api/VendorAPI';
 
 interface Product {
   _id: string;
@@ -36,39 +44,8 @@ export const Products: React.FC = () => {
     const fetchProducts = async () => {
       setLoading(true);
       try {
-        const response = await fetch('http://localhost:5001/api/vendors/products', {
-          headers: {
-            Authorization: token,
-          },
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          const productsWithSales = await Promise.all(
-            data.products.map(async (product: Product) => {
-              const salesResponse = await fetch(
-                `http://localhost:5001/api/vendors/product/${product._id}/sales`,
-                {
-                  headers: {
-                    Authorization: token,
-                  },
-                },
-              );
-
-              if (salesResponse.ok) {
-                const salesData = await salesResponse.json();
-                return { ...product, salesCount: salesData.totalSold || 0 };
-              } else {
-                console.error(`Failed to fetch sales for product ${product._id}`);
-                return { ...product, salesCount: 0 };
-              }
-            }),
-          );
-          setProducts(productsWithSales);
-        } else {
-          console.error('Failed to fetch products');
-          alert('Failed to load products. Please try again.');
-        }
+        const productsWithSales = await getProductsWithSales(token);
+        setProducts(productsWithSales);
       } catch (error) {
         console.error('Error fetching products:', error);
         alert('An error occurred while fetching products.');
@@ -87,25 +64,11 @@ export const Products: React.FC = () => {
     if (!confirmDelete) return;
 
     try {
-      const response = await fetch(
-        `http://localhost:5001/api/vendors/${productId}`,
-        {
-          method: 'DELETE',
-          headers: {
-            Authorization: token,
-          },
-        },
+      await deleteProduct(productId, token);
+      alert('Product deleted successfully');
+      setProducts((prevProducts) =>
+        prevProducts.filter((product) => product._id !== productId),
       );
-
-      if (response.ok) {
-        alert('Product deleted successfully');
-        setProducts((prevProducts) =>
-          prevProducts.filter((product) => product._id !== productId),
-        );
-      } else {
-        console.error('Failed to delete product');
-        alert('Failed to delete product');
-      }
     } catch (error) {
       console.error('Error deleting product:', error);
       alert('Error deleting product');
@@ -118,31 +81,26 @@ export const Products: React.FC = () => {
 
   const handleExportToPDF = () => {
     const doc = new jsPDF();
-
-    // File Title
     doc.setFontSize(18);
     doc.text('Product List', 14, 20);
 
-    // Define table headers and rows
     autoTable(doc, {
       head: [['Name', 'Price', 'Sold', 'Available Stock']],
       body: products.map((product) => [
         product.name,
-        `${formatPrice(product.price)} vnd`, // Format price in PDF export
+        `${formatPrice(product.price)} vnd`,
         product.salesCount || 0,
         product.availableStock,
       ]),
-      startY: 30, // Start the table below the title
+      startY: 30,
     });
 
-    // Save the PDF
-    doc.save('product_list.pdf');
+    doc.save('product_list.pdf'); 
   };
 
   return (
     <div className="p-6">
-
-      <div className="flex flex-col  [@media(min-width:375px)]:flex-row 
+      <div className="flex flex-col  [@media(min-width:375px)]:flex-row  
         justify-between items-start 
         mb-3 md:mb-6 mx-5 md:mx-10
       ">

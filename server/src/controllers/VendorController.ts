@@ -383,6 +383,17 @@ export async function updateStatus(req: AuthenticatedRequest, res: Response) {
           .status(400)
           .json({ error: 'Cancel reason is required when rejecting' });
       }
+
+      const vendorItems = await collectVendorItems(orderId, vendorId);
+      if (vendorItems.length > 0) {
+        for (const it of vendorItems) {
+          await ProductModel.updateOne(
+            { _id: it.productId, vendor: vendorId },
+            { $inc: { availableStock: it.qty } },
+          );
+        }
+      }
+
       const updated = await OrderModel.findOneAndUpdate(
         { _id: orderId, status: OrderStatus.PENDING },
         {

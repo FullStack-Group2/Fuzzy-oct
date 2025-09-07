@@ -8,7 +8,6 @@
 import { Request, Response } from 'express';
 import bcrypt from 'bcrypt';
 
-
 import { VendorModel } from '../models/Vendor';
 import { CustomerModel } from '../models/Customer';
 import { ShipperModel } from '../models/Shipper';

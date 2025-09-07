@@ -5,13 +5,17 @@
 // Author: Truong Quoc Tri
 // ID: 4010989
 
-import { useEffect, useRef, useState } from "react";
-import { useLocation, useNavigate, useParams, Link } from "react-router-dom";
-import type { CustomerOrderDetailDTO } from "@/models/CustomerDTO";
-import { apiCustomerGetOrderDetail } from "@/api/CustomerAPI";
-import { OrderDetailHeader, useModalNavigation, vendorUiStatus } from "@/components/OrdersUI";
-import { CustomerOrderItemsTable } from "@/components/CustomerOrdersUI";
-import OrderStatusBar from "@/components/OrderStatusBar";
+import { useEffect, useRef, useState } from 'react';
+import { useLocation, useNavigate, useParams, Link } from 'react-router-dom';
+import type { CustomerOrderDetailDTO } from '@/models/CustomerDTO';
+import { apiCustomerGetOrderDetail } from '@/api/CustomerAPI';
+import {
+  OrderDetailHeader,
+  useModalNavigation,
+  vendorUiStatus,
+} from '@/components/OrdersUI';
+import { CustomerOrderItemsTable } from '@/components/CustomerOrdersUI';
+import OrderStatusBar from '@/components/OrderStatusBar';
 
 type LocationState = { orderIndex?: number };
 
@@ -25,7 +29,7 @@ export default function CustomerOrderDetails() {
   const [loading, setLoading] = useState(true);
   const mutatedRef = useRef(false);
 
-  const { goClose } = useModalNavigation(location, navigate, "customer");
+  const { goClose } = useModalNavigation(location, navigate, 'customer');
 
   useEffect(() => {
     (async () => {
@@ -47,7 +51,9 @@ export default function CustomerOrderDetails() {
     return (
       <main className="p-6">
         <div className="mb-4">
-          <Link to="/customers/orders" className="underline">←</Link>
+          <Link to="/customers/orders" className="underline">
+            ←
+          </Link>
         </div>
         <p className="text-sm text-red-600">Order not found.</p>
       </main>
@@ -63,7 +69,7 @@ export default function CustomerOrderDetails() {
         onClose={() => goClose(mutatedRef.current)}
       />
 
-      {order.status !== "CANCELED" && (
+      {order.status !== 'CANCELED' && (
         <div className="mt-2 flex justify-center">
           <OrderStatusBar status={ui} className="w-full md:w-2/3 mx-auto" />
         </div>
@@ -79,9 +85,12 @@ export default function CustomerOrderDetails() {
         )}
       </p>
 
-      <CustomerOrderItemsTable items={order.items} subtotal={order.totalPrice} />
+      <CustomerOrderItemsTable
+        items={order.items}
+        subtotal={order.totalPrice}
+      />
 
-      {order.status === "PENDING" && (
+      {order.status === 'PENDING' && (
         <div className="mt-6 flex justify-center">
           <Link
             to={`/customers/orders/${order.id}/cancel`}
@@ -97,7 +106,7 @@ export default function CustomerOrderDetails() {
         </div>
       )}
 
-      {order.status === "CANCELED" && (
+      {order.status === 'CANCELED' && (
         <div className="mt-6 rounded-lg border border-red-300 bg-red-50 p-4">
           <h2 className="mb-1 font-medium text-red-800">Order canceled</h2>
           {/* (Optional) show order.cancelReason if you expose it to customers */}

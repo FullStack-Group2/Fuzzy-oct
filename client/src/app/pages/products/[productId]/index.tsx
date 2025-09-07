@@ -65,7 +65,7 @@ const ProductDetail = () => {
         {/*--------------------------------------------------------------*/}
       </section>
     );
-  if (error) return <NotFoundProduct/>;
+  if (error) return <NotFoundProduct />;
 
   function currentCartQuantityOfProduct() {
     const productInCart = cart.find((item) => item.product._id == product._id);

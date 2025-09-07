@@ -4,7 +4,10 @@ export default function ExploredCategories() {
   return (
     <div className="w-full min-h-max flex flex-col gap-5 md:flex-row mb-24">
       <div className=" w-full md:w-1/2 h-[600px] bg-[rgb(247,241,236)] flex flex-col gap-4 items-center justify-center">
-        <img src="/home/chairCategory.png" className="w-[58%] md:w-[80%] lg:w-[58%]" />
+        <img
+          src="/home/chairCategory.png"
+          className="w-[58%] md:w-[80%] lg:w-[58%]"
+        />
 
         <div className="flex flex-col gap-4 items-center">
           <h1 className="text-4xl md:text-3xl lg:text-4xl">
@@ -34,10 +37,7 @@ export default function ExploredCategories() {
               Explore category
             </Link>
           </div>
-          <img
-            src="/home/shelveCategory.png"
-            className="h-[60%] lg:h-[80%]"
-          />
+          <img src="/home/shelveCategory.png" className="h-[60%] lg:h-[80%]" />
         </div>
 
         <div className="p-3 w-full h-[290px] bg-[#eef4f2] flex items-center justify-around">

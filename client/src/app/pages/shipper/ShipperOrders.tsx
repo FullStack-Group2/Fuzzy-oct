@@ -5,11 +5,11 @@
 // Author: Truong Quoc Tri
 // ID: 4010989
 
-import { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
-import type { OrderListDTO } from "@/models/ShipperDTO";
-import { apiGetActiveOrders } from "@/api/ShipperAPI";
-import { ShipperOrdersTable } from "@/components/ShipperOrdersUI";
+import { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
+import type { OrderListDTO } from '@/models/ShipperDTO';
+import { apiGetActiveOrders } from '@/api/ShipperAPI';
+import { ShipperOrdersTable } from '@/components/ShipperOrdersUI';
 
 export default function ShipperOrders() {
   const [orders, setOrders] = useState<OrderListDTO[]>([]);
@@ -27,7 +27,9 @@ export default function ShipperOrders() {
     }
   }
 
-  useEffect(() => { refetch(); }, []);
+  useEffect(() => {
+    refetch();
+  }, []);
 
   useEffect(() => {
     const tick = (location.state as any)?.refreshTick;
@@ -37,8 +39,12 @@ export default function ShipperOrders() {
 
   return (
     <main className="mx-auto w-full max-w-7xl py-4 md:py-6">
-      <h1 className="text-xl md:text-2xl font-semibold mb-1">Shipper - Active Orders</h1>
-      <p className="text-xs md:text-sm text-gray-600 mb-4">Below are your list of orders</p>
+      <h1 className="text-xl md:text-2xl font-semibold mb-1">
+        Shipper - Active Orders
+      </h1>
+      <p className="text-xs md:text-sm text-gray-600 mb-4">
+        Below are your list of orders
+      </p>
 
       <ShipperOrdersTable
         orders={orders}

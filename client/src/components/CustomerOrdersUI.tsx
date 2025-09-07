@@ -5,8 +5,14 @@
 // Author: Truong Quoc Tri
 // ID: 4010989
 
-import { Link, Location } from "react-router-dom";
-import { FunnelIcon, SortAZIcon, SortZAIcon, StatusBadge, StatusHeader } from "@/components/OrdersUI";
+import { Link, Location } from 'react-router-dom';
+import {
+  FunnelIcon,
+  SortAZIcon,
+  SortZAIcon,
+  StatusBadge,
+  StatusHeader,
+} from '@/components/OrdersUI';
 import type {
   CustomerOrderDetailDTO,
   CustomerOrderListDTO,

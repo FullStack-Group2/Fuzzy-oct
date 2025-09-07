@@ -33,7 +33,9 @@ export const EditProduct: React.FC = () => {
   });
 
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >,
   ) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({ ...prevData, [name]: value }));
@@ -61,7 +63,10 @@ export const EditProduct: React.FC = () => {
     const files = e.target.files;
     if (files && files.length > 0) {
       const file = files[0];
-      setFormData((prevData) => ({ ...prevData, imageUrl: URL.createObjectURL(file) }));
+      setFormData((prevData) => ({
+        ...prevData,
+        imageUrl: URL.createObjectURL(file),
+      }));
     }
   };
 
@@ -138,7 +143,9 @@ export const EditProduct: React.FC = () => {
             description: updated.description ?? formData.description,
             category: updated.category ?? formData.category, // Updated field name
             price: String(updated.price ?? formData.price),
-            availableStock: String(updated.availableStock ?? formData.availableStock),
+            availableStock: String(
+              updated.availableStock ?? formData.availableStock,
+            ),
             imageUrl: updated.imageUrl ?? formData.imageUrl,
           });
 
@@ -171,7 +178,8 @@ export const EditProduct: React.FC = () => {
           <div>
             <label className="block text-gray-700 text-left">Image</label>
             <label className="block mb-2 text-sm text-left font-thin">
-              Uploaded image <span className="text-lg font-thin text-red-500">*</span>
+              Uploaded image{' '}
+              <span className="text-lg font-thin text-red-500">*</span>
             </label>
           </div>
 
@@ -187,9 +195,7 @@ export const EditProduct: React.FC = () => {
                   style={{ backgroundImage: `url(${formData.imageUrl})` }}
                 ></div>
               ) : (
-                <div
-                  className="bg-[#1E7A5A] bg-opacity-20 rounded-lg border-2 border-dotted border-[#1E7A5A] flex items-center justify-center h-full w-full"
-                >
+                <div className="bg-[#1E7A5A] bg-opacity-20 rounded-lg border-2 border-dotted border-[#1E7A5A] flex items-center justify-center h-full w-full">
                   <input
                     type="file"
                     accept="image/*"
@@ -197,7 +203,10 @@ export const EditProduct: React.FC = () => {
                     className="hidden"
                     id="imageUpload"
                   />
-                  <label htmlFor="imageUpload" className="cursor-pointer flex flex-col items-center">
+                  <label
+                    htmlFor="imageUpload"
+                    className="cursor-pointer flex flex-col items-center"
+                  >
                     <div className="text-[#1E7A5A]">Click to upload +</div>
                   </label>
                 </div>
@@ -229,7 +238,9 @@ export const EditProduct: React.FC = () => {
             onChange={handleInputChange}
             className={`w-full border rounded-lg p-2 ${errors.name ? 'border-red-500' : 'border-gray-300'}`}
           />
-          {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
+          {errors.name && (
+            <p className="text-red-500 text-sm mt-1">{errors.name}</p>
+          )}
 
           {/* Description Field */}
           <label className="block text-gray-700 mt-4 mb-2">Description</label>
@@ -239,7 +250,9 @@ export const EditProduct: React.FC = () => {
             onChange={handleInputChange}
             className={`w-full border rounded-lg p-2 ${errors.description ? 'border-red-500' : 'border-gray-300'}`}
           ></textarea>
-          {errors.description && <p className="text-red-500 text-sm mt-1">{errors.description}</p>}
+          {errors.description && (
+            <p className="text-red-500 text-sm mt-1">{errors.description}</p>
+          )}
 
           {/* Category Field */}
           <label className="block text-gray-700 mt-4 mb-2">Category</label>
@@ -267,12 +280,18 @@ export const EditProduct: React.FC = () => {
               onChange={handleInputChange}
               className={`w-full border rounded-lg p-2 pr-10 ${errors.price ? 'border-red-500' : 'border-gray-300'}`}
             />
-            <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">vnd</span>
+            <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">
+              vnd
+            </span>
           </div>
-          {errors.price && <p className="text-red-500 text-sm mt-1">{errors.price}</p>}
+          {errors.price && (
+            <p className="text-red-500 text-sm mt-1">{errors.price}</p>
+          )}
 
           {/* Available Stock Field */}
-          <label className="block text-gray-700 mt-4 mb-2">Available stock</label>
+          <label className="block text-gray-700 mt-4 mb-2">
+            Available stock
+          </label>
           <input
             type="text"
             name="availableStock"
@@ -280,23 +299,25 @@ export const EditProduct: React.FC = () => {
             onChange={handleInputChange}
             className={`w-full border rounded-lg p-2 ${errors.availableStock ? 'border-red-500' : 'border-gray-300'}`}
           />
-          {errors.availableStock && <p className="text-red-500 text-sm mt-1">{errors.availableStock}</p>}
+          {errors.availableStock && (
+            <p className="text-red-500 text-sm mt-1">{errors.availableStock}</p>
+          )}
         </div>
         <div className="col-span-1 md:col-span-2 justify-end text-right mt-4 mb-2">
-            <button
-              type="button"
-              onClick={handleReset}
-              className="bg-black text-white rounded-lg px-4 py-2 mr-2"
-            >
-              Reset
-            </button>
-            <button
-              type="button"
-              onClick={handleApplyEdit}
-              className="bg-green-700 text-white rounded-lg px-4 py-2"
-            >
-              Apply edit
-            </button>
+          <button
+            type="button"
+            onClick={handleReset}
+            className="bg-black text-white rounded-lg px-4 py-2 mr-2"
+          >
+            Reset
+          </button>
+          <button
+            type="button"
+            onClick={handleApplyEdit}
+            className="bg-green-700 text-white rounded-lg px-4 py-2"
+          >
+            Apply edit
+          </button>
         </div>
       </form>
     </div>

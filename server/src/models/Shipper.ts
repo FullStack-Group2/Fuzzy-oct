@@ -2,8 +2,8 @@
 // Course: COSC2769 - Full Stack Development
 // Semester: 2025B
 // Assessment: Assignment 02
-// Author: 
-// ID: 
+// Author:
+// ID:
 
 import { Schema, Types } from 'mongoose';
 import { UserModel, IUser } from './User';

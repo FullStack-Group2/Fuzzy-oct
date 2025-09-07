@@ -5,15 +5,15 @@
 // Author: Truong Quoc Tri
 // ID: 4010989
 
-import { Link, Location } from "react-router-dom";
-import type { OrderListDTO, OrderDetailDTO } from "@/models/ShipperDTO";
+import { Link, Location } from 'react-router-dom';
+import type { OrderListDTO, OrderDetailDTO } from '@/models/ShipperDTO';
 
 /** List table for shipper orders (no Status col) */
 export function ShipperOrdersTable({
   orders,
   loading,
   location,
-  emptyHint = "No active orders for your hub. 🎉",
+  emptyHint = 'No active orders for your hub. 🎉',
 }: {
   orders: OrderListDTO[];
   loading: boolean;
@@ -22,17 +22,25 @@ export function ShipperOrdersTable({
 }) {
   if (loading) return <p className="text-sm text-gray-500">Loading…</p>;
   if (!orders.length)
-    return <div className="rounded-lg border p-6 text-sm text-gray-600">{emptyHint}</div>;
+    return (
+      <div className="rounded-lg border p-6 text-sm text-gray-600">
+        {emptyHint}
+      </div>
+    );
 
   return (
     <div className="overflow-x-auto rounded-lg border max-h-[70vh]">
       <table className="min-w-full text-left">
         <thead className="bg-gray-50 text-gray-700 text-xs md:text-sm sticky top-0 z-10">
           <tr>
-            <th className="px-2 py-2 md:px-4 md:py-3 w-16 hidden md:table-cell">No.</th>
+            <th className="px-2 py-2 md:px-4 md:py-3 w-16 hidden md:table-cell">
+              No.
+            </th>
             <th className="px-2 py-2 md:px-4 md:py-3">Order ID</th>
             <th className="px-2 py-2 md:px-4 md:py-3">Customer</th>
-            <th className="px-2 py-2 md:px-4 md:py-3 hidden md:table-cell">Total</th>
+            <th className="px-2 py-2 md:px-4 md:py-3 hidden md:table-cell">
+              Total
+            </th>
             <th className="px-2 py-2 md:px-4 md:py-3">Action</th>
           </tr>
         </thead>
@@ -71,7 +79,7 @@ export function ShipperOrderItemsTable({
   items,
   subtotal,
 }: {
-  items: OrderDetailDTO["items"];
+  items: OrderDetailDTO['items'];
   subtotal: number; // pass order.totalPrice
 }) {
   return (
@@ -80,8 +88,12 @@ export function ShipperOrderItemsTable({
         <thead className="bg-gray-50 text-gray-700 text-xs md:text-sm">
           <tr>
             <th className="px-2 py-2 md:px-4 md:py-3">Product name</th>
-            <th className="px-2 py-2 md:px-4 md:py-3 hidden md:table-cell text-right">Price</th>
-            <th className="px-2 py-2 md:px-4 md:py-3 hidden md:table-cell text-right">Qty</th>
+            <th className="px-2 py-2 md:px-4 md:py-3 hidden md:table-cell text-right">
+              Price
+            </th>
+            <th className="px-2 py-2 md:px-4 md:py-3 hidden md:table-cell text-right">
+              Qty
+            </th>
             <th className="px-2 py-2 md:px-4 md:py-3 text-right">Subtotal</th>
           </tr>
         </thead>
@@ -120,7 +132,9 @@ export function ShipperOrderItemsTable({
           <tr className="hidden md:table-row">
             <td className="px-2 py-3 md:px-4"></td>
             <td className="px-2 py-3 md:px-4"></td>
-            <td className="px-2 py-3 md:px-4 font-medium text-right">Total price</td>
+            <td className="px-2 py-3 md:px-4 font-medium text-right">
+              Total price
+            </td>
             <td className="px-2 py-3 md:px-4 font-semibold text-right">
               ${subtotal.toFixed(2)}
             </td>

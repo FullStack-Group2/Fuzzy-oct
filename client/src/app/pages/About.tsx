@@ -2,8 +2,8 @@
 // Course: COSC2769 - Full Stack Development
 // Semester: 2025B
 // Assessment: Assignment 02
-// Author: 
-// ID: 
+// Author:
+// ID:
 
 import AboutBody from '@/features/about/components/AboutBody';
 import AboutHeader from '@/features/about/components/AboutHeader';
@@ -14,7 +14,7 @@ const About = () => {
     <section className="w-full">
       <AboutHeader />
       <AboutBody />
-      <AboutMember/>
+      <AboutMember />
     </section>
   );
 };

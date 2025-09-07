@@ -5,14 +5,20 @@
 // Author: Truong Quoc Tri
 // ID: 4010989
 
-import { Link, Location } from "react-router-dom";
-import { StatusBadge, FunnelIcon, SortAZIcon, SortZAIcon, StatusHeader } from "./OrdersUI";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { Link, Location } from 'react-router-dom';
+import {
+  StatusBadge,
+  FunnelIcon,
+  SortAZIcon,
+  SortZAIcon,
+  StatusHeader,
+} from './OrdersUI';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 /* ---------- Types you already have (import from your models if preferred) ---------- */
 export type VendorOrderListDTO = {
   id: string;
-  status: "PENDING" | "ACTIVE" | "DELIVERED" | "CANCELED";
+  status: 'PENDING' | 'ACTIVE' | 'DELIVERED' | 'CANCELED';
   totalPrice: number;
   customerName: string;
 };
@@ -28,7 +34,7 @@ export type VendorOrderItemDTO = {
 
 export type VendorOrderDetailDTO = {
   id: string;
-  status: "PENDING" | "ACTIVE" | "DELIVERED" | "CANCELED";
+  status: 'PENDING' | 'ACTIVE' | 'DELIVERED' | 'CANCELED';
   customerName: string;
   customerAddress: string;
   items: VendorOrderItemDTO[];
@@ -40,7 +46,7 @@ export type VendorOrderDetailDTO = {
 export function VendorOrdersTable({
   orders,
   loading,
-  emptyHint = "No orders yet.",
+  emptyHint = 'No orders yet.',
   location,
 
   selectedStatuses,
@@ -54,18 +60,24 @@ export function VendorOrdersTable({
   location: Location;
   detailsHrefBase?: string;
 
-  selectedStatuses?: ("PENDING" | "ACTIVE" | "DELIVERED" | "CANCELED")[];
-  onSelectedStatusesChange?: (next: ("PENDING" | "ACTIVE" | "DELIVERED" | "CANCELED")[]) => void;
-  statusSortOrder?: "asc" | "desc";
-  onStatusSortOrderChange?: (next: "asc" | "desc" | undefined) => void;
+  selectedStatuses?: ('PENDING' | 'ACTIVE' | 'DELIVERED' | 'CANCELED')[];
+  onSelectedStatusesChange?: (
+    next: ('PENDING' | 'ACTIVE' | 'DELIVERED' | 'CANCELED')[],
+  ) => void;
+  statusSortOrder?: 'asc' | 'desc';
+  onStatusSortOrderChange?: (next: 'asc' | 'desc' | undefined) => void;
 }) {
-  const [localStatuses, setLocalStatuses] = useState<("PENDING" | "ACTIVE" | "DELIVERED" | "CANCELED")[]>([]);
-  const [localSort, setLocalSort] = useState<"asc" | "desc" | undefined>(undefined);
+  const [localStatuses, setLocalStatuses] = useState<
+    ('PENDING' | 'ACTIVE' | 'DELIVERED' | 'CANCELED')[]
+  >([]);
+  const [localSort, setLocalSort] = useState<'asc' | 'desc' | undefined>(
+    undefined,
+  );
 
   const sel = selectedStatuses ?? localStatuses;
   const setSel = onSelectedStatusesChange ?? setLocalStatuses;
 
-  const srt = (statusSortOrder as "asc" | "desc" | undefined) ?? localSort;
+  const srt = (statusSortOrder as 'asc' | 'desc' | undefined) ?? localSort;
   const setSrt = onStatusSortOrderChange ?? setLocalSort;
 
   /* local fallback behavior: filter and sort the already-loaded orders */
@@ -77,7 +89,7 @@ export function VendorOrdersTable({
     if (srt) {
       data = [...data].sort((a, b) => {
         const x = a.status.localeCompare(b.status);
-        return srt === "asc" ? x : -x;
+        return srt === 'asc' ? x : -x;
       });
     }
     return data;
@@ -115,7 +127,10 @@ export function VendorOrdersTable({
     return (
       <div>
         {ControlsBar}
-        <div className="rounded-lg border p-6 text-sm text-gray-600">{emptyHint}</div>;
+        <div className="rounded-lg border p-6 text-sm text-gray-600">
+          {emptyHint}
+        </div>
+        ;
       </div>
     );
 
@@ -124,7 +139,9 @@ export function VendorOrdersTable({
       <table className="min-w-full text-left">
         <thead className="bg-gray-50 text-gray-700 text-xs md:text-sm sticky top-0 z-10">
           <tr>
-            <th className="px-2 py-2 md:px-4 md:py-3 w-16 hidden md:table-cell">No.</th>
+            <th className="px-2 py-2 md:px-4 md:py-3 w-16 hidden md:table-cell">
+              No.
+            </th>
             <th className="px-2 py-2 md:px-4 md:py-3">Order ID</th>
             <th className="px-2 py-2 md:px-4 md:py-3">Customer</th>
             <th className="px-2 py-2 md:px-4 md:py-3">
@@ -133,8 +150,11 @@ export function VendorOrdersTable({
                 onChangeSelected={setSel}
                 sortOrder={srt}
                 onChangeSortOrder={setSrt}
-              /></th>
-            <th className="px-2 py-2 md:px-4 md:py-3 hidden md:table-cell">Total</th>
+              />
+            </th>
+            <th className="px-2 py-2 md:px-4 md:py-3 hidden md:table-cell">
+              Total
+            </th>
             <th className="px-2 py-2 md:px-4 md:py-3">Action</th>
           </tr>
         </thead>
@@ -155,17 +175,26 @@ export function VendorOrdersTable({
           ) : (
             visibleOrders.map((o, idx) => (
               <tr key={o.id} className="text-sm md:text-sm">
-                <td className="px-2 py-2 md:px-4 md:py-3 font-medium hidden md:table-cell">{idx + 1}</td>
-                <td className="px-2 py-2 md:px-4 md:py-3 font-mono text-gray-500 max-w-[140px] md:max-w-none truncate">{o.id}</td>
+                <td className="px-2 py-2 md:px-4 md:py-3 font-medium hidden md:table-cell">
+                  {idx + 1}
+                </td>
+                <td className="px-2 py-2 md:px-4 md:py-3 font-mono text-gray-500 max-w-[140px] md:max-w-none truncate">
+                  {o.id}
+                </td>
                 <td className="px-2 py-2 md:px-4 md:py-3">{o.customerName}</td>
                 <td className="px-2 py-2 md:px-4 md:py-3">
                   <StatusBadge status={o.status} />
                 </td>
-                <td className="px-2 py-2 md:px-4 md:py-3 hidden md:table-cell">${o.totalPrice.toFixed(2)}</td>
+                <td className="px-2 py-2 md:px-4 md:py-3 hidden md:table-cell">
+                  ${o.totalPrice.toFixed(2)}
+                </td>
                 <td className="px-2 py-2 md:px-4 md:py-3">
                   <Link
                     to={`/vendors/orders/${o.id}`}
-                    state={{ backgroundLocation: location, orderIndex: idx + 1 }}
+                    state={{
+                      backgroundLocation: location,
+                      orderIndex: idx + 1,
+                    }}
                     className="inline-flex items-center rounded-md bg-black text-white px-3 py-1.5 text-sm hover:bg-black/85 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2"
                   >
                     View
@@ -243,7 +272,9 @@ export function VendorOrderItemsTable({
           <tr className="hidden md:table-row">
             <td className="px-2 py-3 md:px-4"></td>
             <td className="px-2 py-3 md:px-4"></td>
-            <td className="px-2 py-3 md:px-4 font-medium text-right">Total price</td>
+            <td className="px-2 py-3 md:px-4 font-medium text-right">
+              Total price
+            </td>
             <td className="px-2 py-3 md:px-4 font-semibold text-right">
               ${subtotal.toFixed(2)}
             </td>

@@ -5,7 +5,7 @@
 // Author: Truong Quoc Tri
 // ID: 4010989
 
-export type OrderStatus = "PENDING" | "ACTIVE" | "DELIVERED" | "CANCELED";
+export type OrderStatus = 'PENDING' | 'ACTIVE' | 'DELIVERED' | 'CANCELED';
 
 export type CustomerOrderListDTO = {
   id: string;

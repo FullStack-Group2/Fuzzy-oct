@@ -10,7 +10,6 @@ interface AccordionItemProps {
   qa: Question;
 }
 
-
 // ------------------
 // Accordion Item Component
 // ------------------
@@ -51,4 +50,4 @@ const FaqAccordionItem: React.FC<AccordionItemProps> = ({ qa }) => {
   );
 };
 
-export default FaqAccordionItem
+export default FaqAccordionItem;

@@ -25,7 +25,7 @@ export default function VendorRejectOrder() {
   const { backgroundLocation, goClose, goTo } = useModalNavigation(
     location,
     navigate,
-    `vendor`
+    `vendor`,
   );
   const orderIndex =
     ((location.state || {}) as LocationState).orderIndex ?? null;

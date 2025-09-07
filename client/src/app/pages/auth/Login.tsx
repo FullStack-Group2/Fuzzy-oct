@@ -2,8 +2,8 @@
 // Course: COSC2769 - Full Stack Development
 // Semester: 2025B
 // Assessment: Assignment 02
-// Author: 
-// ID: 
+// Author:
+// ID:
 
 import React, { useState } from 'react';
 import { Input } from '@/components/ui/input';
@@ -124,7 +124,7 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
     <div className="min-h-screen flex">
       {/* Left Panel - Image */}
       <div className="hidden bg-gray-200 md:w-1/2  md:flex md:items-center md:justify-center">
-      <img src='/authImageCover.png' className='w-full h-full object-cover'/>
+        <img src="/authImageCover.png" className="w-full h-full object-cover" />
       </div>
 
       {/* Right Panel - Login Form */}

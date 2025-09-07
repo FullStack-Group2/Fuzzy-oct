@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 
 interface Question {
   question: string;
@@ -16,12 +16,16 @@ interface FaqSideBarProps {
   setActiveId: React.Dispatch<React.SetStateAction<string>>;
   data: FAQSection[];
 }
-const FaqSideBar: React.FC<FaqSideBarProps> = ({activeId, setActiveId, data}) => {
+const FaqSideBar: React.FC<FaqSideBarProps> = ({
+  activeId,
+  setActiveId,
+  data,
+}) => {
   return (
     <div className="mb-6 md:mb-0 w-full md:w-1/3">
       <p className="font-bold text-xl mb-3">Page topics</p>
       <ul className="w-full rounded-xl overflow-hidden">
-        {data.map((sec:any) => (
+        {data.map((sec: any) => (
           <li key={sec.id}>
             <button
               onClick={() => setActiveId(sec.id)}
@@ -38,6 +42,6 @@ const FaqSideBar: React.FC<FaqSideBarProps> = ({activeId, setActiveId, data}) =>
       </ul>
     </div>
   );
-}
+};
 
 export default FaqSideBar;

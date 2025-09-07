@@ -5,11 +5,11 @@
 // Author: Truong Quoc Tri
 // ID: 4010989
 
-import { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
-import { apiCustomerGetOrders } from "@/api/CustomerAPI";
-import type { CustomerOrderListDTO } from "@/models/CustomerDTO";
-import { CustomerOrdersTable } from "@/components/CustomerOrdersUI";
+import { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
+import { apiCustomerGetOrders } from '@/api/CustomerAPI';
+import type { CustomerOrderListDTO } from '@/models/CustomerDTO';
+import { CustomerOrdersTable } from '@/components/CustomerOrdersUI';
 
 export default function CustomerOrders() {
   const [orders, setOrders] = useState<CustomerOrderListDTO[]>([]);

@@ -2,8 +2,8 @@
 // Course: COSC2769 - Full Stack Development
 // Semester: 2025B
 // Assessment: Assignment 02
-// Author: 
-// ID: 
+// Author:
+// ID:
 
 import { useShopCart } from '@/features/layout/navbar/stores/ShopCartDataContext';
 import React from 'react';
@@ -37,7 +37,7 @@ const ShopCardItem: React.FC<ShopCartItemProps> = ({
         <button
           className="absolute left-0 bottom-0 w-full h-1/5 bg-black/50 hidden group-hover:flex items-center justify-center"
           onClick={(e) => {
-            e.preventDefault(); 
+            e.preventDefault();
             e.stopPropagation();
             addToCart(id, 1);
           }}

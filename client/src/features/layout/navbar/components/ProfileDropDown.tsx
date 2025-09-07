@@ -2,38 +2,20 @@
 // Course: COSC2769 - Full Stack Development
 // Semester: 2025B
 // Assessment: Assignment 02
-// Author: 
-// ID: 
+// Author:
+// ID:
 
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useAuth } from '../../../../stores/AuthProvider';
 
 import { MdOutlinePerson } from 'react-icons/md';
 
 export default function ProfileDropdown() {
   const [open, setOpen] = useState(false);
-  const [isLoggingOut, setIsLoggingOut] = useState(false);
-  const { logout } = useAuth();
-
-  const handleLogout = async () => {
-    setIsLoggingOut(true);
-    setOpen(false);
-
-    try {
-      await logout(true); // Pass true to show success toast
-      console.log('Logout successful');
-    } catch (error) {
-      console.error('Error during logout:', error);
-      // You might want to show an error message here
-    } finally {
-      setIsLoggingOut(false);
-    }
-  };
 
   return (
     <div className="relative h-[32px]">
-      <button onClick={() => setOpen(!open)} disabled={isLoggingOut}>
+      <button onClick={() => setOpen(!open)}>
         <MdOutlinePerson className="size-8" />
       </button>
 
@@ -52,8 +34,8 @@ export default function ProfileDropdown() {
             className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
             onClick={() => setOpen(false)}
           >
-            {isLoggingOut ? 'Logging out...' : 'Logout'}
-          </button>
+            Logout
+          </Link>
         </div>
       )}
     </div>

@@ -145,7 +145,7 @@ export const Products: React.FC = () => {
       startY: 30,
     });
 
-    doc.save('product_list.pdf'); 
+    doc.save('product_list.pdf');
   };
 
   return (

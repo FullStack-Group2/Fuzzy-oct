@@ -2,8 +2,8 @@
 // Course: COSC2769 - Full Stack Development
 // Semester: 2025B
 // Assessment: Assignment 02
-// Author: 
-// ID: 
+// Author:
+// ID:
 
 import { useState } from 'react';
 import { HiOutlineShoppingCart } from 'react-icons/hi';
@@ -86,9 +86,7 @@ export default function Cart() {
             {loading && (
               <>
                 <div className="flex gap-4">
-                  {loading && (
-                    <Skeleton className="w-[120px] aspect-[17/25]" />
-                  )}
+                  {loading && <Skeleton className="w-[120px] aspect-[17/25]" />}
                   <div className="flex flex-col justify-between">
                     <div>
                       <Skeleton className="h-5 w-[120px] mb-3" />

@@ -5,23 +5,21 @@
 // Author: Truong Quoc Tri
 // ID: 4010989
 
-import { useEffect, useRef, useState } from "react";
-import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
-import { apiVendorAcceptOrder, apiVendorGetOrderDetail } from "@/api/VendorAPI";
-import type { VendorOrderDetailDTO } from "@/models/VendorDTO";
-import OrderStatusBar from "@/components/OrderStatusBar";
+import { useEffect, useRef, useState } from 'react';
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
+import { apiVendorAcceptOrder, apiVendorGetOrderDetail } from '@/api/VendorAPI';
+import type { VendorOrderDetailDTO } from '@/models/VendorDTO';
+import OrderStatusBar from '@/components/OrderStatusBar';
 import {
   NoticeAlert,
   OrderDetailHeader,
   useModalNavigation,
   vendorUiStatus,
-} from "@/components/OrdersUI";
-import {
-  VendorOrderItemsTable,
-} from "@/components/VendorOrdersUI";
+} from '@/components/OrdersUI';
+import { VendorOrderItemsTable } from '@/components/VendorOrdersUI';
 
 type LocationState = { orderIndex?: number };
-type Notice = { kind: "error" | "success" | "info"; text: string } | null;
+type Notice = { kind: 'error' | 'success' | 'info'; text: string } | null;
 
 export default function VendorOrderDetail() {
   const { orderId } = useParams();
@@ -61,8 +59,11 @@ export default function VendorOrderDetail() {
       setOrder(data);
       mutatedRef.current = true;
     } catch (e: any) {
-      const msg = e?.error || e?.message || "Unable to accept order due to insufficient stock.";
-      setNotice({ kind: "error", text: msg });
+      const msg =
+        e?.error ||
+        e?.message ||
+        'Unable to accept order due to insufficient stock.';
+      setNotice({ kind: 'error', text: msg });
     } finally {
       setAccepting(false);
     }
@@ -84,9 +85,12 @@ export default function VendorOrderDetail() {
 
   return (
     <main className="mx-auto w-full max-w-7xl px-3 md:px-6 py-4">
-      <OrderDetailHeader orderIndex={orderIndex} onClose={() => goClose(mutatedRef.current)} />
+      <OrderDetailHeader
+        orderIndex={orderIndex}
+        onClose={() => goClose(mutatedRef.current)}
+      />
 
-      {order.status !== "CANCELED" && (
+      {order.status !== 'CANCELED' && (
         <div className="mt-2 flex justify-center">
           <OrderStatusBar status={ui} className="w-full md:w-2/3 mx-auto" />
         </div>
@@ -98,20 +102,27 @@ export default function VendorOrderDetail() {
         <strong>Customer address:</strong> {order.customerAddress}
       </p>
 
-      <VendorOrderItemsTable items={order.items} subtotal={order.vendorSubtotal} />
+      <VendorOrderItemsTable
+        items={order.items}
+        subtotal={order.vendorSubtotal}
+      />
 
-      {order.status === "PENDING" && (
+      {order.status === 'PENDING' && (
         <div className="mt-6 flex flex-col sm:flex-row justify-center gap-3">
           <button
             onClick={onAccept}
             disabled={accepting}
             className="inline-flex items-center w-full sm:w-32 justify-center rounded-md bg-green-600 px-4 py-2 text-white hover:bg-green-700 disabled:opacity-60"
           >
-            {accepting ? "Accepting…" : "Accept"}
+            {accepting ? 'Accepting…' : 'Accept'}
           </button>
           <Link
             to={`/vendors/orders/${order.id}/reject`}
-            state={{ backgroundLocation: (location.state as any)?.backgroundLocation || location, orderIndex }}
+            state={{
+              backgroundLocation:
+                (location.state as any)?.backgroundLocation || location,
+              orderIndex,
+            }}
             className="inline-flex items-center w-full sm:w-32 justify-center rounded-md bg-red-600 px-4 py-2 text-white hover:bg-red-700"
           >
             Cancel
@@ -119,20 +130,37 @@ export default function VendorOrderDetail() {
         </div>
       )}
 
-      {notice?.kind === "error" && (
-        <NoticeAlert title="Unable to accept" text={notice.text} tone="red" onDismiss={() => setNotice(null)} />
+      {notice?.kind === 'error' && (
+        <NoticeAlert
+          title="Unable to accept"
+          text={notice.text}
+          tone="red"
+          onDismiss={() => setNotice(null)}
+        />
       )}
 
-      {order.status === "CANCELED" && (
-        <NoticeAlert title="Order canceled" text={order.cancelReason || "This order was canceled."} tone="red" />
+      {order.status === 'CANCELED' && (
+        <NoticeAlert
+          title="Order canceled"
+          text={order.cancelReason || 'This order was canceled.'}
+          tone="red"
+        />
       )}
 
-      {order.status === "DELIVERED" && (
-        <NoticeAlert title="Delivered" text="Your order has been delivered." tone="emerald" />
+      {order.status === 'DELIVERED' && (
+        <NoticeAlert
+          title="Delivered"
+          text="Your order has been delivered."
+          tone="emerald"
+        />
       )}
 
-      {order.status === "ACTIVE" && (
-        <NoticeAlert title="Active" text="Your order is currently being delivered." tone="blue" />
+      {order.status === 'ACTIVE' && (
+        <NoticeAlert
+          title="Active"
+          text="Your order is currently being delivered."
+          tone="blue"
+        />
       )}
     </main>
   );

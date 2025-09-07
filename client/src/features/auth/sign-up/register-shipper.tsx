@@ -2,8 +2,8 @@
 // Course: COSC2769 - Full Stack Development
 // Semester: 2025B
 // Assessment: Assignment 02
-// Author: 
-// ID: 
+// Author:
+// ID:
 
 import React, { useState, useEffect } from 'react';
 import { z } from 'zod';
@@ -290,7 +290,9 @@ export const RegisterShipper: React.FC<RegisterShipperProps> = ({
 
             {/* Assigned Distribution Hub Field */}
             <div className="space-y-2">
-              <Label htmlFor="distributionHub">Assigned distribution hub *</Label>
+              <Label htmlFor="distributionHub">
+                Assigned distribution hub *
+              </Label>
               <Select
                 value={formData.distributionHub}
                 onValueChange={handleSelectChange}

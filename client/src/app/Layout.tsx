@@ -2,8 +2,8 @@
 // Course: COSC2769 - Full Stack Development
 // Semester: 2025B
 // Assessment: Assignment 02
-// Author: Truong Quoc Tri, 
-// ID: 4010989, 
+// Author: Truong Quoc Tri,
+// ID: 4010989,
 
 import Footer from '@/components/layout/footer/Footer';
 import Navbar from '@/components/layout/navbar/Navbar';

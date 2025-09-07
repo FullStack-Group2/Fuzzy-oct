@@ -55,7 +55,9 @@ const ProductForm: React.FC<Props> = ({
 }) => {
   const [values, setValues] = useState<ProductFormValues>(initialValues);
   const [errors, setErrors] = useState<ProductFormErrors>({});
-  const [imagePreview, setImagePreview] = useState<string | null>(initialValues.imageUrl ?? null);
+  const [imagePreview, setImagePreview] = useState<string | null>(
+    initialValues.imageUrl ?? null,
+  );
 
   useEffect(() => {
     setValues(initialValues);
@@ -64,7 +66,9 @@ const ProductForm: React.FC<Props> = ({
   }, [initialValues]);
 
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >,
   ) => {
     const { name, value } = e.target;
     setValues((prev) => ({ ...prev, [name]: value }));
@@ -82,7 +86,8 @@ const ProductForm: React.FC<Props> = ({
         imageUrl: mode === 'edit' ? URL.createObjectURL(file) : prev.imageUrl,
       }));
       const reader = new FileReader();
-      reader.onload = (event) => setImagePreview((event.target?.result as string) || null);
+      reader.onload = (event) =>
+        setImagePreview((event.target?.result as string) || null);
       reader.readAsDataURL(file);
     }
   };
@@ -109,7 +114,10 @@ const ProductForm: React.FC<Props> = ({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <form
+      onSubmit={handleSubmit}
+      className="grid grid-cols-1 md:grid-cols-2 gap-4"
+    >
       {/* Image Section */}
       <div className="border-2 border-[#E8E8E9] rounded-md p-4 text-center">
         <div>
@@ -136,9 +144,18 @@ const ProductForm: React.FC<Props> = ({
                   className="hidden"
                   id={`${mode}-imageUpload`}
                 />
-                <label htmlFor={`${mode}-imageUpload`} className="cursor-pointer flex flex-col items-center">
-                  <ImageIcon width={130} height={130} className="text-[#6D6D6D]" />
-                  <div className="text-[#1E7A5A] lg:mt-10">Click to upload +</div>
+                <label
+                  htmlFor={`${mode}-imageUpload`}
+                  className="cursor-pointer flex flex-col items-center"
+                >
+                  <ImageIcon
+                    width={130}
+                    height={130}
+                    className="text-[#6D6D6D]"
+                  />
+                  <div className="text-[#1E7A5A] lg:mt-10">
+                    Click to upload +
+                  </div>
                 </label>
               </div>
             )}
@@ -169,7 +186,9 @@ const ProductForm: React.FC<Props> = ({
           onChange={handleInputChange}
           className={`w-full border rounded-lg p-2 ${errors.name ? 'border-red-500' : 'border-gray-300'}`}
         />
-        {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
+        {errors.name && (
+          <p className="text-red-500 text-sm mt-1">{errors.name}</p>
+        )}
 
         {/* Description */}
         <label className="block text-gray-700 mt-4 mb-2">Description</label>
@@ -179,7 +198,9 @@ const ProductForm: React.FC<Props> = ({
           onChange={handleInputChange}
           className={`w-full border rounded-lg p-2 ${errors.description ? 'border-red-500' : 'border-gray-300'}`}
         />
-        {errors.description && <p className="text-red-500 text-sm mt-1">{errors.description}</p>}
+        {errors.description && (
+          <p className="text-red-500 text-sm mt-1">{errors.description}</p>
+        )}
 
         {/* Category */}
         <label className="block text-gray-700 mt-4 mb-2">Category</label>
@@ -207,9 +228,13 @@ const ProductForm: React.FC<Props> = ({
             onChange={handleInputChange}
             className={`w-full border rounded-lg p-2 pr-10 ${errors.price ? 'border-red-500' : 'border-gray-300'}`}
           />
-          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">vnd</span>
+          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">
+            vnd
+          </span>
         </div>
-        {errors.price && <p className="text-red-500 text-sm mt-1">{errors.price}</p>}
+        {errors.price && (
+          <p className="text-red-500 text-sm mt-1">{errors.price}</p>
+        )}
 
         {/* Available stock */}
         <label className="block text-gray-700 mt-4 mb-2">Available stock</label>
@@ -220,7 +245,9 @@ const ProductForm: React.FC<Props> = ({
           onChange={handleInputChange}
           className={`w-full border rounded-lg p-2 ${errors.availableStock ? 'border-red-500' : 'border-gray-300'}`}
         />
-        {errors.availableStock && <p className="text-red-500 text-sm mt-1">{errors.availableStock}</p>}
+        {errors.availableStock && (
+          <p className="text-red-500 text-sm mt-1">{errors.availableStock}</p>
+        )}
       </div>
 
       {/* Actions */}

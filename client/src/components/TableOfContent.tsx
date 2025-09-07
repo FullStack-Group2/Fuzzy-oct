@@ -5,8 +5,8 @@
 // Author: Truong Quoc Tri
 // ID: 4010989
 
-import { useEffect, useRef } from "react";
-import { cn } from "../lib/utils";
+import { useEffect, useRef } from 'react';
+import { cn } from '../lib/utils';
 
 export type TocItem = { id: string; label: string };
 
@@ -22,9 +22,9 @@ export default function Toc({ items, activeId, onClick }: Props) {
   useEffect(() => {
     // keep active item visible if TOC is scrollable
     const active = navRef.current?.querySelector<HTMLAnchorElement>(
-      `a[data-id="${activeId}"]`
+      `a[data-id="${activeId}"]`,
     );
-    active?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    active?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
   }, [activeId]);
 
   return (
@@ -42,14 +42,16 @@ export default function Toc({ items, activeId, onClick }: Props) {
               data-id={it.id}
               onClick={(e) => {
                 e.preventDefault();
-                document.getElementById(it.id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+                document
+                  .getElementById(it.id)
+                  ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 onClick?.(it.id);
               }}
               className={cn(
-                "block border-l pl-3 hover:text-neutral-900",
+                'block border-l pl-3 hover:text-neutral-900',
                 activeId === it.id
-                  ? "text-neutral-900 border-neutral-900"
-                  : "text-neutral-500 border-transparent"
+                  ? 'text-neutral-900 border-neutral-900'
+                  : 'text-neutral-500 border-transparent',
               )}
             >
               {it.label}

@@ -38,7 +38,7 @@ router.get(
   authMiddleware,
   requireVendor,
   vendorController.getAllProducts,
-);// legacy: now move to public route
+); // legacy: now move to public route
 
 router.get(
   '/product/:productId',
@@ -46,7 +46,6 @@ router.get(
   requireVendor,
   vendorController.getProduct,
 ); // legacy: now move to public route
-
 
 router.get(
   '/:id',

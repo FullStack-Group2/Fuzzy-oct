@@ -9,7 +9,7 @@ import type {
   VendorOrderListDTO,
   VendorOrderDetailDTO,
 } from '../models/VendorDTO';
-import API_BASE from "./API";
+import API_BASE from './API';
 
 // Build the request headers (attach Authorization header if token exists)
 function authHeaders(): HeadersInit {
@@ -23,7 +23,7 @@ function authHeaders(): HeadersInit {
 export async function apiVendorGetOrders(
   params?: URLSearchParams,
 ): Promise<VendorOrderListDTO[]> {
-  const qs = params ? `?${params.toString()}` : "";
+  const qs = params ? `?${params.toString()}` : '';
   const res = await fetch(`${API_BASE}/vendors/orders${qs}`, {
     headers: authHeaders(),
   });
@@ -99,7 +99,9 @@ const VENDOR_BASE = `${VENDOR_URL}/vendors`;
 const UPLOAD_BASE = `${VENDOR_URL}/upload`;
 
 // Fetch all vendor products with sales data
-export const getProductsWithSales = async (token: string): Promise<Product[]> => {
+export const getProductsWithSales = async (
+  token: string,
+): Promise<Product[]> => {
   const response = await fetch(`${VENDOR_BASE}/products`, {
     headers: { Authorization: token },
   });
@@ -114,9 +116,12 @@ export const getProductsWithSales = async (token: string): Promise<Product[]> =>
   const productsWithSales = await Promise.all(
     products.map(async (product: Product) => {
       try {
-        const salesResponse = await fetch(`${VENDOR_BASE}/product/${product._id}/sales`, {
-          headers: { Authorization: token },
-        });
+        const salesResponse = await fetch(
+          `${VENDOR_BASE}/product/${product._id}/sales`,
+          {
+            headers: { Authorization: token },
+          },
+        );
 
         if (salesResponse.ok) {
           const salesData = await salesResponse.json();
@@ -136,7 +141,10 @@ export const getProductsWithSales = async (token: string): Promise<Product[]> =>
 };
 
 // Delete a vendor product by its ID
-export const deleteProduct = async (productId: string, token: string): Promise<void> => {
+export const deleteProduct = async (
+  productId: string,
+  token: string,
+): Promise<void> => {
   const response = await fetch(`${VENDOR_BASE}/product/${productId}`, {
     method: 'DELETE',
     headers: { Authorization: token },
@@ -148,7 +156,10 @@ export const deleteProduct = async (productId: string, token: string): Promise<v
 };
 
 // Upload a single product image and return its URL
-export const uploadProductImage = async (token: string, file: File): Promise<string> => {
+export const uploadProductImage = async (
+  token: string,
+  file: File,
+): Promise<string> => {
   const formData = new FormData();
   formData.append('image', file);
 
@@ -184,7 +195,10 @@ export interface NewProduct {
   imageUrl: string;
 }
 
-export const createProduct = async (token: string, product: NewProduct): Promise<void> => {
+export const createProduct = async (
+  token: string,
+  product: NewProduct,
+): Promise<void> => {
   const res = await fetch(`${VENDOR_BASE}/add-product`, {
     method: 'POST',
     headers: {
@@ -198,7 +212,9 @@ export const createProduct = async (token: string, product: NewProduct): Promise
     const ct = res.headers.get('content-type') || '';
     let detail = '';
     try {
-      detail = ct.includes('application/json') ? JSON.stringify(await res.json()) : await res.text();
+      detail = ct.includes('application/json')
+        ? JSON.stringify(await res.json())
+        : await res.text();
     } catch (err) {
       console.error('Error parsing create product response:', err);
     }
@@ -219,7 +235,7 @@ export interface UpdateProductPayload {
 export const updateProduct = async (
   productId: string,
   token: string,
-  payload: UpdateProductPayload
+  payload: UpdateProductPayload,
 ): Promise<Record<string, unknown> | null> => {
   const res = await fetch(`${VENDOR_BASE}/product/${productId}`, {
     method: 'PUT',
@@ -236,7 +252,10 @@ export const updateProduct = async (
       const data = await res.json();
       msg = data?.message || msg;
     } catch (err) {
-      console.error('Error occurred while parsing update product response:', err);
+      console.error(
+        'Error occurred while parsing update product response:',
+        err,
+      );
     }
     throw new Error(msg);
   }

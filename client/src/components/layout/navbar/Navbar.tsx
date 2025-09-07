@@ -33,7 +33,7 @@ export default function Navbar() {
         {/* right side of navbar */}
         <div className="flex items-center space-x-4">
           {!user?.role && (
-            <div className="hidden md:flex items-center space-x-4">
+            <div className="flex items-center space-x-4">
               <Link
                 to="/auth/register"
                 className="text-gray-700 hover:text-green-600"
@@ -56,7 +56,7 @@ export default function Navbar() {
             </>
           )}
 
-          <ProfileDropdown />
+          {user && <ProfileDropdown />}
 
           {/* menu toggle */}
           {user && <MobileMenuDropDown role={user.role} />}

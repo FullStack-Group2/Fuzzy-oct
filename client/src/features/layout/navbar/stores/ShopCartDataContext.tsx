@@ -54,20 +54,28 @@ export const ShopCartDataProvider: React.FC<{ children: React.ReactNode }> = ({
 
   // Load cart once when user logs in
   useEffect(() => {
+    const controller = new AbortController();
+    const signal = controller.signal;
+    setLoading(true);
+    setError(null);
+    setCart([]);
+
     if (user?.role === 'CUSTOMER' && token) {
-      setLoading(true);
-      fetchCartApi(token)
+      fetchCartApi(token, signal)
         .then((data) => {
-          console.log(
-            `cart data is already setted: ${JSON.stringify(data.carts)}`,
-          );
-          console.log(`set refresh key: ${refreshKey}`);
           setCart(data.carts || []);
         })
-        .catch(() => setError('Failed to fetch cart'))
-        .finally(() => setLoading(false));
+        .catch((err: any) => {
+          if (err.name !== 'AbortError') {
+            setError('Failed to fetch cart');
+          }
+        })
+        .finally(() => {
+          if (!signal.aborted) setLoading(false);
+        });
     } else {
       setCart([]);
+      controller.abort();
     }
   }, [user, refreshKey]);
 
@@ -75,28 +83,24 @@ export const ShopCartDataProvider: React.FC<{ children: React.ReactNode }> = ({
     if (!token) return;
     const data = await addToCartApi(token, itemId, quantity);
     setRefreshKey((prev) => prev + 1);
-    console.log(`add to cart data: ${data}`);
   };
 
   const updateCartItem = async (itemId: string, quantity: number) => {
     if (!token) return;
     const data = await updateCartApi(token, itemId, quantity);
     setRefreshKey((prev) => prev + 1);
-    console.log(`updateCartItem data: ${data}`);
   };
 
   const removeCartItem = async (itemId: string) => {
     if (!token) return;
     const data = await removeCartItemApi(token, itemId);
     setRefreshKey((prev) => prev + 1);
-    console.log(`removeCartItem data: ${data}`);
   };
 
   const createOrder = async () => {
     if (!token) return;
     const data = await createOrderApi(token);
     setRefreshKey((prev) => prev + 1);
-    console.log('Order created:', data);
   };
 
   return (

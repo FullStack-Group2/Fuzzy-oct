@@ -52,7 +52,7 @@ export const Register: React.FC<RegistrationFlowProps> = ({
   };
 
   const handleBackToLogin = () => {
-    navigate('/login');
+    navigate('/auth/login');
   };
 
   const handleBackToSelection = () => {

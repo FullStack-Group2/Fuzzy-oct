@@ -21,6 +21,7 @@ import { Link } from 'react-router-dom';
 import PasswordRequirements, {
   passwordValidationSchema,
 } from '@/features/auth/sign-up/PasswordValidation';
+import toast from 'react-hot-toast';
 
 // Zod schema for shipper registration validation
 const shipperRegistrationSchema = z.object({
@@ -206,7 +207,7 @@ export const RegisterShipper: React.FC<RegisterShipperProps> = ({
         localStorage.setItem('token', data.token);
 
         onRegistrationSuccess?.(data.Shipper);
-        alert('Shipper registration successful!');
+        toast.success('Shipper registration successful!');
       } else {
         setError(data.message || 'Registration failed');
         console.error('Registration failed:', data);
@@ -220,16 +221,21 @@ export const RegisterShipper: React.FC<RegisterShipperProps> = ({
   };
 
   return (
-    <div className="min-h-screen flex">
+    <div className="flex">
       {/* Left Panel - Image */}
-      <div className="flex-1 flex items-center justify-center">
-        <div className="w-80 h-80 rounded-lg flex items-center justify-center">
-          <span className="text-lg">Fuzzy</span>
+      <div className="relative hidden md:block md:w-1/2 bg-[#B7F7E1]">
+        <img
+          src="/backgroundCover.png"
+          alt="background cover for shop header"
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 flex items-center justify-center text-black text-5xl font-semibold">
+          FUZZY
         </div>
       </div>
 
-      {/* Right Panel - Registration Form */}
-      <div className="flex-1 flex items-center justify-center bg-gray-50">
+      {/* Right Panel - Login Form */}
+      <div className="w-full md:w-1/2 flex items-center justify-center">
         <div className="w-full max-w-md p-8">
           {/* Header */}
           <div className="mb-8">

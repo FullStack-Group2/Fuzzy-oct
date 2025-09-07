@@ -22,20 +22,18 @@ interface CartItemProps {
 }
 
 const CartItem: React.FC<any> = ({ dataItem }) => {
-  const { loading, error, updateCartItem, removeCartItem } = useShopCart();
-
-  if (loading) return <p>Loading cart...</p>;
-  if (error) return <p>{error}</p>;
-
+  const { updateCartItem, removeCartItem } = useShopCart();
   // if(!dataItem) return <></>
+
   const { _id, product, quantity } = dataItem;
 
   function increase() {
-    updateCartItem(_id, quantity + 1);
+    console.log(`click on dataItem: ${JSON.stringify(dataItem)}`);
+    updateCartItem(product._id, quantity + 1);
   }
 
   function decrease() {
-    updateCartItem(_id, quantity - 1);
+    updateCartItem(product._id, quantity - 1);
   }
 
   function removeItem() {

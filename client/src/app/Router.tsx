@@ -22,7 +22,6 @@ import AddProduct from './pages/products/add';
 import EditProduct from './pages/products/[productId]/edit';
 import ProductDetail from './pages/products/[productId]';
 import Shop from './pages/Shop';
-import StoreDetail from './pages/stores/[storeId]';
 
 import { Login } from './pages/auth/Login';
 import { ForgotPassword } from './pages/auth/ForgotPassword';
@@ -46,6 +45,11 @@ import CustomerOrderDetails from './pages/customer/CustomerOrderDetails';
 
 import Modal from '@/components/Modal';
 import { useAuth } from '../stores/AuthProvider';
+import Faq from './pages/Faq';
+import { ProductDetailDataProvider } from '@/features/shop/stores/ProductDetailDataContext';
+import { ShopProductDataProvider } from '@/features/shop/stores/ShopProductDataContext';
+import About from './pages/About';
+import { toast, Toaster, ToastBar } from 'react-hot-toast';
 
 // Wrapper for Logout if it needs user from context
 const LogoutWrapper = () => {
@@ -65,18 +69,31 @@ function InnerRoutes() {
 
   return (
     <>
+    {/*Toaster to show error or success message*/}
+      <Toaster>
+        {(t) => (
+          <ToastBar toast={t}>
+            {({ icon, message }) => (
+              <>
+                {icon}
+                {message}
+                {t.type !== 'loading' && (
+                  <button onClick={() => toast.dismiss(t.id)}>X</button>
+                )}
+              </>
+            )}
+          </ToastBar>
+        )}
+      </Toaster>
+
       {/* Base routes (render page content). If a backgroundLocation exists, these render "behind" a modal. */}
       <Routes location={backgroundLocation || location}>
         <Route element={<Layout />}>
           {/* Public routes */}
+          <Route path="/about" element={<About />} />
           <Route path="/privacy" element={<PrivacyPolicy />} />
-
-          <Route
-            path="/contact"
-            element={
-                <Contact />
-            }
-          />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/faq" element={<Faq />} />
 
           {/* Auth (public-only) */}
           <Route
@@ -143,7 +160,19 @@ function InnerRoutes() {
             path="/shop"
             element={
               <ProtectedRoute allowedRoles={['CUSTOMER']}>
-                <Shop />
+                <ShopProductDataProvider>
+                  <Shop />
+                </ShopProductDataProvider>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/shop/:shopId"
+            element={
+              <ProtectedRoute allowedRoles={['CUSTOMER']}>
+                <ShopProductDataProvider>
+                  <Shop />
+                </ShopProductDataProvider>
               </ProtectedRoute>
             }
           />
@@ -151,15 +180,9 @@ function InnerRoutes() {
             path="/products/:id"
             element={
               <ProtectedRoute allowedRoles={['CUSTOMER']}>
-                <ProductDetail />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/stores/:id"
-            element={
-              <ProtectedRoute allowedRoles={['CUSTOMER']}>
-                <StoreDetail />
+                <ProductDetailDataProvider>
+                  <ProductDetail />
+                </ProductDetailDataProvider>
               </ProtectedRoute>
             }
           />
@@ -268,7 +291,6 @@ function InnerRoutes() {
           <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>
-
       {/* Modal routes (render on top when backgroundLocation exists) */}
       {backgroundLocation && (
         <Routes>

@@ -38,19 +38,23 @@ router.get(
   authMiddleware,
   requireVendor,
   vendorController.getAllProducts,
-);
+);// legacy: now move to public route
+
 router.get(
   '/product/:productId',
   authMiddleware,
   requireVendor,
   vendorController.getProduct,
-);
+); // legacy: now move to public route
+
+
 router.get(
   '/:id',
-  authMiddleware,
-  requireVendor,
+  // authMiddleware,
+  // requireVendor,
   vendorController.getVendorById,
-);
+); // this will be use for public, specifically in function product detail
+
 router.post(
   '/add-product',
   authMiddleware,

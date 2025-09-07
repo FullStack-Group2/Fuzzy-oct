@@ -27,6 +27,7 @@ export async function apiCustomerGetOrders(
   const res = await fetch(`${API_BASE}/customers/orders${qs}`, {
     headers: authHeaders()
   });
+  console.log(`check response: ${JSON.stringify(res)}`);
   if (!res.ok) throw new Error("Failed to load orders");
   return res.json();
 }
@@ -54,10 +55,8 @@ export async function apiCustomerCancelOrder(
   });
   if (!res.ok) {
     let msg = "Failed to cancel order";
-    try {
       const t = await res.json();
       if (t?.error) msg = t.error;
-    } catch { }
     throw new Error(msg);
   }
 }

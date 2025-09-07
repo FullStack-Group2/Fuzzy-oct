@@ -12,11 +12,133 @@ import OrderItem from '../models/OrderItem';
 import Order from '../models/Order';
 import { orderBilling } from '../utils/OrderBilling';
 import { getTotalPrice } from '../utils/TotalPrice';
-import { ProductModel } from '../models/Product';
+import { ProductModel, IProduct } from '../models/Product';
 import { chooseHub } from './HubService';
 import { splitOrder } from '../utils/SplitOrder';
-import { productQuantity } from './ProductService';
-let productBought = [];
+import { FilterQuery, SortOrder } from 'mongoose';
+import { VendorModel } from '../models/Vendor';
+
+type ProductFilters = {
+  minPrice?: number | null;
+  maxPrice?: number | null;
+  category?: string | null;
+  keyword?: string | null;
+  vendor?: string | null;
+};
+
+type ProductPaging = {
+  page: number;
+  pageSize: number;
+};
+
+type ProductSorting = {
+  priceOrder?: 'asc' | 'desc' | null; // only price sorting
+};
+
+export const getProducts = async (
+  filters: ProductFilters = {},
+  paging: ProductPaging = { page: 1, pageSize: 4 },
+  sorting: ProductSorting = { priceOrder: null },
+) => {
+  const query: FilterQuery<IProduct> = {};
+
+  if (filters.minPrice != null || filters.maxPrice != null) {
+    query.price = {};
+    if (filters.minPrice != null) query.price.$gte = filters.minPrice;
+    if (filters.maxPrice != null) query.price.$lte = filters.maxPrice;
+  }
+
+  if (filters.category) {
+    query.category = filters.category;
+  }
+
+  if (filters.keyword) {
+    query.name = { $regex: filters.keyword, $options: 'i' };
+  }
+
+  if (filters.vendor) {
+    query.vendor = filters.vendor;
+  }
+
+  const sort: Record<string, SortOrder> = {};
+  if (sorting.priceOrder === 'asc') sort.price = 1;
+  if (sorting.priceOrder === 'desc') sort.price = -1;
+
+  const skip = (paging.page - 1) * paging.pageSize;
+
+  const tasks: Promise<any>[] = [
+    ProductModel.find(query)
+      .sort(sort)
+      .skip(skip)
+      .limit(paging.pageSize)
+      .lean(),
+    ProductModel.countDocuments(query),
+  ];
+
+  // If vendor filter exists, also fetch vendor
+  if (filters.vendor) {
+    tasks.push(
+      VendorModel.findById(filters.vendor)
+        .select('-password -role -_t -_v')
+        .lean(),
+    );
+  }
+
+  const results = await Promise.all(tasks);
+
+  const items = results[0] as IProduct[];
+  const total = results[1] as number;
+
+  // validate items and total
+  if (!items || typeof total !== 'number') {
+    return null;
+  }
+
+  // vendor validation
+  let vendor: any = null;
+  if (filters.vendor) {
+    vendor = results[2] || null;
+    if (!vendor) {
+      return null;
+    }
+  }
+
+  return {
+    products: items,
+    totalProducts: total,
+    pageIndex: paging.page,
+    pageSize: paging.pageSize,
+    totalPages: Math.max(1, Math.ceil(total / paging.pageSize)),
+    ...(vendor ? { vendor } : {}),
+  };
+};
+
+export const getOneProduct = async (productId: string) => {
+  // 1) fetch product
+  const product = await ProductModel.findById(productId).lean();
+  if (!product) {
+    return null;
+  }
+
+  // 2) fetch vendor if vendorId exists
+  let vendor = null;
+  const vendorId = product.vendor;
+
+  if (vendorId) {
+    vendor = await VendorModel.findById(vendorId)
+      .select('-password -role -__t -__v')
+      .lean();
+    if (!vendor) {
+      return null;
+    }
+  }
+
+  return {
+    product,
+    vendor,
+  };
+};
+
 export const getCustomerCart = async (userId: string) => {
   return CartItem.find({ customer: userId })
     .populate({ path: 'product', model: ProductModel })
@@ -61,39 +183,41 @@ export const addItemToCart = async ({
 
 export const modifyItemCart = async ({
   customerId,
-  cartId,
+  itemId,
   quantity,
 }: {
   customerId: string;
-  cartId: string;
+  itemId: string;
   quantity: number;
 }) => {
   // 1. Check product stock
-  const productDoc = await ProductModel.findOne({ _id: cartId });
-  console.log(productDoc);
-  if (!productDoc) {
+  const cartItem = await CartItem.findOne({ product: itemId });
+  const productItem = await ProductModel.findOne({ _id: itemId });
+  // console.log('cartItem in update: '+JSON.stringify(cartItem));
+  if (!productItem || !cartItem) {
     throw new Error('Product not found');
   }
 
-  if (quantity > productDoc.availableStock) {
+  if (quantity > productItem.availableStock) {
     throw new Error(
-      `Requested quantity (${quantity}) exceeds available stock (${productDoc.availableStock}).`,
+      `Requested quantity (${quantity}) exceeds available stock (${productItem.availableStock}).`,
     );
   }
 
   // 2. Update cart item
   const updatedCartItem = await CartItem.findOneAndUpdate(
-    { customer: customerId, _id: cartId },
+    { customer: customerId, _id: cartItem._id },
     { $set: { quantity } },
     { new: true, upsert: true }, // upsert allows creating item if not exists
   ).populate('product');
 
   // 3. Return both product stock + cart quantity
   return {
-    cartItem: updatedCartItem,
-    availableStock: productDoc.availableStock,
+    productItem: updatedCartItem,
+    availableStock: productItem.availableStock,
     quantity: updatedCartItem?.quantity,
   };
+  return 0;
 };
 
 export const createOrderFromItem = async (userId: string) => {
@@ -144,53 +268,7 @@ export const createOrderFromItem = async (userId: string) => {
 
 // Check quantity of the product from vendor, replace the 0 by later
 // Question on the query of the product's quantity from the shop, which route to be more efficient
-// productInventoryDecrease
-export const checkStock = async (items: ICartItem[]): Promise<boolean> => {
-  try {
-    // Lấy toàn bộ ID sản phẩm từ giỏ hàng
-    const productIds = items.map(item => item.product);
-
-    // Lấy tất cả sản phẩm trong DB
-    const products = await ProductModel.find({ _id: { $in: productIds } }).exec();
-
-    // Sắp xếp products theo đúng thứ tự items[]
-    const sortedProducts = productIds.map(
-      id => products.find(p => p._id.toString() === id.toString())!
-    );
-
-    // 1️⃣ Kiểm tra tồn kho trước khi cập nhật
-    for (let i = 0; i < items.length; i++) {
-      const cartItem = items[i];
-      const product = sortedProducts[i];
-
-      if (!product) {
-        console.warn(`⚠️ Product ${cartItem.product} không tồn tại`);
-        return false;
-      }
-
-      if (product.availableStock < cartItem.quantity) {
-        console.warn(`⚠️ Product ${product.name} chỉ còn ${product.availableStock}, yêu cầu ${cartItem.quantity}`);
-        return false;
-      }
-    }
-
-    // 2️⃣ Trừ tồn kho nếu tất cả sản phẩm còn hàng
-    for (let i = 0; i < items.length; i++) {
-      const product = sortedProducts[i];
-      product.availableStock -= items[i].quantity;
-      await product.save();
-    }
-
-    return true;
-  } catch (error) {
-    console.error("❌ Lỗi khi kiểm tra tồn kho:", error);
-    return false;
-  }
-};
-export const getCustomerProducts = async () => {
-  return ProductModel.find({});
-};
-
-export const getStoreProducts = async (storeId: string) => {
-  return ProductModel.find({ vendor: storeId });
+export const checkStock = (items: ICartItem[]): boolean => {
+  const ans = items.every((e) => e.quantity > 0);
+  return ans;
 };

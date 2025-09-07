@@ -13,9 +13,7 @@ import { ShopProductDataProvider } from "@/features/shop/stores/ShopProductDataC
 export default function Provider({ children }: { children: React.ReactNode }) {
   return (
     <AuthProvider>
-      <ShopCartDataProvider>
-        <ShopProductDataProvider>{children}</ShopProductDataProvider>
-      </ShopCartDataProvider>
+      <ShopCartDataProvider>{children}</ShopCartDataProvider>
     </AuthProvider>
   );
 }

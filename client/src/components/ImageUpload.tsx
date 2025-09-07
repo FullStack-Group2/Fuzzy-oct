@@ -6,6 +6,7 @@
 // ID: 
 
 import React, { useState } from 'react';
+import toast from 'react-hot-toast';
 
 interface ImageData {
   id: string;
@@ -42,7 +43,7 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({ onImageUpload }) => {
     const file = formData.get('image') as File;
 
     if (!file) {
-      alert('Please select a file');
+      toast.error('Please select a file');
       return;
     }
 
@@ -61,11 +62,11 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({ onImageUpload }) => {
         console.log('Upload successful:', data);
       } else {
         console.error('Upload failed');
-        alert('Upload failed');
+        toast.error('Upload failed');
       }
     } catch (error) {
       console.error('Error uploading file:', error);
-      alert('Error uploading file');
+      toast.error('Error uploading file');
     } finally {
       setUploading(false);
     }

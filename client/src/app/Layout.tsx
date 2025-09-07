@@ -12,20 +12,20 @@ import AIChatbox from '@/features/AIChatbox/AIChatbox';
 
 export default function Layout() {
   return (
-    <section className="flex flex-col min-h-screen w-screen">
+    <section className="flex flex-col min-h-screen w-full">
       {/* Navbar always visible */}
       <div className="sticky top-0 z-50">
         <Navbar />
       </div>
 
       {/* Main Content fills space */}
-      <main className="flex-1 w-full x-3 md:px-6">
+      <main className="flex-1 w-full min-h-screen">
         <Outlet />
         <AIChatbox />
       </main>
 
       {/* Footer only appears after content ends */}
-      <footer className="mt-auto">
+      <footer className="mt-auto w-full">
         <Footer />
       </footer>
     </section>

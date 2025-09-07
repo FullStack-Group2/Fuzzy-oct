@@ -19,7 +19,10 @@ export default function CustomerOrders() {
   async function refetch() {
     setLoading(true);
     try {
-      setOrders(await apiCustomerGetOrders());
+      const customerOrder = await apiCustomerGetOrders();
+      if (customerOrder) {
+        setOrders(customerOrder);
+      }
     } catch (e) {
       console.error(e);
     } finally {
@@ -27,7 +30,9 @@ export default function CustomerOrders() {
     }
   }
 
-  useEffect(() => { refetch(); }, []);
+  useEffect(() => {
+    refetch();
+  }, []);
 
   // support refresh after modal mutations (refreshTick)
   useEffect(() => {
@@ -39,7 +44,9 @@ export default function CustomerOrders() {
   return (
     <main className="mx-auto w-full max-w-7xl py-4 md:py-6">
       <h1 className="text-xl md:text-2xl font-semibold mb-1">My Orders</h1>
-      <p className="text-xs md:text-sm text-gray-600 mb-4">All of your orders!</p>
+      <p className="text-xs md:text-sm text-gray-600 mb-4">
+        All of your orders!
+      </p>
 
       <CustomerOrdersTable
         orders={orders}

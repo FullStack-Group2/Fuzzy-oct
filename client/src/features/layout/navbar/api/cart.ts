@@ -7,9 +7,10 @@
 
 const API_BASE = "http://localhost:5001/api/customers";
 
-export async function fetchCartApi(token: string) {
+export async function fetchCartApi(token: string, signal: any) {
   const res = await fetch(`${API_BASE}/cart`, {
     headers: { Authorization: `Bearer ${token}` },
+    signal,
   });
   if (!res.ok) throw new Error('Failed to fetch cart');
   return res.json();

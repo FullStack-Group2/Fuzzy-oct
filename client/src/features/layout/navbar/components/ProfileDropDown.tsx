@@ -47,10 +47,10 @@ export default function ProfileDropdown() {
           >
             My Account
           </Link>
-          <button
-            onClick={handleLogout}
-            disabled={isLoggingOut}
-            className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 disabled:opacity-50"
+          <Link
+            to="/auth/logout"
+            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+            onClick={() => setOpen(false)}
           >
             {isLoggingOut ? 'Logging out...' : 'Logout'}
           </button>

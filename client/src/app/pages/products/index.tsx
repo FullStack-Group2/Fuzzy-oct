@@ -149,7 +149,7 @@ export const Products: React.FC = () => {
   };
 
   return (
-    <section className="w-full my-10">
+    <section className="w-full mb-10">
       <header className="relative mb-5 w-full h-56 bg-[#B7F7E1]">
         <img
           src="/backgroundCover.png"
@@ -177,7 +177,7 @@ export const Products: React.FC = () => {
             "
           >
             <UploadIcon className="text-[#1E7A5A] group-hover:text-white" />
-            <span className="text-md lg:text-lg">Export Products</span>
+            <span className="text-sm">Export Products</span>
           </button>
 
           <button
@@ -200,8 +200,8 @@ export const Products: React.FC = () => {
       )}
 
       {!loading && products.length > 0 && (
-        <div className="border border-[#E8E8E9] rounded-t-lg mx-5 md:mx-10 overflow-hidden">
-          <Table className="text-md lg:text-lg">
+        <div className="border border-[#E8E8E9] rounded-t-lg mx-10 lg:mx-28 overflow-hidden">
+          <Table className="text-sm md:text-md">
             <TableHeader className="bg-[#FCFCFC] border-b-[1px] border-[#E8E8E9]">
               <TableRow className="h-16">
                 <TableHead className="text-black lg:pl-8">

@@ -76,7 +76,7 @@ export const EditProduct: React.FC = () => {
   };
 
   return (
-    <div className="bg-white p-6 text-md lg:text-lg">
+    <div className="bg-white p-6 text-md lg:text-lg mx-10 lg:mx-28">
       <button
         type="button"
         onClick={() => navigate(-1)}

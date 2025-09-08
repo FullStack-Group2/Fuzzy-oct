@@ -5,7 +5,6 @@
 // Author:
 // ID:
 
-import { useState } from 'react';
 import FilterBar from '@/features/shop/components/filter/FilterBar';
 import ShopPage from '@/features/shop/components/ShopPage';
 import ShopPagination from '@/features/shop/components/ShopPagination';

@@ -80,4 +80,12 @@ router.patch(
   customerController.patchCustomerOrderStatus,
 );
 
+// Customer by ID route - MUST be last to avoid conflicts with specific routes
+router.get(
+  '/:id',
+  authMiddleware,
+  requireCustomer,
+  customerController.getCustomerById,
+);
+
 export default router;

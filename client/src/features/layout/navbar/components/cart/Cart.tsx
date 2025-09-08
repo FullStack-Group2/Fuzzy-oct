@@ -4,20 +4,14 @@
 // Assessment: Assignment 02
 // Author:
 // ID:
+import { useState, useEffect } from 'react';
+import toast from 'react-hot-toast';
 
-import { useState } from 'react';
 import { HiOutlineShoppingCart } from 'react-icons/hi';
 import { FaArrowLeftLong } from 'react-icons/fa6';
 import CartItem from './CartItem';
 import { useShopCart } from '../../stores/ShopCartDataContext';
 import { Skeleton } from '@/components/ui/skeleton';
-
-interface DataItem {
-  name: string;
-  imgSrc: string;
-  price: number;
-  quantity: number;
-}
 
 function calculateTotal(products: any[]): number {
   if (!Array.isArray(products)) return 0;

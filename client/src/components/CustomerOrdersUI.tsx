@@ -6,18 +6,12 @@
 // ID: 4010989
 
 import { Link, Location } from 'react-router-dom';
-import {
-  FunnelIcon,
-  SortAZIcon,
-  SortZAIcon,
-  StatusBadge,
-  StatusHeader,
-} from '@/components/OrdersUI';
+import { StatusBadge, StatusHeader } from '@/components/OrdersUI';
 import type {
   CustomerOrderDetailDTO,
   CustomerOrderListDTO,
 } from '@/models/CustomerDTO';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useMemo, useState } from 'react';
 
 /** Customer list table (No., DB Order ID, Vendor, Status, Total, Action) */
 export function CustomerOrdersTable({

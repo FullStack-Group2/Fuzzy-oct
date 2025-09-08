@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { ProductModel, IProduct } from '../models/Product';
 import { ProductCategory } from '../models/ProductCategory';
+import { getAllProducts } from '../services/VendorService';
 
 // Website navigation help data
 const navigationHelp = {
@@ -11,6 +12,7 @@ const navigationHelp = {
     '/products/add':
       'Add Product - Create new furniture listings (Vendor only)',
     '/orders': 'Orders page - View and manage your orders',
+    '/profile': 'Profile page - Manage your account settings',
   },
   features: {
     search: 'Use the search bar to find specific furniture items',
@@ -19,6 +21,12 @@ const navigationHelp = {
     account: 'Manage your profile, addresses, and preferences',
   },
   categories: Object.values(ProductCategory),
+  tips: [
+    'Use specific keywords when asking for product recommendations',
+    'Include your budget range for better suggestions',
+    'Mention colors or styles you prefer',
+    "Ask for help navigating if you're lost",
+  ],
 };
 
 interface ChatRequest extends Request {
@@ -74,6 +82,10 @@ export class AIController {
         });
       }
 
+      // Get all products from database first
+      const allProducts = await getAllProducts();
+      console.log('allProducts: ', allProducts);
+
       const lowerMessage = message.toLowerCase();
       let response: ChatResponse = {
         message: '',
@@ -82,14 +94,17 @@ export class AIController {
         navigationHelp: null,
       };
 
-      // Check if user is asking for product recommendations
-      if (AIController.isProductRecommendationQuery(lowerMessage)) {
-        const recommendations = await AIController.getProductRecommendations(
-          message,
-          priceRange,
-          category,
-          color,
-        );
+      // Check if user is asking for product recommendations using intelligent analysis
+      if (AIController.isProductQuery(lowerMessage, allProducts)) {
+        const recommendations =
+          await AIController.getIntelligentRecommendations(
+            message,
+            allProducts,
+            priceRange,
+            category,
+            color,
+          );
+        console.log('recommendations: ', recommendations);
         response = {
           message: AIController.generateRecommendationMessage(
             recommendations,
@@ -133,207 +148,286 @@ export class AIController {
   }
 
   /**
-   * Get product recommendations based on user query and filters
+   * Intelligent product query detection based on actual product data
    */
-  static async getProductRecommendations(
+  static isProductQuery(message: string, products: IProduct[]): boolean {
+    // Extract all unique words from product names and descriptions
+    const productTerms = new Set<string>();
+
+    products.forEach((product) => {
+      // Add words from product name
+      product.name
+        .toLowerCase()
+        .split(/\s+/)
+        .forEach((word) => {
+          if (word.length > 2) productTerms.add(word);
+        });
+
+      // Add words from product description
+      if (product.description) {
+        product.description
+          .toLowerCase()
+          .split(/\s+/)
+          .forEach((word) => {
+            if (word.length > 2) productTerms.add(word);
+          });
+      }
+
+      // Add category
+      productTerms.add(product.category.toLowerCase());
+    });
+
+    // Check if any word in the message matches product terms
+    const messageWords = message.toLowerCase().split(/\s+/);
+    return (
+      messageWords.some((word) => productTerms.has(word)) ||
+      message.includes('price') ||
+      message.includes('cost') ||
+      message.includes('how much') ||
+      message.includes('buy') ||
+      message.includes('purchase') ||
+      message.includes('find') ||
+      message.includes('show me') ||
+      message.includes('looking for') ||
+      message.includes('recommend') ||
+      message.includes('suggest')
+    );
+  }
+
+  /**
+   * Get intelligent product recommendations based on all available data
+   */
+  static async getIntelligentRecommendations(
     query: string,
+    allProducts: IProduct[],
     priceRange?: { min: number; max: number },
     category?: ProductCategory,
     color?: string,
   ): Promise<ProductRecommendation[]> {
     try {
-      // Build MongoDB query
-      const mongoQuery: Record<string, unknown> = {
-        availableStock: { $gt: 0 },
-      };
+      let filteredProducts = [...allProducts];
 
-      // Add price filter
+      // Apply price filter
       if (priceRange) {
-        mongoQuery.price = {
-          $gte: priceRange.min,
-          $lte: priceRange.max,
-        };
+        filteredProducts = filteredProducts.filter(
+          (product) =>
+            product.price >= priceRange.min && product.price <= priceRange.max,
+        );
       }
 
-      // Add category filter
+      // Apply category filter
       if (category && Object.values(ProductCategory).includes(category)) {
-        mongoQuery.category = category;
+        filteredProducts = filteredProducts.filter(
+          (product) => product.category === category,
+        );
       }
 
-      // Get products from database
-      const products = await ProductModel.find(mongoQuery)
-        .populate('vendor', 'businessName')
-        .limit(10);
+      // Apply color filter
+      if (color) {
+        filteredProducts = filteredProducts.filter(
+          (product) =>
+            product.name.toLowerCase().includes(color.toLowerCase()) ||
+            (product.description &&
+              product.description.toLowerCase().includes(color.toLowerCase())),
+        );
+      }
 
-      if (products.length === 0) {
+      console.log(`Filtered to ${filteredProducts.length} products`);
+
+      if (filteredProducts.length === 0) {
         return [];
       }
 
-      // Score and rank products based on query relevance
-      const recommendations: ProductRecommendation[] = products.map(
-        (product) => {
-          const score = AIController.calculateRelevanceScore(
-            product,
-            query,
-            color,
-          );
-          const reason = AIController.generateRecommendationReason(
-            product,
-            query,
-            priceRange,
-            color,
-          );
+      // Score all filtered products based on query relevance
+      const scoredProducts = filteredProducts.map((product) => {
+        const score = AIController.calculateIntelligentScore(product, query);
+        const reason = AIController.generateIntelligentReason(
+          product,
+          query,
+          priceRange,
+          color,
+        );
 
-          // Handle populated vendor field
-          const vendor =
-            typeof product.vendor === 'object' &&
-            product.vendor !== null &&
-            'businessName' in product.vendor
-              ? {
-                  businessName: (product.vendor as { businessName: string })
-                    .businessName,
-                }
-              : { businessName: 'Unknown Vendor' };
+        // Handle populated vendor field
+        const vendor =
+          typeof product.vendor === 'object' &&
+          product.vendor !== null &&
+          'businessName' in product.vendor
+            ? {
+                businessName: (product.vendor as { businessName: string })
+                  .businessName,
+              }
+            : { businessName: 'Unknown Vendor' };
 
-          return {
-            product: {
-              id: product._id.toString(),
-              name: product.name,
-              price: product.price,
-              imageUrl: product.imageUrl,
-              description: product.description,
-              category: product.category,
-              availableStock: product.availableStock,
-              vendor,
-            },
-            reason,
-            matchScore: score,
-          };
-        },
-      );
+        return {
+          product: {
+            id: product._id.toString(),
+            name: product.name,
+            price: product.price,
+            imageUrl: product.imageUrl,
+            description: product.description,
+            category: product.category,
+            availableStock: product.availableStock,
+            vendor,
+          },
+          reason,
+          matchScore: score,
+        };
+      });
 
       // Sort by relevance score and return top recommendations
-      return recommendations
+      return scoredProducts
+        .filter((rec) => rec.matchScore > 0)
         .sort((a, b) => b.matchScore - a.matchScore)
         .slice(0, 5);
     } catch (error) {
-      console.error('Error getting product recommendations:', error);
+      console.error('Error getting intelligent recommendations:', error);
       return [];
     }
   }
 
   /**
-   * Calculate relevance score for a product based on user query
+   * Calculate intelligent relevance score based on actual product data
    */
-  static calculateRelevanceScore(
-    product: IProduct,
-    query: string,
-    color?: string,
-  ): number {
+  static calculateIntelligentScore(product: IProduct, query: string): number {
     let score = 0;
     const lowerQuery = query.toLowerCase();
     const productName = product.name.toLowerCase();
     const productDesc = product.description?.toLowerCase() || '';
+    const category = product.category.toLowerCase();
 
-    // Name match (highest weight)
-    if (productName.includes(lowerQuery)) score += 10;
+    // Split query into words
+    const queryWords = lowerQuery
+      .split(/\s+/)
+      .filter((word) => word.length > 2);
 
-    // Category match
-    if (lowerQuery.includes(product.category.toLowerCase())) score += 8;
+    // Exact phrase match in name (highest priority)
+    if (productName.includes(lowerQuery)) {
+      score += 20;
+    }
 
-    // Description match
-    const queryWords = lowerQuery.split(' ');
+    // Exact phrase match in description
+    if (productDesc.includes(lowerQuery)) {
+      score += 15;
+    }
+
+    // Individual word matches with different weights
     queryWords.forEach((word) => {
-      if (productName.includes(word)) score += 3;
-      if (productDesc.includes(word)) score += 2;
+      if (productName.includes(word)) {
+        score += 8; // High weight for name matches
+      }
+      if (productDesc.includes(word)) {
+        score += 5; // Medium weight for description matches
+      }
+      if (category.includes(word)) {
+        score += 10; // High weight for category matches
+      }
     });
 
-    // Color match (if specified)
-    if (color && productDesc.includes(color.toLowerCase())) score += 5;
+    // Price inquiry bonus
+    if (
+      lowerQuery.includes('price') ||
+      lowerQuery.includes('cost') ||
+      lowerQuery.includes('how much')
+    ) {
+      score += 5;
+    }
 
     // Stock availability bonus
-    if (product.availableStock > 10) score += 2;
+    if (product.availableStock > 10) {
+      score += 3;
+    } else if (product.availableStock > 0) {
+      score += 1;
+    }
+
+    // Vendor name match
+    if (
+      typeof product.vendor === 'object' &&
+      product.vendor !== null &&
+      'businessName' in product.vendor
+    ) {
+      const vendorName = (
+        product.vendor as { businessName: string }
+      ).businessName.toLowerCase();
+      queryWords.forEach((word) => {
+        if (vendorName.includes(word)) {
+          score += 3;
+        }
+      });
+    }
 
     return score;
   }
 
   /**
-   * Generate recommendation reason for a product
+   * Generate intelligent recommendation reason based on actual matches
    */
-  static generateRecommendationReason(
+  static generateIntelligentReason(
     product: IProduct,
     query: string,
     priceRange?: { min: number; max: number },
     color?: string,
   ): string {
     const reasons = [];
+    const lowerQuery = query.toLowerCase();
+    const productName = product.name.toLowerCase();
+    const productDesc = product.description?.toLowerCase() || '';
 
-    if (query.toLowerCase().includes(product.category.toLowerCase())) {
-      reasons.push(`matches your search for ${product.category.toLowerCase()}`);
+    // Check what specifically matched
+    if (productName.includes(lowerQuery)) {
+      reasons.push('exact name match');
+    } else if (productDesc.includes(lowerQuery)) {
+      reasons.push('matches description');
     }
 
+    // Category match
+    if (lowerQuery.includes(product.category.toLowerCase())) {
+      reasons.push(`perfect ${product.category.toLowerCase()} match`);
+    }
+
+    // Price range match
     if (
       priceRange &&
       product.price >= priceRange.min &&
       product.price <= priceRange.max
     ) {
-      reasons.push(`fits your budget ($${priceRange.min}-$${priceRange.max})`);
+      reasons.push(
+        `within your budget ($${priceRange.min}-$${priceRange.max})`,
+      );
     }
 
+    // Color match
     if (
       color &&
-      product.description?.toLowerCase().includes(color.toLowerCase())
+      (productName.includes(color.toLowerCase()) ||
+        productDesc.includes(color.toLowerCase()))
     ) {
-      reasons.push(`available in ${color} color`);
+      reasons.push(`available in ${color}`);
     }
 
+    // Stock availability
     if (product.availableStock > 10) {
+      reasons.push('excellent availability');
+    } else if (product.availableStock > 5) {
       reasons.push('good availability');
+    } else if (product.availableStock > 0) {
+      reasons.push('limited stock available');
+    }
+
+    // Price inquiry specific
+    if (
+      lowerQuery.includes('price') ||
+      lowerQuery.includes('cost') ||
+      lowerQuery.includes('how much')
+    ) {
+      reasons.push(`clear pricing at $${product.price}`);
     }
 
     if (reasons.length === 0) {
-      reasons.push('popular choice');
+      reasons.push('popular furniture choice');
     }
 
-    return `Recommended because it ${reasons.join(' and ')}.`;
-  }
-
-  /**
-   * Check if user query is asking for product recommendations
-   */
-  static isProductRecommendationQuery(message: string): boolean {
-    const recommendationKeywords = [
-      'recommend',
-      'suggest',
-      'find',
-      'looking for',
-      'need',
-      'want to buy',
-      'show me',
-      'furniture',
-      'sofa',
-      'chair',
-      'table',
-      'bed',
-      'cabinet',
-      'cheap',
-      'expensive',
-      'budget',
-      'price',
-      'color',
-      'red',
-      'blue',
-      'white',
-      'black',
-      'brown',
-      'grey',
-      'green',
-      'buy',
-      'purchase',
-      'shop',
-    ];
-
-    return recommendationKeywords.some((keyword) => message.includes(keyword));
+    return `Recommended because it has ${reasons.join(' and ')}.`;
   }
 
   /**
@@ -346,17 +440,17 @@ export class AIController {
       'navigate',
       'find page',
       'go to',
-      'help',
+      'help me navigate',
       'menu',
       'profile',
       'orders',
-      'products',
-      'shop',
       'add product',
       'lost',
       'confused',
       'guide me',
       'show me around',
+      'how do i',
+      'where can i',
     ];
 
     return navigationKeywords.some((keyword) => message.includes(keyword));
@@ -366,23 +460,62 @@ export class AIController {
    * Generate navigation help response
    */
   static generateNavigationHelp(message: string): string {
-    if (message.includes('profile')) {
-      return "To access your profile, click on the profile icon in the top navigation bar, then select 'My Account'. There you can update your personal information, addresses, and account settings.";
+    const lowerMessage = message.toLowerCase();
+
+    // Specific route help
+    if (lowerMessage.includes('profile')) {
+      return `To access your profile, click on the profile icon in the top navigation bar, then select 'My Account'. ${navigationHelp.routes['/profile']} You can update your personal information, addresses, and account settings there.`;
     }
 
-    if (message.includes('orders')) {
-      return "To view your orders, go to the 'Orders' page from the main navigation. You can track your current orders and view your order history there.";
+    if (lowerMessage.includes('orders')) {
+      return `To view your orders, go to the 'Orders' page from the main navigation. ${navigationHelp.routes['/orders']} You can track your current orders and view your order history there.`;
     }
 
-    if (message.includes('products') && message.includes('add')) {
-      return "To add new products (Vendor only), navigate to 'Products' → 'Add Product'. Fill in the product details, upload images, and set your pricing.";
+    if (lowerMessage.includes('products') && lowerMessage.includes('add')) {
+      return `To add new products (Vendor only), navigate to 'Products' → 'Add Product'. ${navigationHelp.routes['/products/add']} Fill in the product details, upload images, and set your pricing.`;
     }
 
-    if (message.includes('shop')) {
-      return "To start shopping, click on the 'Shop' button in the navigation. You can browse furniture by category, use filters, and add items to your cart.";
+    if (lowerMessage.includes('shop')) {
+      return `To start shopping, click on the 'Shop' button in the navigation. ${navigationHelp.routes['/shop']} You can browse furniture by category, use filters, and add items to your cart.`;
     }
 
-    return 'I can help you navigate our website! Here are the main sections:\n• Home - Main dashboard\n• Shop - Browse furniture\n• Products - Manage your listings (Vendors)\n• Orders - Track your purchases\n• Profile - Account settings\n\nWhat specific page are you looking for?';
+    if (lowerMessage.includes('home')) {
+      return `The Home page is your main dashboard. ${navigationHelp.routes['/']} Access it by clicking the logo or 'Home' in the navigation.`;
+    }
+
+    // Feature-specific help
+    if (lowerMessage.includes('search')) {
+      return `${navigationHelp.features.search} You can find the search bar at the top of most pages, especially in the Shop section.`;
+    }
+
+    if (lowerMessage.includes('filter')) {
+      return `${navigationHelp.features.filter} Look for filter options on the Shop page to narrow down your furniture choices.`;
+    }
+
+    if (lowerMessage.includes('cart')) {
+      return `${navigationHelp.features.cart} Your cart icon is usually located in the top navigation bar.`;
+    }
+
+    // General navigation help with enhanced information
+    return `I can help you navigate our website! Here are the main sections:
+
+📍 **Main Routes:**
+• Home - ${navigationHelp.routes['/']}
+• Shop - ${navigationHelp.routes['/shop']}
+• Products - ${navigationHelp.routes['/products']}
+• Orders - ${navigationHelp.routes['/orders']}
+• Profile - ${navigationHelp.routes['/profile']}
+
+🎯 **Key Features:**
+• Search - ${navigationHelp.features.search}
+• Filters - ${navigationHelp.features.filter}
+• Cart - ${navigationHelp.features.cart}
+• Account - ${navigationHelp.features.account}
+
+💡 **Pro Tips:**
+${navigationHelp.tips.map((tip) => `• ${tip}`).join('\n')}
+
+What specific page or feature would you like help with?`;
   }
 
   /**
@@ -412,6 +545,22 @@ export class AIController {
     }
 
     const count = recommendations.length;
+    const lowerQuery = originalQuery.toLowerCase();
+
+    // Check if it's a price inquiry
+    if (
+      lowerQuery.includes('price') ||
+      lowerQuery.includes('cost') ||
+      lowerQuery.includes('how much')
+    ) {
+      if (count === 1) {
+        const product = recommendations[0].product;
+        return `Here's the pricing information for "${originalQuery}":\n\n**${product.name}** - $${product.price}\n${product.description || 'No description available'}\nAvailable stock: ${product.availableStock} units`;
+      } else {
+        return `I found ${count} products related to "${originalQuery}". Here are the prices and details:`;
+      }
+    }
+
     return `I found ${count} great ${count === 1 ? 'recommendation' : 'recommendations'} for "${originalQuery}". Here are the best matches based on your preferences:`;
   }
 }

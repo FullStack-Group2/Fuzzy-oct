@@ -26,6 +26,7 @@ import Shop from './pages/Shop';
 import { Login } from './pages/auth/Login';
 import { ForgotPassword } from './pages/auth/ForgotPassword';
 import { Register } from './pages/auth/Register';
+import { Logout } from './pages/auth/Logout';
 
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import Contact from './pages/Contact';
@@ -55,7 +56,7 @@ import About from './pages/About';
 const LogoutWrapper = () => {
   const { user } = useAuth();
   if (!user) return null;
-  // return <Logout />;
+  return <Logout />;
 };
 
 export default function AppRouter() {

@@ -5,7 +5,8 @@
 // Author:
 // ID:
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 
 import { FaArrowLeftLong } from 'react-icons/fa6';
 
@@ -30,7 +31,7 @@ export default function FilterBar() {
   const [priceRangeValue, setPriceRangeValue] = useState([0, 4_000_000]);
   const [categoryValue, setCategoryValue] = useState('');
   const updateSearchParam = useUpdateSearchParam();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
 
   function ApplyFilter() {
     const [min, max] = priceRangeValue;

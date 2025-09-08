@@ -171,3 +171,7 @@ export const getProductSalesCount = async (productId: string) => {
 
   return result.length > 0 ? result[0].totalSold : 0;
 };
+
+export const getAllProducts = async () => {
+  return ProductModel.find();
+};

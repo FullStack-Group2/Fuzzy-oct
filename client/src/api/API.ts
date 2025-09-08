@@ -6,9 +6,9 @@
 // ID: 4010989
 
 const API_BASE =
-  (import.meta as any).env?.VITE_API_BASE ??
-  (typeof window !== 'undefined'
-    ? `${window.location.origin}/api`
-    : 'http://localhost:5001/api');
+  import.meta.env.VITE_API_BASE ||
+  (window?.location?.origin.includes('localhost')
+    ? 'http://localhost:5001/api'
+    : `${window.location.origin}/api`);
 
 export default API_BASE;

@@ -5,7 +5,7 @@
 // Author: Truong Quoc Tri
 // ID: 4010989
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useId, useRef, useState } from 'react';
 import { Location, To, NavigateFunction } from 'react-router-dom';
 
 /* ---------- Small UI atoms ---------- */
@@ -252,14 +252,14 @@ export function StatusHeader({
 }) {
   const [open, setOpen] = useState(false);
   const ref = useOutsideClose<HTMLDivElement>(open, () => setOpen(false));
+  const uid = useId();
 
   const toggleStatus = (s: Status) => {
-    onChangeSelected(
-      selected.includes(s) ? selected.filter((x) => x !== s) : [...selected, s],
-    );
+    onChangeSelected(selected.includes(s) ? [] : [s]);
   };
 
   const clearFilter = () => onChangeSelected([]);
+  
   const icon =
     sortOrder === 'asc' ? (
       <SortAZIcon className="h-4 w-4" />

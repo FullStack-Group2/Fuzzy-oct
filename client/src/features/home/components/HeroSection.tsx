@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 export default function HeroSection() {
   return (
     <section className="w-full h-[calc(100vh-40px)] bg-[#DDEBE6] flex justify-center items-center">
@@ -16,9 +18,11 @@ export default function HeroSection() {
             contemporary elegance. Redefine your home with furniture that
             reflects both style and prestige
           </p>
-          <button className="w-full md:w-auto md:px-7 py-3 border-[1px] border-black font-light hover:bg-black hover:text-white">
-            Shop now
-          </button>
+          <Link to="/shop">
+            <button className="w-full md:w-auto md:px-7 py-3 border-[1px] border-black font-light hover:bg-black hover:text-white">
+              Shop now
+            </button>
+          </Link>
         </div>
       </div>
     </section>

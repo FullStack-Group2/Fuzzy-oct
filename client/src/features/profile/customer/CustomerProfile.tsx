@@ -10,6 +10,7 @@ import React, { useState, useCallback } from 'react';
 import { ChangePassword } from '@/features/auth/sign-up/ChangePassword';
 import { useAuth } from '../../../stores/AuthProvider';
 import toast from 'react-hot-toast';
+import { ProfileImageUpload } from '@/components/ProfileImageUpload';
 
 interface CustomerData {
   id: string;
@@ -38,18 +39,21 @@ export const CustomerProfile: React.FC<CustomerProfileProps> = () => {
     name: '',
     address: '',
   });
+  const [profileImageUrl, setProfileImageUrl] = useState('');
 
   // Initialize customer data from AuthProvider user
   React.useEffect(() => {
     if (user && user.role === 'CUSTOMER') {
-      setCustomer({
+      const customerData = {
         id: user.id,
         username: user.username,
         email: user.email,
         name: user.name || '',
         address: user.address || '',
         profilePicture: user.profilePicture || '',
-      });
+      };
+      setCustomer(customerData);
+      setProfileImageUrl(customerData.profilePicture);
     }
   }, [user]);
 
@@ -124,6 +128,7 @@ export const CustomerProfile: React.FC<CustomerProfileProps> = () => {
             email: editData.email || customer.email,
             name: editData.name || customer.name,
             address: editData.address || customer.address,
+            profilePicture: profileImageUrl,
           }),
         },
       );
@@ -147,7 +152,7 @@ export const CustomerProfile: React.FC<CustomerProfileProps> = () => {
     } finally {
       setUpdating(false);
     }
-  }, [customer, editData]);
+  }, [customer, editData, profileImageUrl]);
 
   // Initialize edit data when editing starts
   const startEditing = () => {
@@ -216,33 +221,17 @@ export const CustomerProfile: React.FC<CustomerProfileProps> = () => {
       {customer && (
         <div className="space-y-6">
           {/* Profile Image Section */}
+          {/* Profile Image Section */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-3">
               Profile Image
             </label>
-            <div className="bg-gray-50 p-6 rounded-lg flex flex-col items-center">
-              <div className="relative">
-                {customer.profilePicture ? (
-                  <img
-                    src={customer.profilePicture}
-                    alt={`${customer.name} profile`}
-                    className="w-24 h-24 rounded-lg object-cover"
-                  />
-                ) : (
-                  <div className="w-24 h-24 rounded-lg bg-gray-300 flex items-center justify-center">
-                    <span className="text-gray-600 text-2xl font-semibold">
-                      {customer.name.charAt(0).toUpperCase()}
-                    </span>
-                  </div>
-                )}
-                <button className="absolute -top-2 -right-2 w-6 h-6 bg-gray-400 rounded-full flex items-center justify-center text-white text-sm hover:bg-gray-500">
-                  ×
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* Username Section */}
+            <ProfileImageUpload
+              currentImageUrl={profileImageUrl}
+              userName={customer.name || customer.username}
+              onImageUpload={(imageUrl) => setProfileImageUrl(imageUrl)}
+            />
+          </div>          {/* Username Section */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2 h-11">
               Username

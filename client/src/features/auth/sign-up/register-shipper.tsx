@@ -21,17 +21,18 @@ import { Link } from 'react-router-dom';
 import PasswordRequirements, {
   passwordValidationSchema,
 } from '@/features/auth/sign-up/PasswordValidation';
+import { ProfileImageUpload } from '@/components/ProfileImageUpload';
 import toast from 'react-hot-toast';
 
 // Zod schema for shipper registration validation
 const shipperRegistrationSchema = z.object({
   username: z
     .string()
-    .min(3, 'Username must be at least 3 characters long')
-    .max(50, 'Username must be less than 50 characters')
+    .min(8, 'Username must be at least 8 characters')
+    .max(15, 'Username must not exceed 15 characters')
     .regex(
-      /^[a-zA-Z0-9_]+$/,
-      'Username can only contain letters, numbers, and underscores',
+      /^[a-zA-Z0-9]+$/,
+      'Username can only contain letters and digits',
     ),
   email: z
     .string()
@@ -249,7 +250,18 @@ export const RegisterShipper: React.FC<RegisterShipperProps> = ({
                 {error}
               </div>
             )}
-
+                  {/* Profile Picture Field */}
+            <div className="space-y-2">
+              <Label>Profile Picture (Optional)</Label>
+              <ProfileImageUpload
+                currentImageUrl={formData.profilePicture}
+                userName={formData.username || 'Shipper'}
+                onImageUpload={(imageUrl) => 
+                  setFormData(prev => ({ ...prev, profilePicture: imageUrl }))
+                }
+                className="border border-gray-200 rounded-lg"
+              />
+            </div>
             {/* Username Field */}
             <div className="space-y-2">
               <Label htmlFor="username">Username *</Label>

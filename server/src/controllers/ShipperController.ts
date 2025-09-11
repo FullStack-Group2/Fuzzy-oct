@@ -299,12 +299,18 @@ export const updateShipper = async (req: Request, res: Response) => {
 
     const updateData: any = { ...rest };
 
-    if (username) {
+    const existingShipper = await UserServices.findById(id);
+    if (!existingShipper) {
+      return res.status(404).json({ message: 'Shipper not found.' });
+    }
+
+    // If username is provided AND it's different, check uniqueness
+    if (username && username !== existingShipper.username) {
       const existingUser = await UserServices.usernameExists(username);
       if (existingUser) {
         return res.status(409).json({ message: 'Username already exists.' });
       }
-      updateData.username = username;
+      (updateData as any).username = username;
     }
 
     if (distributionHub !== undefined) {

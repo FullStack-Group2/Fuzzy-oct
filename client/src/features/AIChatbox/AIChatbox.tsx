@@ -31,18 +31,20 @@ interface ProductRecommendation {
 
 interface ChatRequest {
   message: string;
-  priceRange?: {
-    min: number;
-    max: number;
-  };
-  category?: ProductCategory;
-  color?: string;
 }
 
 export const AIChatbox: React.FC = () => {
   const { user, isAuth } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<Message[]>([
+    {
+      id: 'welcome',
+      content: "Hello! I'm your AI assistant for Fuzzy furniture store. I can help you find products, check prices, get recommendations, and navigate the website. What can I help you with today?",
+      sender: 'ai',
+      timestamp: new Date(),
+      type: 'text',
+    }
+  ]);
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
@@ -86,13 +88,25 @@ Try asking me something like "Show me red sofas under $500" or "How do I add a n
   }, [isAuth, user, messages.length]);
 
   const sendMessage = async () => {
-    if (!inputMessage.trim() || isLoading || !isAuth) return;
+    if (!inputMessage.trim()) return;
+    if (!isAuth || !user) {
+      const errorMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        content: 'Please log in to use the AI assistant.',
+        sender: 'ai',
+        timestamp: new Date(),
+        type: 'general',
+      };
+      setMessages((prev) => [...prev, errorMessage]);
+      return;
+    }
 
     const userMessage: Message = {
       id: Date.now().toString(),
-      content: inputMessage.trim(),
+      content: inputMessage,
       sender: 'user',
       timestamp: new Date(),
+      type: 'text',
     };
 
     setMessages((prev) => [...prev, userMessage]);
@@ -103,9 +117,10 @@ Try asking me something like "Show me red sofas under $500" or "How do I add a n
       const token = localStorage.getItem('token');
       const chatRequest: ChatRequest = {
         message: inputMessage.trim(),
-        // You can extend this to parse price range, category, color from the message
-        // For now, we'll let the AI backend handle the parsing
       };
+
+      console.log('Sending chat request:', chatRequest);
+      console.log('Auth token:', token ? 'Present' : 'Missing');
 
       const response = await fetch('http://localhost:5001/api/ai/chat', {
         method: 'POST',
@@ -116,31 +131,36 @@ Try asking me something like "Show me red sofas under $500" or "How do I add a n
         body: JSON.stringify(chatRequest),
       });
 
+      console.log('Response status:', response.status);
+
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorData = await response.json().catch(() => ({}));
+        console.error('Error response:', errorData);
+        throw new Error(`HTTP error! status: ${response.status}. ${errorData.error || ''}`);
       }
 
       const data = await response.json();
+      console.log('Response data:', data);
 
-      if (data.success) {
+      // The backend returns { reply: string }
+      if (data.reply) {
         const aiMessage: Message = {
           id: (Date.now() + 1).toString(),
-          content: data.response.message,
+          content: data.reply,
           sender: 'ai',
           timestamp: new Date(),
-          type: data.response.type,
-          recommendations: data.response.recommendations || [],
+          type: 'text',
         };
 
         setMessages((prev) => [...prev, aiMessage]);
       } else {
-        throw new Error(data.message || 'Failed to get AI response');
+        throw new Error('No reply received from AI');
       }
     } catch (error) {
       console.error('Chat error:', error);
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
-        content: 'Sorry, I encountered an error. Please try again later.',
+        content: `Sorry, I encountered an error. Please try again later. ${error instanceof Error ? error.message : ''}`,
         sender: 'ai',
         timestamp: new Date(),
         type: 'general',
@@ -149,9 +169,7 @@ Try asking me something like "Show me red sofas under $500" or "How do I add a n
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const handleKeyPress = (e: React.KeyboardEvent) => {
+  };  const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       sendMessage();
@@ -231,7 +249,7 @@ Try asking me something like "Show me red sofas under $500" or "How do I add a n
               <button
                 onClick={() => setIsMinimized(!isMinimized)}
                 className="text-white hover:bg-green-700 rounded p-1"
-                aria-label={isMinimized ? 'Expand' : 'Minimize'}
+                aria-label={isMinimized ? 'Minimize' : 'Expand'}
               >
                 <svg
                   className="w-4 h-4"
@@ -245,8 +263,8 @@ Try asking me something like "Show me red sofas under $500" or "How do I add a n
                     strokeWidth={2}
                     d={
                       isMinimized
-                        ? 'M19 14l-7 7m0 0l-7-7m7 7V3'
-                        : 'M5 10l7-7m0 0l7 7m-7-7v18'
+                        ?  'M5 10l7-7m0 0l7 7m-7-7v18'
+                        : 'M19 14l-7 7m0 0l-7-7m7 7V3'
                     }
                   />
                 </svg>

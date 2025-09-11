@@ -10,6 +10,7 @@ import React, { useState, useCallback } from 'react';
 import { ChangePassword } from '@/features/auth/sign-up/ChangePassword';
 import { useAuth } from '../../../stores/AuthProvider';
 import toast from 'react-hot-toast';
+import { ProfileImageUpload } from '@/components/ProfileImageUpload';
 
 interface VendorData {
   id: string;
@@ -38,18 +39,21 @@ export const VendorProfile: React.FC<VendorProfileProps> = () => {
     businessName: '',
     businessAddress: '',
   });
+  const [profileImageUrl, setProfileImageUrl] = useState('');
 
   // Initialize vendor data from AuthProvider user
   React.useEffect(() => {
     if (user && user.role === 'VENDOR') {
-      setVendor({
+      const vendorData = {
         id: user.id,
         username: user.username,
         email: user.email,
         businessName: user.businessName || '',
         businessAddress: user.businessAddress || '',
         profilePicture: user.profilePicture || '',
-      });
+      };
+      setVendor(vendorData);
+      setProfileImageUrl(vendorData.profilePicture);
     }
   }, [user]);
 
@@ -124,6 +128,7 @@ export const VendorProfile: React.FC<VendorProfileProps> = () => {
             email: editData.email || vendor.email,
             businessName: editData.businessName || vendor.businessName,
             businessAddress: editData.businessAddress || vendor.businessAddress,
+            profilePicture: profileImageUrl,
           }),
         },
       );
@@ -147,7 +152,7 @@ export const VendorProfile: React.FC<VendorProfileProps> = () => {
     } finally {
       setUpdating(false);
     }
-  }, [vendor, editData]);
+  }, [vendor, editData, profileImageUrl]);
 
   // Initialize edit data when editing starts
   const startEditing = () => {
@@ -205,33 +210,17 @@ export const VendorProfile: React.FC<VendorProfileProps> = () => {
       {vendor && (
         <div className="space-y-6">
           {/* Profile Image Section */}
+          {/* Profile Image Section */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-3">
               Profile Image
             </label>
-            <div className="bg-gray-50 p-6 rounded-lg flex flex-col items-center">
-              <div className="relative">
-                {vendor.profilePicture ? (
-                  <img
-                    src={vendor.profilePicture}
-                    alt={`${vendor.businessName} profile`}
-                    className="w-24 h-24 rounded-lg object-cover"
-                  />
-                ) : (
-                  <div className="w-24 h-24 rounded-lg bg-gray-300 flex items-center justify-center">
-                    <span className="text-gray-600 text-2xl font-semibold">
-                      {vendor.businessName.charAt(0).toUpperCase()}
-                    </span>
-                  </div>
-                )}
-                <button className="absolute -top-2 -right-2 w-6 h-6 bg-gray-400 rounded-full flex items-center justify-center text-white text-sm hover:bg-gray-500">
-                  ×
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* Username Section */}
+            <ProfileImageUpload
+              currentImageUrl={profileImageUrl}
+              userName={vendor.businessName || vendor.username}
+              onImageUpload={(imageUrl) => setProfileImageUrl(imageUrl)}
+            />
+          </div>          {/* Username Section */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Username

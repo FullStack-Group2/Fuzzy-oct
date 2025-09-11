@@ -10,6 +10,7 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { ChangePassword } from '@/features/auth/sign-up/ChangePassword';
 import { useAuth } from '../../../stores/AuthProvider';
 import toast from 'react-hot-toast';
+import { ProfileImageUpload } from '@/components/ProfileImageUpload';
 
 interface ShipperData {
   id: string;
@@ -36,6 +37,7 @@ export const ShipperProfile: React.FC = () => {
     username: '',
     email: '',
   });
+  const [profileImageUrl, setProfileImageUrl] = useState('');
 
   // Fetch shipper data
   const fetchShipper = useCallback(async () => {
@@ -63,6 +65,7 @@ export const ShipperProfile: React.FC = () => {
       if (response.ok) {
         const data = await response.json();
         setShipper(data.shipper);
+        setProfileImageUrl(data.shipper.profilePicture || '');
       } else {
         console.error('Failed to fetch shipper');
         toast.error('Shipper not found or failed to load');
@@ -107,6 +110,7 @@ export const ShipperProfile: React.FC = () => {
           body: JSON.stringify({
             username: editData.username || shipper.username,
             email: editData.email || shipper.email,
+            profilePicture: profileImageUrl,
           }),
         },
       );
@@ -130,7 +134,7 @@ export const ShipperProfile: React.FC = () => {
     } finally {
       setUpdating(false);
     }
-  }, [shipper, editData, user, logout]);
+  }, [shipper, editData, user, logout, profileImageUrl]);
 
   // Initialize edit data when editing starts
   const startEditing = () => {
@@ -201,26 +205,11 @@ export const ShipperProfile: React.FC = () => {
             <label className="block text-sm font-medium text-gray-700 mb-3">
               Profile Image
             </label>
-            <div className="bg-gray-50 p-6 rounded-lg flex flex-col items-center">
-              <div className="relative">
-                {shipper.profilePicture ? (
-                  <img
-                    src={shipper.profilePicture}
-                    alt={`${shipper.username} profile`}
-                    className="w-24 h-24 rounded-lg object-cover"
-                  />
-                ) : (
-                  <div className="w-24 h-24 rounded-lg bg-gray-300 flex items-center justify-center">
-                    <span className="text-gray-600 text-2xl font-semibold">
-                      {shipper.username.charAt(0).toUpperCase()}
-                    </span>
-                  </div>
-                )}
-                <button className="absolute -top-2 -right-2 w-6 h-6 bg-gray-400 rounded-full flex items-center justify-center text-white text-sm hover:bg-gray-500">
-                  ×
-                </button>
-              </div>
-            </div>
+            <ProfileImageUpload
+              currentImageUrl={profileImageUrl}
+              userName={shipper.username}
+              onImageUpload={(imageUrl) => setProfileImageUrl(imageUrl)}
+            />
           </div>
 
           {/* Username Section */}

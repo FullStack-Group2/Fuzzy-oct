@@ -122,7 +122,7 @@ export const registerCustomer = async (req: Request, res: Response) => {
   try {
     // Validate the request body using Zod schema
     const validationResult = customerRegistrationSchema.safeParse(req.body);
-
+    console.log('Customer registration validation result:', validationResult);
     if (!validationResult.success) {
       const formattedErrors = validationResult.error.issues.map((err) => ({
         field: err.path.join('.'),

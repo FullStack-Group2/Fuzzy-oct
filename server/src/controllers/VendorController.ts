@@ -328,16 +328,36 @@ export async function updateStatus(req: AuthenticatedRequest, res: Response) {
           .json({ error: 'Order not found for this vendor' });
       }
 
-      // Transaction: mark order ACTIVE
+      // Transaction: deduct stock and mark order ACTIVE
       const session = await mongoose.startSession();
       try {
         await session.withTransaction(async () => {
+          for (const it of vendorItems) {
+            const r = await ProductModel.updateOne(
+              {
+                _id: it.productId,
+                vendor: vendorId,
+                availableStock: { $gte: it.qty },
+              },
+              { $inc: { availableStock: -it.qty } },
+              // { $inc: { availableStock: -it.qty } },
+              { session },
+            );
+            if (r.matchedCount === 0) {
+              throw new Error(
+                `INSUFFICIENT:${it.productName || String(it.productId)}`,
+              );
+            }
+          }
           await OrderModel.updateOne(
             { _id: orderId, status: OrderStatus.PENDING },
-            { $set: { status: OrderStatus.ACTIVE }, $unset: { cancelReason: '' } },
-          ).session(session);
+            {
+              $set: { status: OrderStatus.ACTIVE },
+              $unset: { cancelReason: '' },
+            },
+            { session },
+          );
         });
-
         return res.json({
           ok: true,
           status: OrderStatus.ACTIVE,
@@ -364,40 +384,24 @@ export async function updateStatus(req: AuthenticatedRequest, res: Response) {
       const session = await mongoose.startSession();
       try {
         await session.withTransaction(async () => {
-          // 1) Load order items from the OrderItem collection (don’t rely on virtual)
-          const items = await OrderItemModel.find(
-            { order: orderId },
-            { product: 1, quantity: 1 }
-          ).session(session).lean();
-
-          // If there are no items, you may still choose to allow cancel; up to you:
-          // if (!items.length) throw new Error('No order items to restock');
-
-          // 2) Aggregate quantities per product id
-          const qtyByProduct = new Map<string, number>();
-          for (const it of items) {
-            if (!it?.product) continue;
-            const pid = String(it.product);               // product is an ObjectId in your schema
-            const qty = Number(it.quantity ?? 0);
-            if (!Number.isFinite(qty) || qty <= 0) continue;
-            qtyByProduct.set(pid, (qtyByProduct.get(pid) ?? 0) + qty);
-          }
-
-          // 3) Restock all products (if any)
-          if (qtyByProduct.size > 0) {
-            await ProductModel.bulkWrite(
-              Array.from(qtyByProduct.entries()).map(([pid, qty]) => ({
-                updateOne: {
-                  // pid is a valid ObjectId string according to your schema
-                  filter: { _id: new Types.ObjectId(pid) },
-                  update: { $inc: { availableStock: qty } },
+          // 1) Get only this vendor's items from the order
+          const vendorItems = await collectVendorItems(orderId, vendorId);
+          
+          // 2) Restock only vendor's products
+          if (vendorItems.length > 0) {
+            for (const it of vendorItems) {
+              await ProductModel.updateOne(
+                {
+                  _id: it.productId,
+                  vendor: vendorId,
                 },
-              })),
-              { session }
-            );
+                { $inc: { availableStock: it.qty } },
+                { session }
+              );
+            }
           }
 
-          // 4) Mark order canceled (guard ensures no double-restock on retries)
+          // 3) Mark order canceled (guard ensures no double-restock on retries)
           const updated = await OrderModel.findOneAndUpdate(
             { _id: orderId, status: OrderStatus.PENDING },
             {
@@ -673,12 +677,18 @@ export const updateVendor = async (req: Request, res: Response) => {
     const { username, businessName, businessAddress, ...updateData } = req.body;
 
     // Check username uniqueness
-    if (username) {
+    const existingVendor = await UserServices.findById(id);
+    if (!existingVendor) {
+      return res.status(404).json({ message: 'Vendor not found.' });
+    }
+
+    // If username is provided AND it's different, check uniqueness
+    if (username && username !== existingVendor.username) {
       const existingUser = await UserServices.usernameExists(username);
       if (existingUser) {
         return res.status(409).json({ message: 'Username already exists.' });
       }
-      updateData.username = username;
+      (updateData as any).username = username;
     }
 
     // Check businessName uniqueness

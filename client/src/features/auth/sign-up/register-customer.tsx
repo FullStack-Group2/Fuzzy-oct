@@ -16,17 +16,18 @@ import {
   PasswordRequirements,
   passwordValidationSchema,
 } from '@/features/auth/sign-up/PasswordValidation';
+import { ProfileImageUpload } from '@/components/ProfileImageUpload';
 import toast from 'react-hot-toast';
 
 // Zod schema for customer registration validation
 const customerRegistrationSchema = z.object({
   username: z
     .string()
-    .min(3, 'Username must be at least 3 characters long')
-    .max(50, 'Username must be less than 50 characters')
+    .min(8, 'Username must be at least 8 characters')
+    .max(15, 'Username must not exceed 15 characters')
     .regex(
-      /^[a-zA-Z0-9_]+$/,
-      'Username can only contain letters, numbers, and underscores',
+      /^[a-zA-Z0-9]+$/,
+      'Username can only contain letters and digits',
     ),
   email: z
     .string()
@@ -97,11 +98,22 @@ export const RegisterCustomer: React.FC<RegisterCustomerProps> = ({
       // Clear previous field errors
       setFieldErrors({});
 
+      // Debug: Log form data before validation
+      console.log('Form data before validation:', formData);
+      console.log('Form data types:', Object.entries(formData).map(([key, value]) => [key, typeof value, value]));
+
       // Validate using Zod schema
       customerRegistrationSchema.parse(formData);
+      console.log('Customer registration validation passed', formData);
       return true;
     } catch (error) {
+      console.log('Validation error caught:', error);
+      console.log('Error type:', typeof error);
+      console.log('Error constructor:', error?.constructor?.name);
+      console.log('Is ZodError?', error instanceof z.ZodError);
+      
       if (error instanceof z.ZodError) {
+        console.log('Zod validation errors:', error.issues);
         // Convert Zod errors to field-specific errors
         const newFieldErrors: Record<string, string> = {};
         error.issues.forEach((issue) => {
@@ -116,7 +128,14 @@ export const RegisterCustomer: React.FC<RegisterCustomerProps> = ({
         const firstError = error.issues[0];
         setError(firstError?.message || 'Please fix the validation errors');
       } else {
-        setError('Validation failed');
+        console.error('Non-Zod validation error:', error);
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        console.error('Error details:', {
+          message: errorMessage,
+          stack: error instanceof Error ? error.stack : 'No stack trace',
+          name: error instanceof Error ? error.name : 'Unknown error type'
+        });
+        setError(`Validation failed: ${errorMessage}`);
       }
       return false;
     }
@@ -205,6 +224,19 @@ export const RegisterCustomer: React.FC<RegisterCustomerProps> = ({
                 {error}
               </div>
             )}
+
+            {/* Profile Picture Field */}
+            <div className="space-y-2">
+              <Label>Profile Picture (Optional)</Label>
+              <ProfileImageUpload
+                currentImageUrl={formData.profilePicture}
+                userName={formData.name || formData.username || 'User'}
+                onImageUpload={(imageUrl) => 
+                  setFormData(prev => ({ ...prev, profilePicture: imageUrl }))
+                }
+                className="border border-gray-200 rounded-lg"
+              />
+            </div>
 
             {/* Username Field */}
             <div className="space-y-2">

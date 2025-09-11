@@ -515,7 +515,14 @@ export const updateCustomer = async (req: Request, res: Response) => {
     const { id } = req.params;
     const { username, ...updateData } = req.body;
 
-    if (username) {
+        // Fetch the current customer first
+    const existingCustomer = await UserServices.findById(id);
+    if (!existingCustomer) {
+      return res.status(404).json({ message: 'Customer not found.' });
+    }
+
+    // If username is provided AND it's different, check uniqueness
+    if (username && username !== existingCustomer.username) {
       const existingUser = await UserServices.usernameExists(username);
       if (existingUser) {
         return res.status(409).json({ message: 'Username already exists.' });
@@ -539,6 +546,7 @@ export const updateCustomer = async (req: Request, res: Response) => {
         email: customer.email,
         name: customer.name,
         address: customer.address,
+        profilePicture: customer.profilePicture,
       },
     });
   } catch (error) {

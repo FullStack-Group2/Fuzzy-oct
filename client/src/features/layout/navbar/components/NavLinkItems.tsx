@@ -1,3 +1,10 @@
+// RMIT University Vietnam
+// Course: COSC2769 - Full Stack Development
+// Semester: 2025B
+// Assessment: Assignment 02
+// Author:
+// ID:
+
 import { Link } from 'react-router-dom';
 type Role = 'CUSTOMER' | 'VENDOR' | 'SHIPPER' | null;
 
@@ -11,7 +18,7 @@ export default function NavLinkItems({ role }: { role: Exclude<Role, null> }) {
       { name: 'Product', path: '/products' },
       { name: 'Order', path: `/vendors/orders` },
     ],
-    SHIPPER: [{ name: 'Order', path: `/shippers/orders` }],
+    SHIPPER: [{ name: 'Delivery', path: `/shippers/orders` }],
   };
 
   return (

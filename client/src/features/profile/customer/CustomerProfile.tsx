@@ -1,7 +1,15 @@
+// RMIT University Vietnam
+// Course: COSC2769 - Full Stack Development
+// Semester: 2025B
+// Assessment: Assignment 02
+// Author:
+// ID:
+
 import { Button } from '@/components/ui/button';
 import React, { useState, useCallback } from 'react';
 import { ChangePassword } from '@/features/auth/sign-up/ChangePassword';
 import { useAuth } from '../../../stores/AuthProvider';
+import toast from 'react-hot-toast';
 
 interface CustomerData {
   id: string;
@@ -53,7 +61,7 @@ export const CustomerProfile: React.FC<CustomerProfileProps> = () => {
     try {
       const token = localStorage.getItem('token');
       if (!token) {
-        alert('Authentication required. Please log in again.');
+        toast.error('Authentication required. Please log in again.');
         logout();
         return;
       }
@@ -73,12 +81,12 @@ export const CustomerProfile: React.FC<CustomerProfileProps> = () => {
         setCustomer(data.customer);
       } else {
         console.error('Failed to fetch customer');
-        alert('Customer not found or failed to load');
+        toast.error('Customer not found or failed to load');
         setCustomer(null);
       }
     } catch (error) {
       console.error('Error fetching customer:', error);
-      alert('Error fetching customer data');
+      toast.error('Error fetching customer data');
       setCustomer(null);
     } finally {
       setLoading(false);
@@ -98,7 +106,7 @@ export const CustomerProfile: React.FC<CustomerProfileProps> = () => {
       );
 
       if (!token) {
-        alert('Authentication required. Please log in again.');
+        toast.error('Authentication required. Please log in again.');
         return;
       }
 
@@ -127,15 +135,15 @@ export const CustomerProfile: React.FC<CustomerProfileProps> = () => {
         console.log('Update successful:', data);
         setCustomer(data.customer);
         setIsEditing(false);
-        alert('Profile updated successfully!');
+        toast.success('Profile updated successfully!');
       } else {
         const errorData = await response.json();
         console.error('Update failed:', errorData);
-        alert(errorData.message || 'Failed to update profile');
+        toast.error(errorData.message || 'Failed to update profile');
       }
     } catch (error) {
       console.error('Error updating customer:', error);
-      alert('Error updating profile');
+      toast.error('Error updating profile');
     } finally {
       setUpdating(false);
     }
@@ -373,7 +381,7 @@ export const CustomerProfile: React.FC<CustomerProfileProps> = () => {
             <ChangePassword
               onPasswordChanged={() => {
                 setShowChangePassword(false);
-                alert('Password changed successfully!');
+                toast.success('Password changed successfully!');
               }}
               onCancel={() => setShowChangePassword(false)}
             />

@@ -1,6 +1,15 @@
-import React, { useState } from 'react';
+// RMIT University Vietnam
+// Course: COSC2769 - Full Stack Development
+// Semester: 2025B
+// Assessment: Assignment 02
+// Author: Tran Tu Tam
+// ID: s3999159
+
+import React, { useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { ProductCategory } from '../add'; // Import ProductCategory enum
+import ProductForm, { ProductFormErrors, ProductFormValues } from '@/components/products/ProductForm';
+import { updateProduct } from '@/api/VendorAPI';
+import { ProductCategory } from '../add';
 
 export const EditProduct: React.FC = () => {
   const location = useLocation();
@@ -8,12 +17,13 @@ export const EditProduct: React.FC = () => {
   const product = location.state?.product;
   const token = `Bearer ${localStorage.getItem('token') || ''}`;
 
-  const [formData, setFormData] = useState({
+  // Initial values from the passed product
+  const baseInitial: ProductFormValues = useMemo(() => ({
     name: product?.name || '',
     description: product?.description || '',
-    category: product?.category || '', // Updated field name
-    price: product?.price || '',
-    availableStock: product?.availableStock || '',
+    category: product?.category || '',
+    price: product?.price != null ? String(product.price) : '',
+    availableStock: product?.availableStock != null ? String(product.availableStock) : '',
     imageUrl: product?.imageUrl || '',
     sale: product?.sale,
   });
@@ -88,40 +98,41 @@ export const EditProduct: React.FC = () => {
       newErrors.price = 'Price must be a number';
       isValid = false;
     }
+    imageFile: null,
+  }), [product]);
 
-    if (!formData.availableStock) {
-      newErrors.availableStock = 'Available stock is required';
-      isValid = false;
-    } else if (isNaN(Number(formData.availableStock))) {
-      newErrors.availableStock = 'Available stock must be a number';
-      isValid = false;
-    }
+  // key to force re-mount on Reset
+  const [formKey, setFormKey] = useState(0);
 
-    setErrors(newErrors);
-    return isValid;
+  const validate = (v: ProductFormValues): ProductFormErrors => {
+    const errs: ProductFormErrors = {};
+    if (!v.name) errs.name = 'Name is required';
+    else if (v.name.length < 10 || v.name.length > 20) errs.name = 'Name must be between 10 and 20 characters';
+
+    if (!v.description) errs.description = 'Description is required';
+    else if (v.description.length > 500) errs.description = 'Description must not exceed 500 characters';
+
+    if (!v.price) errs.price = 'Price is required';
+    else if (isNaN(Number(v.price))) errs.price = 'Price must be a number';
+
+    if (!v.availableStock) errs.availableStock = 'Available stock is required';
+    else if (isNaN(Number(v.availableStock)))
+      errs.availableStock = 'Available stock must be a number';
+
+    return errs;
   };
 
-  const handleApplyEdit = async () => {
-    if (!validateForm()) {
-      return;
-    }
+  const onSubmit = async (v: ProductFormValues) => {
+    const payload: Parameters<typeof updateProduct>[2] = {
+      name: v.name,
+      description: v.description,
+      category: v.category,
+      price: Number(v.price),
+      availableStock: Number(v.availableStock),
+      imageUrl: v.imageUrl || '',
+    };
 
-    try {
-      const response = await fetch(
-        `http://localhost:5001/api/vendors/product/${product?._id}`,
-        {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: token || '',
-          },
-          body: JSON.stringify({
-            ...formData,
-            price: Number(formData.price),
-            availableStock: Number(formData.availableStock),
-          }),
-        },
-      );
+    const data = await updateProduct(product?._id, token, payload);
 
       if (response.ok) {
         alert('Product updated successfully');
@@ -139,19 +150,18 @@ export const EditProduct: React.FC = () => {
             sale: updated.sale ?? formData.sale,
           });
 
-          navigate('.', { replace: true, state: { product: updated } });
-        }
-      } else {
-        alert('Failed to update product');
-      }
-    } catch (error) {
-      console.error('Error updating product:', error);
-      alert('Error updating product');
+      navigate('.', { replace: true, state: { product: updated } });
+    } else {
+      alert('Failed to update product');
     }
   };
 
+  const onReset = () => {
+    setFormKey((k) => k + 1);
+  };
+
   return (
-    <div className="bg-white p-6 text-md lg:text-lg">
+    <div className="bg-white p-6 text-md lg:text-lg mx-10 lg:mx-28">
       <button
         type="button"
         onClick={() => navigate(-1)}

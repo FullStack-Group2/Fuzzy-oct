@@ -1,3 +1,10 @@
+// RMIT University Vietnam
+// Course: COSC2769 - Full Stack Development
+// Semester: 2025B
+// Assessment: Assignment 02
+// Author: Truong Quoc Tri
+// ID: 4010989
+
 import { Router } from 'express';
 
 import * as vendorController from '../controllers/VendorController';
@@ -31,19 +38,22 @@ router.get(
   authMiddleware,
   requireVendor,
   vendorController.getAllProducts,
-);
+); // legacy: now move to public route
+
 router.get(
   '/product/:productId',
   authMiddleware,
   requireVendor,
   vendorController.getProduct,
-);
+); // legacy: now move to public route
+
 router.get(
   '/:id',
-  authMiddleware,
-  requireVendor,
+  // authMiddleware,
+  // requireVendor,
   vendorController.getVendorById,
-);
+); // this will be use for public, specifically in function product detail
+
 router.post(
   '/add-product',
   authMiddleware,
@@ -80,7 +90,7 @@ router.get(
   requireVendor,
   vendorController.getProductSales,
 );
-// router.post/(‘/orders’, authMiddleware, requireVendor, vendorController.cancelOrder)
+
 router.put(
   '/:id',
   authMiddleware,

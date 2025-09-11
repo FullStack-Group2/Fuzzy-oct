@@ -1,3 +1,10 @@
+// RMIT University Vietnam
+// Course: COSC2769 - Full Stack Development
+// Semester: 2025B
+// Assessment: Assignment 02
+// Author:
+// ID:
+
 import app from './app';
 import dotenv from 'dotenv';
 import path from 'path';

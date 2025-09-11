@@ -1,19 +1,24 @@
+// RMIT University Vietnam
+// Course: COSC2769 - Full Stack Development
+// Semester: 2025B
+// Assessment: Assignment 02
+// Author:
+// ID:
+
 import { useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { CiSearch } from "react-icons/ci";
+import { useUpdateSearchParam } from '@/features/shop/hooks/useUpdateSearchParam';
+import { CiSearch } from 'react-icons/ci';
 
 export default function SearchBar() {
   const inputRef = useRef<HTMLInputElement>(null);
-  const navigate = useNavigate();
+  const updateSearchParam = useUpdateSearchParam();
 
   const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault(); // prevent full page reload
+    e.preventDefault();
     if (inputRef.current) {
       const query = inputRef.current.value.trim();
       if (query) {
-        console.log('Search value:', query);
-        // Example: navigate to a search page
-        navigate(`/shop?search=${encodeURIComponent(query)}`);
+        updateSearchParam({ keyword: query });
       }
     }
   };
@@ -27,11 +32,10 @@ export default function SearchBar() {
         className="border rounded-full pl-3 pr-10 py-1 text-sm w-[45vw]"
       />
       <button
-        type="submit" // ✅ pressing Enter or clicking this triggers handleSearch
+        type="submit"
         className="absolute right-2 top-1/2 -translate-y-1/2"
       >
-        <CiSearch className='size-5'
-        />
+        <CiSearch className="size-5" />
       </button>
     </form>
   );

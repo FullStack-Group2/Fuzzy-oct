@@ -1,3 +1,10 @@
+// RMIT University Vietnam
+// Course: COSC2769 - Full Stack Development
+// Semester: 2025B
+// Assessment: Assignment 02
+// Author:
+// ID:
+
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/stores/AuthProvider';
 
@@ -6,11 +13,10 @@ import SearchBar from '@/features/layout/navbar/components/SearchBar';
 import ProfileDropdown from '@/features/layout/navbar/components/ProfileDropDown';
 import MobileMenuDropDown from '@/features/layout/navbar/components/MobileMenuDropDown';
 import Cart from '@/features/layout/navbar/components/cart/Cart';
-import { ShopCartDataProvider } from '@/features/layout/navbar/stores/ShopCartDataContext';
 
 export default function Navbar() {
-  const {user} = useAuth();
-  
+  const { user } = useAuth();
+
   return (
     <nav className="w-full bg-white border-b sticky left-0 top-0 z-40">
       <div className=" mx-auto flex items-center justify-between px-4 py-3 md:py-4">
@@ -27,7 +33,7 @@ export default function Navbar() {
         {/* right side of navbar */}
         <div className="flex items-center space-x-4">
           {!user?.role && (
-            <div className="hidden md:flex items-center space-x-4">
+            <div className="flex items-center space-x-4">
               <Link
                 to="/auth/register"
                 className="text-gray-700 hover:text-green-600"
@@ -50,7 +56,7 @@ export default function Navbar() {
             </>
           )}
 
-          <ProfileDropdown />
+          {user && <ProfileDropdown />}
 
           {/* menu toggle */}
           {user && <MobileMenuDropDown role={user.role} />}

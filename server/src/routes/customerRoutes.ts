@@ -1,3 +1,10 @@
+// RMIT University Vietnam
+// Course: COSC2769 - Full Stack Development
+// Semester: 2025B
+// Assessment: Assignment 02
+// Author: Truong Quoc Tri
+// ID: 4010989
+
 import { Router } from 'express';
 
 import * as customerController from '../controllers/CustomerController';
@@ -6,18 +13,19 @@ import { requireCustomer } from '../middleware/roleMiddleware';
 
 const router = Router();
 
-// Product browsing
+//Product
 router.get(
   '/products',
   authMiddleware,
   requireCustomer,
   customerController.getAllProducts,
 );
+
 router.get(
-  '/stores/:storeId',
+  '/products/:productId',
   authMiddleware,
   requireCustomer,
-  customerController.getProductByStore,
+  customerController.getProduct,
 );
 
 // Cart
@@ -70,6 +78,14 @@ router.patch(
   authMiddleware,
   requireCustomer,
   customerController.patchCustomerOrderStatus,
+);
+
+// Customer by ID route - MUST be last to avoid conflicts with specific routes
+router.get(
+  '/:id',
+  authMiddleware,
+  requireCustomer,
+  customerController.getCustomerById,
 );
 
 export default router;

@@ -1,7 +1,15 @@
+// RMIT University Vietnam
+// Course: COSC2769 - Full Stack Development
+// Semester: 2025B
+// Assessment: Assignment 02
+// Author:
+// ID:
+
 import { Button } from '@/components/ui/button';
 import React, { useState, useCallback } from 'react';
 import { ChangePassword } from '@/features/auth/sign-up/ChangePassword';
 import { useAuth } from '../../../stores/AuthProvider';
+import toast from 'react-hot-toast';
 
 interface VendorData {
   id: string;
@@ -53,7 +61,7 @@ export const VendorProfile: React.FC<VendorProfileProps> = () => {
     try {
       const token = localStorage.getItem('token');
       if (!token) {
-        alert('Authentication required. Please log in again.');
+        toast.error('Authentication required. Please log in again.');
         logout();
         return;
       }
@@ -73,12 +81,12 @@ export const VendorProfile: React.FC<VendorProfileProps> = () => {
         setVendor(data.vendor);
       } else {
         console.error('Failed to fetch vendor');
-        alert('Vendor not found or failed to load');
+        toast.error('Vendor not found or failed to load');
         setVendor(null);
       }
     } catch (error) {
       console.error('Error fetching vendor:', error);
-      alert('Error fetching vendor data');
+      toast.error('Error fetching vendor data');
       setVendor(null);
     } finally {
       setLoading(false);
@@ -98,7 +106,7 @@ export const VendorProfile: React.FC<VendorProfileProps> = () => {
       );
 
       if (!token) {
-        alert('Authentication required. Please log in again.');
+        toast.error('Authentication required. Please log in again.');
         return;
       }
 
@@ -127,15 +135,15 @@ export const VendorProfile: React.FC<VendorProfileProps> = () => {
         console.log('Update successful:', data);
         setVendor(data.vendor);
         setIsEditing(false);
-        alert('Profile updated successfully!');
+        toast.success('Profile updated successfully!');
       } else {
         const errorData = await response.json();
         console.error('Update failed:', errorData);
-        alert(errorData.message || 'Failed to update profile');
+        toast.error(errorData.message || 'Failed to update profile');
       }
     } catch (error) {
       console.error('Error updating vendor:', error);
-      alert('Error updating profile');
+      toast.error('Error updating profile');
     } finally {
       setUpdating(false);
     }
@@ -362,7 +370,7 @@ export const VendorProfile: React.FC<VendorProfileProps> = () => {
             <ChangePassword
               onPasswordChanged={() => {
                 setShowChangePassword(false);
-                alert('Password changed successfully!');
+                toast.success('Password changed successfully!');
               }}
               onCancel={() => setShowChangePassword(false)}
             />

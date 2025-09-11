@@ -1,3 +1,10 @@
+// RMIT University Vietnam
+// Course: COSC2769 - Full Stack Development
+// Semester: 2025B
+// Assessment: Assignment 02
+// Author: Truong Quoc Tri
+// ID: 4010989
+
 import { Request, Response } from 'express';
 import mongoose, { Types } from 'mongoose';
 
@@ -29,7 +36,12 @@ export const getVendorById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ error: 'Invalid vendor ID' });
+    }
+    console.log(`check id: ${id}`);
     const vendor = await VendorModel.findById(id).select('-password');
+    console.log(`check vendor: ${JSON.stringify(vendor)}`);
     if (!vendor) {
       return res.status(404).json({ message: 'Vendor not found.' });
     }
@@ -186,9 +198,9 @@ export async function getOrderDetails(
 
     const products = validProductIds.length
       ? await ProductModel.find({ _id: { $in: validProductIds } })
-          .select('_id name imageUrl price vendor')
-          .lean()
-          .exec()
+        .select('_id name imageUrl price vendor')
+        .lean()
+        .exec()
       : [];
 
     const productMap = new Map(products.map((p: any) => [String(p._id), p]));
@@ -316,34 +328,14 @@ export async function updateStatus(req: AuthenticatedRequest, res: Response) {
           .json({ error: 'Order not found for this vendor' });
       }
 
-      // Transaction: deduct stock and mark order ACTIVE
+      // Transaction: mark order ACTIVE
       const session = await mongoose.startSession();
       try {
         await session.withTransaction(async () => {
-          for (const it of vendorItems) {
-            const r = await ProductModel.updateOne(
-              {
-                _id: it.productId,
-                vendor: vendorId,
-                availableStock: { $gte: it.qty },
-              },
-              { $inc: { availableStock: -it.qty } },
-              { session },
-            );
-            if (r.matchedCount === 0) {
-              throw new Error(
-                `INSUFFICIENT:${it.productName || String(it.productId)}`,
-              );
-            }
-          }
           await OrderModel.updateOne(
             { _id: orderId, status: OrderStatus.PENDING },
-            {
-              $set: { status: OrderStatus.ACTIVE },
-              $unset: { cancelReason: '' },
-            },
-            { session },
-          );
+            { $set: { status: OrderStatus.ACTIVE }, $unset: { cancelReason: '' } },
+          ).session(session);
         });
 
         return res.json({
@@ -352,15 +344,7 @@ export async function updateStatus(req: AuthenticatedRequest, res: Response) {
           cancelReason: null,
         });
       } catch (e: any) {
-        if (e?.message?.startsWith('INSUFFICIENT:')) {
-          const name = e.message.split('INSUFFICIENT:')[1] || 'an item';
-          return res.status(409).json({
-            error: `Insufficient stock for ${name}.`,
-            code: 'INSUFFICIENT_STOCK',
-            item: name,
-          });
-        }
-        console.error('[accept txn] ERROR', e);
+        console.error('[vendor.updateStatus] Transaction ERROR:', e?.message, e);
         return res.status(500).json({ error: 'Failed to accept order' });
       } finally {
         session.endSession();
@@ -376,28 +360,73 @@ export async function updateStatus(req: AuthenticatedRequest, res: Response) {
           .status(400)
           .json({ error: 'Cancel reason is required when rejecting' });
       }
-      const updated = await OrderModel.findOneAndUpdate(
-        { _id: orderId, status: OrderStatus.PENDING },
-        {
-          $set: {
-            status: OrderStatus.CANCELED,
-            cancelReason: `Vendor Canceled: ${reason}`,
-          },
-        },
-        { new: true },
-      ).lean();
-      if (!updated)
-        return res.status(409).json({ error: 'Could not update order' });
 
-      return res.json({
-        ok: true,
-        status: updated.status,
-        cancelReason: updated.cancelReason ?? null,
-      });
+      const session = await mongoose.startSession();
+      try {
+        await session.withTransaction(async () => {
+          // 1) Load order items from the OrderItem collection (don’t rely on virtual)
+          const items = await OrderItemModel.find(
+            { order: orderId },
+            { product: 1, quantity: 1 }
+          ).session(session).lean();
+
+          // If there are no items, you may still choose to allow cancel; up to you:
+          // if (!items.length) throw new Error('No order items to restock');
+
+          // 2) Aggregate quantities per product id
+          const qtyByProduct = new Map<string, number>();
+          for (const it of items) {
+            if (!it?.product) continue;
+            const pid = String(it.product);               // product is an ObjectId in your schema
+            const qty = Number(it.quantity ?? 0);
+            if (!Number.isFinite(qty) || qty <= 0) continue;
+            qtyByProduct.set(pid, (qtyByProduct.get(pid) ?? 0) + qty);
+          }
+
+          // 3) Restock all products (if any)
+          if (qtyByProduct.size > 0) {
+            await ProductModel.bulkWrite(
+              Array.from(qtyByProduct.entries()).map(([pid, qty]) => ({
+                updateOne: {
+                  // pid is a valid ObjectId string according to your schema
+                  filter: { _id: new Types.ObjectId(pid) },
+                  update: { $inc: { availableStock: qty } },
+                },
+              })),
+              { session }
+            );
+          }
+
+          // 4) Mark order canceled (guard ensures no double-restock on retries)
+          const updated = await OrderModel.findOneAndUpdate(
+            { _id: orderId, status: OrderStatus.PENDING },
+            {
+              $set: {
+                status: OrderStatus.CANCELED,
+                cancelReason: `Vendor Canceled: ${reason}`,
+              },
+            },
+            { new: true, session }
+          ).lean();
+
+          if (!updated) throw new Error('Could not update order status');
+        });
+
+        return res.json({
+          ok: true,
+          status: OrderStatus.CANCELED,
+          cancelReason: `Vendor Canceled: ${reason}`,
+        });
+      } catch (e: any) {
+        console.error('[vendor.updateStatus] Transaction ERROR:', e?.message, e);
+        return res.status(500).json({ error: 'Failed to reject order' });
+      } finally {
+        session.endSession();
+      }
     }
   } catch (err) {
     console.error('[vendor.updateStatus] ERROR:', (err as any)?.message, err);
-    return res.status(500).json({ error: 'Failed to update vendor decision' });
+    return res.status(500).json({ error: 'Failed to update order' });
   }
 }
 

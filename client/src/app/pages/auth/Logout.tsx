@@ -1,51 +1,65 @@
-import { Button } from '@/components/ui/button';
-import React, { useState } from 'react';
+// RMIT University Vietnam
+// Course: COSC2769 - Full Stack Development
+// Semester: 2025B
+// Assessment: Assignment 02
+// Author: Truong Quoc Tri
+// ID: 4010989
+
+import { useEffect } from 'react';
 import { useAuth } from '../../../stores/AuthProvider';
-import { useNavigate } from 'react-router-dom';
 
-interface LogoutProps {
-  onLogoutSuccess?: () => void;
-}
+export const Logout = () => {
+  const { logout, isLoading } = useAuth();
 
-export const Logout: React.FC<LogoutProps> = ({ onLogoutSuccess }) => {
-  const [loading, setLoading] = useState(false);
-  const { logout } = useAuth();
-  const navigate = useNavigate();
+  useEffect(() => {
+    // Automatically logout when component mounts
+    // showSuccessToast = true to show "Successfully logged out" message
+    logout(true);
+  }, [logout]);
 
-  const handleLogout = async () => {
-    setLoading(true);
+  // Show loading spinner while logout is in progress
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-lg font-medium text-gray-700">
+            Logging you out...
+          </p>
+          <p className="text-sm text-gray-500 mt-2">
+            Please wait while we securely log you out
+          </p>
+        </div>
+      </div>
+    );
+  }
 
-    try {
-      // Use AuthProvider's logout method instead of manual API call
-      await logout(true); // Pass true to show success toast
-
-      console.log('Logout successful');
-      onLogoutSuccess?.();
-      navigate('/auth/login');
-      alert('Logged out successfully!');
-    } catch (error) {
-      console.error('Error during logout:', error);
-      alert('Network error during logout.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
+  // This should rarely be seen since logout redirects immediately
   return (
-    <div className=" rounded-lg shadow-md p-4">
-      <div className="flex items-center justify-between">
-        <Button
-          onClick={handleLogout}
-          disabled={loading}
-          className={`px-4 py-2 rounded-lg font-medium text-sm ${
-            loading
-              ? 'bg-gray-400 cursor-not-allowed'
-              : 'bg-red-600 hover:bg-red-700'
-          } text-white`}
-        >
-          {loading ? 'Logging out...' : 'Logout'}
-        </Button>
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="text-center">
+        <div className="text-green-600 mb-4">
+          <svg
+            className="w-16 h-16 mx-auto"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+          >
+            <path
+              fillRule="evenodd"
+              d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+              clipRule="evenodd"
+            />
+          </svg>
+        </div>
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">
+          Logged Out Successfully
+        </h2>
+        <p className="text-gray-600">
+          You have been securely logged out. Redirecting to login page...
+        </p>
       </div>
     </div>
   );
 };
+
+export default Logout;

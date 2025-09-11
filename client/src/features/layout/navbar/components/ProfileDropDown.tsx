@@ -1,3 +1,10 @@
+// RMIT University Vietnam
+// Course: COSC2769 - Full Stack Development
+// Semester: 2025B
+// Assessment: Assignment 02
+// Author:
+// ID:
+
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 
@@ -16,14 +23,14 @@ export default function ProfileDropdown() {
       {open && (
         <div className="absolute right-0 mt-2 w-40 bg-white border rounded shadow-lg">
           <Link
-            to="/my-account"
+            to="/profile"
             className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
             onClick={() => setOpen(false)}
           >
             My Account
           </Link>
           <Link
-            to="/logout"
+            to="/auth/logout"
             className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
             onClick={() => setOpen(false)}
           >

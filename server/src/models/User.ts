@@ -1,3 +1,10 @@
+// RMIT University Vietnam
+// Course: COSC2769 - Full Stack Development
+// Semester: 2025B
+// Assessment: Assignment 02
+// Author:
+// ID:
+
 import { Schema, model, Document } from 'mongoose';
 import { UserRole } from './UserRole';
 
@@ -17,7 +24,10 @@ const userSchema = new Schema<IUser>(
     role: { type: String, enum: Object.values(UserRole), required: true },
     profilePicture: { type: String, required: false },
   },
-  { timestamps: true },
+  {
+    timestamps: true,
+    discriminatorKey: 'role', //fix cannot discriminate role --> will using default __t if not have this
+  },
 );
 
 export const UserModel = model<IUser>('User', userSchema);

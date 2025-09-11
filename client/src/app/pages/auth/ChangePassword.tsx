@@ -1,15 +1,21 @@
+// RMIT University Vietnam
+// Course: COSC2769 - Full Stack Development
+// Semester: 2025B
+// Assessment: Assignment 02
+// Author:
+// ID:
+
 import React, { useState } from 'react';
 import { z } from 'zod';
 
 import { Eye, EyeOff, X } from 'lucide-react';
-
-import { useAuth } from '../../AuthProvider';
 import PasswordRequirements, {
   passwordValidationSchema,
 } from '@/features/auth/sign-up/PasswordValidation';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
+import { useAuth } from '@/stores/AuthProvider';
 
 // Zod schema for change password validation
 const changePasswordSchema = z

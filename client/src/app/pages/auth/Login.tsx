@@ -1,9 +1,17 @@
+// RMIT University Vietnam
+// Course: COSC2769 - Full Stack Development
+// Semester: 2025B
+// Assessment: Assignment 02
+// Author:
+// ID:
+
 import React, { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/stores/AuthProvider';
+import toast from 'react-hot-toast';
 interface LoginData {
   username: string;
   password: string;
@@ -95,7 +103,7 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
 
           console.log('About to navigate to /');
           navigate('/');
-          alert('Login successful!');
+          toast.success('Login successful!');
         } catch (error) {
           console.error('Error during login success handling:', error);
           setError('Login succeeded but session setup failed');
@@ -115,12 +123,12 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
   return (
     <div className="min-h-screen flex">
       {/* Left Panel - Image */}
-      <div className="flex-1 bg-gray-200 flex items-center justify-center">
-        <div className="w-80 h-80 bg-gray-300 rounded-lg"></div>
+      <div className="hidden bg-gray-200 md:w-1/2  md:flex md:items-center md:justify-center">
+        <img src="/authImageCover.png" className="w-full h-full object-cover" />
       </div>
 
       {/* Right Panel - Login Form */}
-      <div className="flex-1 flex items-center justify-center bg-gray-50">
+      <div className="w-full md:w-1/2 flex items-center justify-center bg-gray-50">
         <div className="w-full max-w-md p-8">
           {/* Header */}
           <div className="mb-8 text-center">

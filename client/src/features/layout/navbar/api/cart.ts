@@ -1,44 +1,60 @@
-const API_BASE = "http://localhost:5001/api/customers";
+// RMIT University Vietnam
+// Course: COSC2769 - Full Stack Development
+// Semester: 2025B
+// Assessment: Assignment 02
+// Author:
+// ID:
 
-export async function fetchCartApi(token: string) {
+const API_BASE = 'http://localhost:5001/api/customers';
+
+export async function fetchCartApi(token: string, signal: any) {
   const res = await fetch(`${API_BASE}/cart`, {
     headers: { Authorization: `Bearer ${token}` },
+    signal,
   });
-  if (!res.ok) throw new Error("Failed to fetch cart");
+  if (!res.ok) throw new Error('Failed to fetch cart');
   return res.json();
 }
 
-export async function addToCartApi(token: string, itemId: string, quantity: number) {
+export async function addToCartApi(
+  token: string,
+  itemId: string,
+  quantity: number,
+) {
   const res = await fetch(`${API_BASE}/cart`, {
-    method: "POST",
+    method: 'POST',
     headers: {
-      "Content-Type": "application/json",
+      'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify({ itemId, quantity }),
   });
-  if (!res.ok) throw new Error("Failed to add to cart");
+  if (!res.ok) throw new Error('Failed to add to cart');
   return res.json();
 }
 
-export async function updateCartApi(token: string, itemId: string, quantity: number) {
+export async function updateCartApi(
+  token: string,
+  itemId: string,
+  quantity: number,
+) {
   const res = await fetch(`${API_BASE}/cart`, {
-    method: "PUT",
+    method: 'PUT',
     headers: {
-      "Content-Type": "application/json",
+      'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify({ itemId, quantity }),
   });
-  if (!res.ok) throw new Error("Failed to update cart");
+  if (!res.ok) throw new Error('Failed to update cart');
   return res.json();
 }
 
 export async function removeCartItemApi(token: string, itemId: string) {
   const res = await fetch(`${API_BASE}/cart/${itemId}`, {
-    method: "DELETE",
+    method: 'DELETE',
     headers: { Authorization: `Bearer ${token}` },
   });
-  if (!res.ok) throw new Error("Failed to remove cart item");
+  if (!res.ok) throw new Error('Failed to remove cart item');
   return res.json();
 }

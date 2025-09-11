@@ -1,3 +1,10 @@
+// RMIT University Vietnam
+// Course: COSC2769 - Full Stack Development
+// Semester: 2025B
+// Assessment: Assignment 02
+// Author:
+// ID:
+
 import { IVendor, VendorModel } from '../models/Vendor';
 import Order from '../models/Order';
 import { OrderStatus } from '../models/OrderStatus';
@@ -163,4 +170,8 @@ export const getProductSalesCount = async (productId: string) => {
   ]);
 
   return result.length > 0 ? result[0].totalSold : 0;
+};
+
+export const getAllProducts = async () => {
+  return ProductModel.find();
 };

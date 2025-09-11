@@ -1,3 +1,10 @@
+// RMIT University Vietnam
+// Course: COSC2769 - Full Stack Development
+// Semester: 2025B
+// Assessment: Assignment 02
+// Author:
+// ID:
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Store, Truck, User } from 'lucide-react';
@@ -66,11 +73,11 @@ export const SelectRegistrationType: React.FC<SelectRegistrationTypeProps> = ({
                 key={type.id}
                 onClick={() => handleTypeSelect(type.id)}
                 className={`
-                  relative cursor-pointer rounded-2xl p-8 text-center transition-all duration-200 hover:scale-105
+                  group relative cursor-pointer rounded-2xl p-8 text-center transition-all duration-200 hover:scale-105
                   ${
                     isSelected
-                      ? 'bg-emerald-600 text-white shadow-lg'
-                      : 'bg-lime-200 text-emerald-700 hover:bg-emerald-200'
+                      ? 'bg-[#1E7A5A] text-white shadow-lg'
+                      : 'bg-[#E0FED0] text-[#1E7A5A] hover:bg-[#1E7A5A] hover:text-white'
                   }
                 `}
               >
@@ -84,7 +91,7 @@ export const SelectRegistrationType: React.FC<SelectRegistrationTypeProps> = ({
                     <Icon
                       size={48}
                       className={`
-                        ${isSelected ? 'text-white' : 'text-emerald-600'}
+                        ${isSelected ? 'text-white' : 'text-[#1E7A5A] group-hover:text-white'}
                       `}
                     />
                   </div>

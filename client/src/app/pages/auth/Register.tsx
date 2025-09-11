@@ -1,3 +1,10 @@
+// RMIT University Vietnam
+// Course: COSC2769 - Full Stack Development
+// Semester: 2025B
+// Assessment: Assignment 02
+// Author:
+// ID:
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -45,7 +52,7 @@ export const Register: React.FC<RegistrationFlowProps> = ({
   };
 
   const handleBackToLogin = () => {
-    navigate('/login');
+    navigate('/auth/login');
   };
 
   const handleBackToSelection = () => {

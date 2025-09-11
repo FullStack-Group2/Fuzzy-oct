@@ -1,3 +1,10 @@
+// RMIT University Vietnam
+// Course: COSC2769 - Full Stack Development
+// Semester: 2025B
+// Assessment: Assignment 02
+// Author: Truong Quoc Tri
+// ID: 4010989
+
 import { FormEvent, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { apiVendorRejectOrder } from '@/api/VendorAPI';
@@ -18,7 +25,7 @@ export default function VendorRejectOrder() {
   const { backgroundLocation, goClose, goTo } = useModalNavigation(
     location,
     navigate,
-    `vendor`
+    `vendor`,
   );
   const orderIndex =
     ((location.state || {}) as LocationState).orderIndex ?? null;
@@ -31,7 +38,7 @@ export default function VendorRejectOrder() {
   function goDetails() {
     if (!orderId) return goClose(false);
     const state = { backgroundLocation, orderIndex };
-    goTo(`/vendor/orders/${orderId}`, state);
+    goTo(`/vendors/orders/${orderId}`, state);
   }
 
   async function onSubmit(e: FormEvent) {

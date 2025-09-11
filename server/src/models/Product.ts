@@ -17,6 +17,7 @@ export interface IProduct extends Document {
   category: ProductCategory;
   vendor: mongoose.Types.ObjectId; // reference to Vendor
   availableStock: number;
+  sale: number;
 }
 
 const ProductSchema = new Schema<IProduct>({
@@ -48,6 +49,14 @@ const ProductSchema = new Schema<IProduct>({
     required: true,
     min: 0,
     default: 0,
+  },
+
+  sale: {
+    type: Number,
+    required: false,
+    default: 0,
+    min: 0,
+    max: 100,
   },
 });
 

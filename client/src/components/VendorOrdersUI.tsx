@@ -186,7 +186,7 @@ export function VendorOrdersTable({
                   <StatusBadge status={o.status} />
                 </td>
                 <td className="px-2 py-2 md:px-4 md:py-3 hidden md:table-cell">
-                  ${o.totalPrice.toFixed(2)}
+                  ${o.totalPrice.toLocaleString()}
                 </td>
                 <td className="px-2 py-2 md:px-4 md:py-3">
                   <Link
@@ -248,21 +248,21 @@ export function VendorOrderItemsTable({
                     <div className="truncate">{it.productName}</div>
 
                     <div className="mt-1 md:hidden text-[11px] text-gray-600">
-                      ${it.priceAtPurchase.toFixed(2)} × {it.quantity}
+                      ${it.priceAtPurchase.toLocaleString()} × {it.quantity}
                     </div>
                   </div>
                 </div>
               </td>
 
               <td className="px-2 py-3 md:px-4 hidden md:table-cell text-right">
-                ${it.priceAtPurchase.toFixed(2)}
+                ${it.priceAtPurchase.toLocaleString()}
               </td>
               <td className="px-2 py-3 md:px-4 hidden md:table-cell text-right">
                 {it.quantity}
               </td>
 
               <td className="px-2 py-3 md:px-4 text-right font-medium">
-                ${it.subtotal.toFixed(2)}
+                ${it.subtotal.toLocaleString()}
               </td>
             </tr>
           ))}
@@ -276,14 +276,14 @@ export function VendorOrderItemsTable({
               Total price
             </td>
             <td className="px-2 py-3 md:px-4 font-semibold text-right">
-              ${subtotal.toFixed(2)}
+              ${subtotal.toLocaleString()}
             </td>
           </tr>
 
           <tr className="md:hidden">
             <td className="px-2 py-3 font-medium">Total price</td>
             <td className="px-2 py-3 font-semibold text-right">
-              ${subtotal.toFixed(2)}
+              ${subtotal.toLocaleString()}
             </td>
           </tr>
         </tfoot>

@@ -5,24 +5,22 @@
 // Author:
 // ID:
 
+import HeroBanner from '@/components/HeroBanner';
 import FilterBar from '@/features/shop/components/filter/FilterBar';
 import ShopPage from '@/features/shop/components/ShopPage';
 import ShopPagination from '@/features/shop/components/ShopPagination';
 import VendorHeader from '@/features/shop/components/VendorHeader';
+import kitchen from '../../assets/icon/kitchen.jpg'
 
 const Shop = () => {
   return (
     <>
-      <header className="relative mb-5 w-full h-56 bg-[#B7F7E1]">
-        <img
-          src="/backgroundCover.png"
-          alt="background cover for shop header"
-          className="w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 flex items-center justify-center text-black text-5xl font-semibold">
-          Shop page
-        </div>
-      </header>
+      <HeroBanner
+        image={kitchen}
+        title="Shop Page"
+        subtitle=""
+      />
+      
       <section className="w-[90vw] mx-auto mb-5 flex flex-col lg:flex-row lg:justify-between gap-5">
         <FilterBar />
         <section className="w-full lg:w-[73%]">

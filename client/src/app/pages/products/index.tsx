@@ -22,6 +22,8 @@ import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import autoTable from 'jspdf-autotable';
 import toast from 'react-hot-toast';
+import HeroBanner from '@/components/HeroBanner';
+import kitchen from '../../../assets/icon/kitchen.jpg'
 
 interface Product {
   _id: string;
@@ -150,16 +152,11 @@ export const Products: React.FC = () => {
 
   return (
     <section className="w-full mb-10">
-      <header className="relative mb-5 w-full h-56 bg-[#B7F7E1]">
-        <img
-          src="/backgroundCover.png"
-          alt="background cover for product header"
-          className="w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 flex items-center justify-center text-black text-5xl font-semibold">
-          Product page
-        </div>
-      </header>
+      <HeroBanner
+        image={kitchen}
+        title="Product Page"
+        subtitle=""
+      />
 
       <div
         className="flex flex-col 

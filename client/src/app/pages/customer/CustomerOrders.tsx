@@ -10,6 +10,8 @@ import { useLocation } from 'react-router-dom';
 import { apiCustomerGetOrders } from '@/api/CustomerAPI';
 import type { CustomerOrderListDTO } from '@/models/CustomerDTO';
 import { CustomerOrdersTable } from '@/components/CustomerOrdersUI';
+import HeroBanner from '@/components/HeroBanner';
+import bed from "../../../assets/icon/bed2.jpg"
 
 export default function CustomerOrders() {
   const [orders, setOrders] = useState<CustomerOrderListDTO[]>([]);
@@ -42,17 +44,20 @@ export default function CustomerOrders() {
   }, [location.state]);
 
   return (
-    <main className="mx-auto w-full max-w-7xl py-4 md:py-6">
-      <h1 className="text-xl md:text-2xl font-semibold mb-1">My Orders</h1>
-      <p className="text-xs md:text-sm text-gray-600 mb-4">
-        All of your orders!
-      </p>
-
-      <CustomerOrdersTable
-        orders={orders}
-        loading={loading}
-        location={location}
+    <>
+      <HeroBanner
+        image={bed}
+        title="Your orders"
+        subtitle="All of your orders are listed here!"
       />
-    </main>
+
+      <main className="mx-auto w-full max-w-7xl py-4 md:py-6">
+        <CustomerOrdersTable
+          orders={orders}
+          loading={loading}
+          location={location}
+        />
+      </main>
+    </>
   );
 }

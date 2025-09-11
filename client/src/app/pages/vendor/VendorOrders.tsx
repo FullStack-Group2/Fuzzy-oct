@@ -10,6 +10,8 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import type { VendorOrderListDTO } from '@/models/VendorDTO';
 import { apiVendorGetOrders } from '@/api/VendorAPI';
 import { VendorOrdersTable } from '@/components/VendorOrdersUI';
+import HeroBanner from '@/components/HeroBanner';
+import bed from '../../../assets/icon/bed.webp' 
 
 type Status = 'PENDING' | 'ACTIVE' | 'DELIVERED' | 'CANCELED';
 
@@ -86,24 +88,32 @@ export default function VendorOrders() {
   }, [selectedStatuses, statusSortOrder]);
 
   return (
-    <main className="mx-auto w-full max-w-7xl py-4 md:py-6">
-      <h1 className="text-xl md:text-2xl font-semibold mb-1">
-        Vendor - Orders
-      </h1>
-      <p className="text-xs md:text-sm text-gray-600 mb-4">
-        All orders that include your products.
-      </p>
-
-      <VendorOrdersTable
-        orders={orders}
-        loading={loading}
-        location={location}
-        // controlled status filter + sort (table shows the UI; this page refetches)
-        selectedStatuses={selectedStatuses}
-        onSelectedStatusesChange={setSelectedStatuses}
-        statusSortOrder={statusSortOrder}
-        onStatusSortOrderChange={setStatusSortOrder}
+    <>
+      <HeroBanner
+        image={bed}
+        title="Active Deliveries"
+        subtitle="All of your deliveries are listed here!"
       />
-    </main>
+
+      <main className="mx-auto w-full max-w-7xl py-4 md:py-6">
+        <h1 className="text-xl md:text-2xl font-semibold mb-1">
+          Vendor - Orders
+        </h1>
+        <p className="text-xs md:text-sm text-gray-600 mb-4">
+          All orders that include your products.
+        </p>
+
+        <VendorOrdersTable
+          orders={orders}
+          loading={loading}
+          location={location}
+          // controlled status filter + sort (table shows the UI; this page refetches)
+          selectedStatuses={selectedStatuses}
+          onSelectedStatusesChange={setSelectedStatuses}
+          statusSortOrder={statusSortOrder}
+          onStatusSortOrderChange={setStatusSortOrder}
+        />
+      </main>
+    </>
   );
 }

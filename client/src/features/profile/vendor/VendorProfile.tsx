@@ -243,10 +243,10 @@ export const VendorProfile: React.FC<VendorProfileProps> = () => {
                 onChange={(e) =>
                   setEditData({ ...editData, username: e.target.value })
                 }
-                className="w-full bg-white p-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full bg-white p-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500 h-11"
               />
             ) : (
-              <div className="bg-gray-50 p-3 rounded-lg border">
+              <div className="bg-gray-50 p-3 rounded-lg border h-11">
                 <p className="text-gray-900">{vendor.username}</p>
               </div>
             )}
@@ -264,10 +264,10 @@ export const VendorProfile: React.FC<VendorProfileProps> = () => {
                 onChange={(e) =>
                   setEditData({ ...editData, email: e.target.value })
                 }
-                className="w-full bg-white p-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full bg-white p-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500 h-11"
               />
             ) : (
-              <div className="bg-gray-50 p-3 rounded-lg border">
+              <div className="bg-gray-50 p-3 rounded-lg border h-11">
                 <p className="text-gray-900">{vendor.email}</p>
               </div>
             )}
@@ -285,10 +285,10 @@ export const VendorProfile: React.FC<VendorProfileProps> = () => {
                 onChange={(e) =>
                   setEditData({ ...editData, businessName: e.target.value })
                 }
-                className="w-full bg-white p-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full bg-white p-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500 h-11"
               />
             ) : (
-              <div className="bg-gray-50 p-3 rounded-lg border">
+              <div className="bg-gray-50 p-3 rounded-lg border h-11">
                 <p className="text-gray-900">{vendor.businessName}</p>
               </div>
             )}
@@ -306,10 +306,10 @@ export const VendorProfile: React.FC<VendorProfileProps> = () => {
                 onChange={(e) =>
                   setEditData({ ...editData, businessAddress: e.target.value })
                 }
-                className="w-full bg-white p-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full bg-white p-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500 h-11"
               />
             ) : (
-              <div className="bg-gray-50 p-3 rounded-lg border">
+              <div className="bg-gray-50 p-3 rounded-lg border h-11">
                 <p className="text-gray-900">{vendor.businessAddress}</p>
               </div>
             )}

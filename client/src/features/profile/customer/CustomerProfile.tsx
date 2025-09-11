@@ -184,7 +184,7 @@ export const CustomerProfile: React.FC<CustomerProfileProps> = () => {
   }, [user, fetchCustomer]);
 
   return (
-    <div className="m-12 bg-white rounded-lg shadow-md p-6">
+    <div className="m-0 bg-white rounded-lg shadow-md p-6">
       <h2 className="text-center text-2xl font-bold mb-4 text-gray-800">
         Customer Profile
       </h2>
@@ -244,7 +244,7 @@ export const CustomerProfile: React.FC<CustomerProfileProps> = () => {
 
           {/* Username Section */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 mb-2 h-11">
               Username
             </label>
             {isEditing ? (
@@ -254,10 +254,10 @@ export const CustomerProfile: React.FC<CustomerProfileProps> = () => {
                 onChange={(e) =>
                   setEditData({ ...editData, username: e.target.value })
                 }
-                className="w-full bg-white p-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full bg-white p-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500 h-11"
               />
             ) : (
-              <div className="bg-gray-50 p-3 rounded-lg border">
+              <div className="bg-gray-50 p-3 rounded-lg border ">
                 <p className="text-gray-900">{customer.username}</p>
               </div>
             )}
@@ -275,10 +275,10 @@ export const CustomerProfile: React.FC<CustomerProfileProps> = () => {
                 onChange={(e) =>
                   setEditData({ ...editData, email: e.target.value })
                 }
-                className="w-full bg-white p-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full bg-white p-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500 h-11"
               />
             ) : (
-              <div className="bg-gray-50 p-3 rounded-lg border">
+              <div className="bg-gray-50 p-3 rounded-lg border h-11">
                 <p className="text-gray-900">{customer.email}</p>
               </div>
             )}
@@ -296,10 +296,10 @@ export const CustomerProfile: React.FC<CustomerProfileProps> = () => {
                 onChange={(e) =>
                   setEditData({ ...editData, name: e.target.value })
                 }
-                className="w-full bg-white p-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full bg-white p-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500 h-11"
               />
             ) : (
-              <div className="bg-gray-50 p-3 rounded-lg border">
+              <div className="bg-gray-50 p-3 rounded-lg border h-11">
                 <p className="text-gray-900">{customer.name}</p>
               </div>
             )}
@@ -307,7 +307,7 @@ export const CustomerProfile: React.FC<CustomerProfileProps> = () => {
 
           {/* Address Section */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 mb-2 h-11">
               Address
             </label>
             {isEditing ? (
@@ -317,7 +317,7 @@ export const CustomerProfile: React.FC<CustomerProfileProps> = () => {
                 onChange={(e) =>
                   setEditData({ ...editData, address: e.target.value })
                 }
-                className="w-full bg-white p-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full bg-white p-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500 h-11"
               />
             ) : (
               <div className="bg-gray-50 p-3 rounded-lg border">

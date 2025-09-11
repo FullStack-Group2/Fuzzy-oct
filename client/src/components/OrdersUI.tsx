@@ -259,7 +259,7 @@ export function StatusHeader({
   };
 
   const clearFilter = () => onChangeSelected([]);
-  
+
   const icon =
     sortOrder === 'asc' ? (
       <SortAZIcon className="h-4 w-4" />
@@ -280,7 +280,13 @@ export function StatusHeader({
           title="Filter statuses"
         >
           <FunnelIcon className="h-4 w-4" />
-          {selected.length ? `${selected.length} filter` : 'Filter'}
+          <span className="hidden sm:inline">
+            {selected.length ? `${selected.length} filter` : 'Filter'}
+          </span>
+          {/* tiny count badge on xs if active */}
+          {selected.length > 0 && (
+            <span className="sm:hidden text-[10px]">({selected.length})</span>
+          )}
         </button>
         <button
           type="button"

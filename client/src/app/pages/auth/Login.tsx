@@ -121,15 +121,15 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
   };
 
   return (
-    <div className="min-h-screen flex">
+    <div className="h-[100svh] w-full overflow-hidden md:h-screen flex">
       {/* Left Panel - Image */}
-      <div className="hidden bg-gray-200 md:w-1/2  md:flex md:items-center md:justify-center">
+      <div className="hidden md:block md:w-1/2 h-full bg-gray-200">
         <img src="/authImageCover.png" className="w-full h-full object-cover" />
       </div>
 
       {/* Right Panel - Login Form */}
-      <div className="w-full md:w-1/2 flex items-center justify-center bg-gray-50">
-        <div className="w-full max-w-md p-8">
+      <div className="w-full md:w-1/2 h-full bg-gray-50 flex items-center justify-center">
+        <div className="w-full max-w-md p-6 md:p-8 max-h-full overflow-auto">
           {/* Header */}
           <div className="mb-8 text-center">
             <h1 className="text-4xl font-normal mb-2">WELCOME BACK</h1>

@@ -7,9 +7,8 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import Toc, { TocItem } from '../../components/TableOfContent';
-
-const cls = (...s: (string | false | null | undefined)[]) =>
-  s.filter(Boolean).join(' ');
+import HeroBanner from '@/components/HeroBanner';
+import kitchen from '@/assets/icon/kitchen.jpg';
 
 type Section = {
   id: string;
@@ -199,44 +198,34 @@ export default function PrivacyPolicy() {
   }, [sections]);
 
   return (
-    <main className="min-h-screen">
-      {/* HERO */}
-      <section className="relative overflow-hidden" aria-label="Privacy hero">
-        {/* Background image */}
-        <img
-          src="/images/privacy-hero.jpg" // place your image in /public/images/privacy-hero.jpg
-          alt="Privacy background"
-          className="absolute inset-0 w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 bg-black/40" />{' '}
-        {/* dark overlay for contrast */}
-        <div className="relative mx-auto max-w-5xl px-6 py-16 text-center text-white">
-          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight">
-            Privacy Policy
-          </h1>
-          <p className="mt-2">How Fuzzy handles your data</p>
-        </div>
-      </section>
+    <>
+      <HeroBanner
+        image={kitchen}
+        title="Shop Page"
+        subtitle=""
+      />
+      
+      <main className="min-h-screen">
+        {/* BODY */}
+        <section className="mx-auto max-w-6xl px-6 py-10 grid grid-cols-1 md:grid-cols-[240px_1fr] gap-10">
+          {/* Left TOC */}
+          <div className="order-2 md:order-1">
+            <Toc items={toc} activeId={active} onClick={setActive} />
+          </div>
 
-      {/* BODY */}
-      <section className="mx-auto max-w-6xl px-6 py-10 grid grid-cols-1 md:grid-cols-[240px_1fr] gap-10">
-        {/* Left TOC */}
-        <div className="order-2 md:order-1">
-          <Toc items={toc} activeId={active} onClick={setActive} />
-        </div>
-
-        {/* Content */}
-        <article className="prose prose-neutral max-w-none order-1 md:order-2">
-          {sections.map((s) => (
-            <section key={s.id} id={s.id} className="scroll-mt-28">
-              <h2 className="text-2xl md:text-3xl font-bold text-neutral-900 mb-4">
-                {s.title}
-              </h2>
-              <div className="text-neutral-700 leading-relaxed">{s.body}</div>
-            </section>
-          ))}
-        </article>
-      </section>
-    </main>
+          {/* Content */}
+          <article className="prose prose-neutral max-w-none order-1 md:order-2">
+            {sections.map((s) => (
+              <section key={s.id} id={s.id} className="scroll-mt-28">
+                <h2 className="text-2xl md:text-3xl font-bold text-neutral-900 mb-4">
+                  {s.title}
+                </h2>
+                <div className="text-neutral-700 leading-relaxed">{s.body}</div>
+              </section>
+            ))}
+          </article>
+        </section>
+      </main>
+    </>
   );
 }

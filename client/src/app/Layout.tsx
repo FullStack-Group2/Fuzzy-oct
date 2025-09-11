@@ -9,6 +9,7 @@ import Footer from '@/components/layout/footer/Footer';
 import Navbar from '@/components/layout/navbar/Navbar';
 import { Outlet } from 'react-router-dom';
 import AIChatbox from '@/features/AIChatbox/AIChatbox';
+import ScrollToTop from '@/components/ScrollToTop'
 
 export default function Layout() {
   return (
@@ -19,8 +20,9 @@ export default function Layout() {
       </div>
 
       {/* Main Content fills space */}
-      <main className="flex-1 w-full min-h-screen">
-        <Outlet />
+      <main className="flex-1 w-full min-h-0">
+        <ScrollToTop />
+        <Outlet/>
         <AIChatbox />
       </main>
 

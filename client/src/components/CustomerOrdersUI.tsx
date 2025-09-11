@@ -146,7 +146,9 @@ export function CustomerOrdersTable({
                 <td className="px-2 py-2 md:px-4 md:py-3 font-medium hidden md:table-cell">
                   {idx + 1}
                 </td>
-                <td className="px-2 py-2 md:px-4 md:py-3 font-mono text-gray-500 max-w-[140px] md:max-w-none truncate">
+                <td
+                  className="px-2 py-2 md:px-4 md:py-3 font-mono text-gray-500 max-w-[80px] sm:max-w-[120px] md:max-w-none truncate"
+                >
                   {o.id}
                 </td>
                 <td className="px-2 py-2 md:px-4 md:py-3">{o.vendorName}</td>

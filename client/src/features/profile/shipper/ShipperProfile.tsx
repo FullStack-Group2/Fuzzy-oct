@@ -235,10 +235,10 @@ export const ShipperProfile: React.FC = () => {
                 onChange={(e) =>
                   setEditData({ ...editData, username: e.target.value })
                 }
-                className="w-full bg-white p-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full bg-white p-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500 h-11"
               />
             ) : (
-              <div className="bg-gray-50 p-3 rounded-lg border">
+              <div className="bg-gray-50 p-3 rounded-lg border h-11">
                 <p className="text-gray-900">{shipper.username}</p>
               </div>
             )}
@@ -256,10 +256,10 @@ export const ShipperProfile: React.FC = () => {
                 onChange={(e) =>
                   setEditData({ ...editData, email: e.target.value })
                 }
-                className="w-full bg-white p-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full bg-white p-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500 h-11"
               />
             ) : (
-              <div className="bg-gray-50 p-3 rounded-lg border">
+              <div className="bg-gray-50 p-3 rounded-lg border h-11">
                 <p className="text-gray-900">{shipper.email}</p>
               </div>
             )}
@@ -270,7 +270,7 @@ export const ShipperProfile: React.FC = () => {
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Assigned Hub
             </label>
-            <div className="bg-gray-50 p-3 rounded-lg border">
+            <div className="bg-gray-50 p-3 rounded-lg border h-11">
               <p className="text-gray-900">
                 {shipper.distributionHub
                   ? typeof shipper.distributionHub === 'string'

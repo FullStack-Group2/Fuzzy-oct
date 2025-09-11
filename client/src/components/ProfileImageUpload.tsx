@@ -93,7 +93,9 @@ export const ProfileImageUpload: React.FC<ProfileImageUploadProps> = ({
   const displayImage = preview || currentImageUrl;
 
   return (
-    <div className={`bg-gray-50 p-6 rounded-lg flex flex-col items-center ${className}`}>
+    <div
+      className={`bg-gray-50 p-6 rounded-lg flex flex-col items-center ${className}`}
+    >
       <div className="relative">
         {displayImage ? (
           <img

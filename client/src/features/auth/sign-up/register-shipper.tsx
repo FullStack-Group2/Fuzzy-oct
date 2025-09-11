@@ -30,10 +30,7 @@ const shipperRegistrationSchema = z.object({
     .string()
     .min(8, 'Username must be at least 8 characters')
     .max(15, 'Username must not exceed 15 characters')
-    .regex(
-      /^[a-zA-Z0-9]+$/,
-      'Username can only contain letters and digits',
-    ),
+    .regex(/^[a-zA-Z0-9]+$/, 'Username can only contain letters and digits'),
   email: z
     .string()
     .email('Please enter a valid email address')
@@ -250,14 +247,14 @@ export const RegisterShipper: React.FC<RegisterShipperProps> = ({
                 {error}
               </div>
             )}
-                  {/* Profile Picture Field */}
+            {/* Profile Picture Field */}
             <div className="space-y-2">
               <Label>Profile Picture (Optional)</Label>
               <ProfileImageUpload
                 currentImageUrl={formData.profilePicture}
                 userName={formData.username || 'Shipper'}
-                onImageUpload={(imageUrl) => 
-                  setFormData(prev => ({ ...prev, profilePicture: imageUrl }))
+                onImageUpload={(imageUrl) =>
+                  setFormData((prev) => ({ ...prev, profilePicture: imageUrl }))
                 }
                 className="border border-gray-200 rounded-lg"
               />

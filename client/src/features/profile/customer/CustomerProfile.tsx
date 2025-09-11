@@ -231,7 +231,8 @@ export const CustomerProfile: React.FC<CustomerProfileProps> = () => {
               userName={customer.name || customer.username}
               onImageUpload={(imageUrl) => setProfileImageUrl(imageUrl)}
             />
-          </div>          {/* Username Section */}
+          </div>{' '}
+          {/* Username Section */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2 h-11">
               Username
@@ -251,7 +252,6 @@ export const CustomerProfile: React.FC<CustomerProfileProps> = () => {
               </div>
             )}
           </div>
-
           {/* Email Section */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -272,7 +272,6 @@ export const CustomerProfile: React.FC<CustomerProfileProps> = () => {
               </div>
             )}
           </div>
-
           {/* Name Section */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -293,7 +292,6 @@ export const CustomerProfile: React.FC<CustomerProfileProps> = () => {
               </div>
             )}
           </div>
-
           {/* Address Section */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2 h-11">
@@ -314,7 +312,6 @@ export const CustomerProfile: React.FC<CustomerProfileProps> = () => {
               </div>
             )}
           </div>
-
           {/* Password Section */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -330,7 +327,6 @@ export const CustomerProfile: React.FC<CustomerProfileProps> = () => {
               </Button>
             </div>
           </div>
-
           {/* Update Account Button */}
           <div className="flex justify-end gap-3">
             {isEditing ? (

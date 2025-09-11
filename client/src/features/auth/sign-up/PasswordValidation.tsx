@@ -17,8 +17,14 @@ export const passwordValidationSchema = z
   .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
   .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
   .regex(/\d/, 'Password must contain at least one number')
-  .regex(/[!@#$%^&*]/, 'Password must contain at least one special character (!@#$%^&*)')
-  .regex(/^[A-Za-z0-9!@#$%^&*]+$/, 'Password can only contain letters, digits, and special characters (!@#$%^&*)');
+  .regex(
+    /[!@#$%^&*]/,
+    'Password must contain at least one special character (!@#$%^&*)',
+  )
+  .regex(
+    /^[A-Za-z0-9!@#$%^&*]+$/,
+    'Password can only contain letters, digits, and special characters (!@#$%^&*)',
+  );
 
 // Password validation checks interface
 export interface PasswordChecks {

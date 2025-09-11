@@ -220,7 +220,8 @@ export const VendorProfile: React.FC<VendorProfileProps> = () => {
               userName={vendor.businessName || vendor.username}
               onImageUpload={(imageUrl) => setProfileImageUrl(imageUrl)}
             />
-          </div>          {/* Username Section */}
+          </div>{' '}
+          {/* Username Section */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Username
@@ -240,7 +241,6 @@ export const VendorProfile: React.FC<VendorProfileProps> = () => {
               </div>
             )}
           </div>
-
           {/* Email Section */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -261,7 +261,6 @@ export const VendorProfile: React.FC<VendorProfileProps> = () => {
               </div>
             )}
           </div>
-
           {/* Business Name Section */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -282,7 +281,6 @@ export const VendorProfile: React.FC<VendorProfileProps> = () => {
               </div>
             )}
           </div>
-
           {/* Business Address Section */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -303,7 +301,6 @@ export const VendorProfile: React.FC<VendorProfileProps> = () => {
               </div>
             )}
           </div>
-
           {/* Password Section */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -319,7 +316,6 @@ export const VendorProfile: React.FC<VendorProfileProps> = () => {
               </Button>
             </div>
           </div>
-
           {/* Update Account Button */}
           <div className="flex justify-end gap-3">
             {isEditing ? (

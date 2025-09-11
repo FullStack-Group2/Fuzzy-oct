@@ -7,7 +7,10 @@ import { z } from 'zod';
 const router = Router();
 
 const chatSchema = z.object({
-  message: z.string().min(1, 'Message cannot be empty').max(1000, 'Message too long'),
+  message: z
+    .string()
+    .min(1, 'Message cannot be empty')
+    .max(1000, 'Message too long'),
 });
 
 // AI Chat endpoint - requires authentication

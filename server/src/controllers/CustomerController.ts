@@ -515,7 +515,7 @@ export const updateCustomer = async (req: Request, res: Response) => {
     const { id } = req.params;
     const { username, ...updateData } = req.body;
 
-        // Fetch the current customer first
+    // Fetch the current customer first
     const existingCustomer = await UserServices.findById(id);
     if (!existingCustomer) {
       return res.status(404).json({ message: 'Customer not found.' });

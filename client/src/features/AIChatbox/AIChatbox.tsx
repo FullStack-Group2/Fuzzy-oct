@@ -39,11 +39,12 @@ export const AIChatbox: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: 'welcome',
-      content: "Hello! I'm your AI assistant for Fuzzy furniture store. I can help you find products, check prices, get recommendations, and navigate the website. What can I help you with today?",
+      content:
+        "Hello! I'm your AI assistant for Fuzzy furniture store. I can help you find products, check prices, get recommendations, and navigate the website. What can I help you with today?",
       sender: 'ai',
       timestamp: new Date(),
       type: 'text',
-    }
+    },
   ]);
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -136,7 +137,9 @@ Try asking me something like "Show me red sofas under $500" or "How do I add a n
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         console.error('Error response:', errorData);
-        throw new Error(`HTTP error! status: ${response.status}. ${errorData.error || ''}`);
+        throw new Error(
+          `HTTP error! status: ${response.status}. ${errorData.error || ''}`,
+        );
       }
 
       const data = await response.json();
@@ -169,7 +172,8 @@ Try asking me something like "Show me red sofas under $500" or "How do I add a n
     } finally {
       setIsLoading(false);
     }
-  };  const handleKeyPress = (e: React.KeyboardEvent) => {
+  };
+  const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       sendMessage();
@@ -263,7 +267,7 @@ Try asking me something like "Show me red sofas under $500" or "How do I add a n
                     strokeWidth={2}
                     d={
                       isMinimized
-                        ?  'M5 10l7-7m0 0l7 7m-7-7v18'
+                        ? 'M5 10l7-7m0 0l7 7m-7-7v18'
                         : 'M19 14l-7 7m0 0l-7-7m7 7V3'
                     }
                   />

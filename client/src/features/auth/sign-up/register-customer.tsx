@@ -25,10 +25,7 @@ const customerRegistrationSchema = z.object({
     .string()
     .min(8, 'Username must be at least 8 characters')
     .max(15, 'Username must not exceed 15 characters')
-    .regex(
-      /^[a-zA-Z0-9]+$/,
-      'Username can only contain letters and digits',
-    ),
+    .regex(/^[a-zA-Z0-9]+$/, 'Username can only contain letters and digits'),
   email: z
     .string()
     .email('Please enter a valid email address')
@@ -100,7 +97,14 @@ export const RegisterCustomer: React.FC<RegisterCustomerProps> = ({
 
       // Debug: Log form data before validation
       console.log('Form data before validation:', formData);
-      console.log('Form data types:', Object.entries(formData).map(([key, value]) => [key, typeof value, value]));
+      console.log(
+        'Form data types:',
+        Object.entries(formData).map(([key, value]) => [
+          key,
+          typeof value,
+          value,
+        ]),
+      );
 
       // Validate using Zod schema
       customerRegistrationSchema.parse(formData);
@@ -111,7 +115,7 @@ export const RegisterCustomer: React.FC<RegisterCustomerProps> = ({
       console.log('Error type:', typeof error);
       console.log('Error constructor:', error?.constructor?.name);
       console.log('Is ZodError?', error instanceof z.ZodError);
-      
+
       if (error instanceof z.ZodError) {
         console.log('Zod validation errors:', error.issues);
         // Convert Zod errors to field-specific errors
@@ -129,11 +133,12 @@ export const RegisterCustomer: React.FC<RegisterCustomerProps> = ({
         setError(firstError?.message || 'Please fix the validation errors');
       } else {
         console.error('Non-Zod validation error:', error);
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        const errorMessage =
+          error instanceof Error ? error.message : 'Unknown error';
         console.error('Error details:', {
           message: errorMessage,
           stack: error instanceof Error ? error.stack : 'No stack trace',
-          name: error instanceof Error ? error.name : 'Unknown error type'
+          name: error instanceof Error ? error.name : 'Unknown error type',
         });
         setError(`Validation failed: ${errorMessage}`);
       }
@@ -231,8 +236,8 @@ export const RegisterCustomer: React.FC<RegisterCustomerProps> = ({
               <ProfileImageUpload
                 currentImageUrl={formData.profilePicture}
                 userName={formData.name || formData.username || 'User'}
-                onImageUpload={(imageUrl) => 
-                  setFormData(prev => ({ ...prev, profilePicture: imageUrl }))
+                onImageUpload={(imageUrl) =>
+                  setFormData((prev) => ({ ...prev, profilePicture: imageUrl }))
                 }
                 className="border border-gray-200 rounded-lg"
               />

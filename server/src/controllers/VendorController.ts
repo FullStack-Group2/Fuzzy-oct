@@ -198,9 +198,9 @@ export async function getOrderDetails(
 
     const products = validProductIds.length
       ? await ProductModel.find({ _id: { $in: validProductIds } })
-        .select('_id name imageUrl price vendor')
-        .lean()
-        .exec()
+          .select('_id name imageUrl price vendor')
+          .lean()
+          .exec()
       : [];
 
     const productMap = new Map(products.map((p: any) => [String(p._id), p]));
@@ -364,7 +364,11 @@ export async function updateStatus(req: AuthenticatedRequest, res: Response) {
           cancelReason: null,
         });
       } catch (e: any) {
-        console.error('[vendor.updateStatus] Transaction ERROR:', e?.message, e);
+        console.error(
+          '[vendor.updateStatus] Transaction ERROR:',
+          e?.message,
+          e,
+        );
         return res.status(500).json({ error: 'Failed to accept order' });
       } finally {
         session.endSession();
@@ -386,7 +390,7 @@ export async function updateStatus(req: AuthenticatedRequest, res: Response) {
         await session.withTransaction(async () => {
           // 1) Get only this vendor's items from the order
           const vendorItems = await collectVendorItems(orderId, vendorId);
-          
+
           // 2) Restock only vendor's products
           if (vendorItems.length > 0) {
             for (const it of vendorItems) {
@@ -396,7 +400,7 @@ export async function updateStatus(req: AuthenticatedRequest, res: Response) {
                   vendor: vendorId,
                 },
                 { $inc: { availableStock: it.qty } },
-                { session }
+                { session },
               );
             }
           }
@@ -410,7 +414,7 @@ export async function updateStatus(req: AuthenticatedRequest, res: Response) {
                 cancelReason: `Vendor Canceled: ${reason}`,
               },
             },
-            { new: true, session }
+            { new: true, session },
           ).lean();
 
           if (!updated) throw new Error('Could not update order status');
@@ -422,7 +426,11 @@ export async function updateStatus(req: AuthenticatedRequest, res: Response) {
           cancelReason: `Vendor Canceled: ${reason}`,
         });
       } catch (e: any) {
-        console.error('[vendor.updateStatus] Transaction ERROR:', e?.message, e);
+        console.error(
+          '[vendor.updateStatus] Transaction ERROR:',
+          e?.message,
+          e,
+        );
         return res.status(500).json({ error: 'Failed to reject order' });
       } finally {
         session.endSession();

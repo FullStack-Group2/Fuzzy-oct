@@ -23,10 +23,7 @@ const vendorRegistrationSchema = z.object({
     .string()
     .min(8, 'Username must be at least 8 characters')
     .max(15, 'Username must not exceed 15 characters')
-    .regex(
-      /^[a-zA-Z0-9]+$/,
-      'Username can only contain letters and digits',
-    ),
+    .regex(/^[a-zA-Z0-9]+$/, 'Username can only contain letters and digits'),
   email: z
     .string()
     .email('Please enter a valid email address')
@@ -201,14 +198,16 @@ export const RegisterVendor: React.FC<RegisterVendorProps> = ({
             {error && (
               <div className=" px-4 py-3 rounded-lg text-sm">{error}</div>
             )}
-                {/* Profile Picture Field */}
+            {/* Profile Picture Field */}
             <div className="space-y-2">
               <Label>Profile Picture (Optional)</Label>
               <ProfileImageUpload
                 currentImageUrl={formData.profilePicture}
-                userName={formData.businessName || formData.username || 'Business'}
-                onImageUpload={(imageUrl) => 
-                  setFormData(prev => ({ ...prev, profilePicture: imageUrl }))
+                userName={
+                  formData.businessName || formData.username || 'Business'
+                }
+                onImageUpload={(imageUrl) =>
+                  setFormData((prev) => ({ ...prev, profilePicture: imageUrl }))
                 }
                 className="border border-gray-200 rounded-lg"
               />
@@ -288,7 +287,9 @@ export const RegisterVendor: React.FC<RegisterVendorProps> = ({
                 required
               />
               {fieldErrors.businessAddress && (
-                <p className="text-red-500 text-sm">{fieldErrors.businessAddress}</p>
+                <p className="text-red-500 text-sm">
+                  {fieldErrors.businessAddress}
+                </p>
               )}
             </div>
 

@@ -324,7 +324,6 @@
 
 // export default EditProduct;
 
-
 import React, { useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { updateProduct } from '@/api/VendorAPI';
@@ -343,11 +342,12 @@ export const EditProduct: React.FC = () => {
       description: product?.description,
       category: product?.category,
       price: product?.price != null ? String(product.price) : '',
-      availableStock: product?.availableStock != null ? String(product.availableStock) : '',
+      availableStock:
+        product?.availableStock != null ? String(product.availableStock) : '',
       imageUrl: product?.imageUrl,
       sale: product?.sale != null ? Number(product.sale) : 0,
     }),
-    [product]
+    [product],
   );
 
   // ✅ Keep form state
@@ -355,8 +355,6 @@ export const EditProduct: React.FC = () => {
   useEffect(() => {
     setFormData(baseInitial);
   }, [baseInitial]);
-
-
 
   const [errors, setErrors] = useState({
     name: '',
@@ -367,7 +365,9 @@ export const EditProduct: React.FC = () => {
   });
 
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >,
   ) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({ ...prevData, [name]: value }));
@@ -386,7 +386,10 @@ export const EditProduct: React.FC = () => {
     const files = e.target.files;
     if (files && files.length > 0) {
       const file = files[0];
-      setFormData((prevData) => ({ ...prevData, imageUrl: URL.createObjectURL(file) }));
+      setFormData((prevData) => ({
+        ...prevData,
+        imageUrl: URL.createObjectURL(file),
+      }));
     }
   };
 
@@ -398,7 +401,8 @@ export const EditProduct: React.FC = () => {
       errs.name = 'Name must be between 10 and 20 characters';
 
     if (!v.description) errs.description = 'Description is required';
-    else if (v.description.length > 500) errs.description = 'Description must not exceed 500 characters';
+    else if (v.description.length > 500)
+      errs.description = 'Description must not exceed 500 characters';
 
     if (!v.price) errs.price = 'Price is required';
     else if (isNaN(Number(v.price))) errs.price = 'Price must be a number';
@@ -441,8 +445,7 @@ export const EditProduct: React.FC = () => {
           imageUrl: String(updated.imageUrl ?? ''),
           sale: Number(updated.sale ?? 0),
         });
-      }
-      else {
+      } else {
         alert('Failed to update product');
       }
     } catch (err) {
@@ -469,7 +472,8 @@ export const EditProduct: React.FC = () => {
           <div>
             <label className="block text-gray-700 text-left">Image</label>
             <label className="block mb-2 text-sm text-left font-thin">
-              Uploaded image <span className="text-lg font-thin text-red-500">*</span>
+              Uploaded image{' '}
+              <span className="text-lg font-thin text-red-500">*</span>
             </label>
           </div>
 
@@ -489,7 +493,10 @@ export const EditProduct: React.FC = () => {
                     className="hidden"
                     id="imageUpload"
                   />
-                  <label htmlFor="imageUpload" className="cursor-pointer flex flex-col items-center">
+                  <label
+                    htmlFor="imageUpload"
+                    className="cursor-pointer flex flex-col items-center"
+                  >
                     <div className="text-[#1E7A5A]">Click to upload +</div>
                   </label>
                 </div>
@@ -521,7 +528,9 @@ export const EditProduct: React.FC = () => {
             onChange={handleInputChange}
             className={`w-full border rounded-lg p-2 ${errors.name ? 'border-red-500' : 'border-gray-300'}`}
           />
-          {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
+          {errors.name && (
+            <p className="text-red-500 text-sm mt-1">{errors.name}</p>
+          )}
 
           {/* Description Field */}
           <label className="block text-gray-700 mt-4 mb-2">Description</label>
@@ -531,7 +540,9 @@ export const EditProduct: React.FC = () => {
             onChange={handleInputChange}
             className={`w-full border rounded-lg p-2 ${errors.description ? 'border-red-500' : 'border-gray-300'}`}
           />
-          {errors.description && <p className="text-red-500 text-sm mt-1">{errors.description}</p>}
+          {errors.description && (
+            <p className="text-red-500 text-sm mt-1">{errors.description}</p>
+          )}
 
           {/* Category Field */}
           <label className="block text-gray-700 mt-4 mb-2">Category</label>
@@ -559,12 +570,18 @@ export const EditProduct: React.FC = () => {
               onChange={handleInputChange}
               className={`w-full border rounded-lg p-2 pr-10 ${errors.price ? 'border-red-500' : 'border-gray-300'}`}
             />
-            <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">vnd</span>
+            <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">
+              vnd
+            </span>
           </div>
-          {errors.price && <p className="text-red-500 text-sm mt-1">{errors.price}</p>}
+          {errors.price && (
+            <p className="text-red-500 text-sm mt-1">{errors.price}</p>
+          )}
 
           {/* Available Stock Field */}
-          <label className="block text-gray-700 mt-4 mb-2">Available stock</label>
+          <label className="block text-gray-700 mt-4 mb-2">
+            Available stock
+          </label>
           <input
             type="text"
             name="availableStock"
@@ -572,11 +589,14 @@ export const EditProduct: React.FC = () => {
             onChange={handleInputChange}
             className={`w-full border rounded-lg p-2 ${errors.availableStock ? 'border-red-500' : 'border-gray-300'}`}
           />
-          {errors.availableStock && <p className="text-red-500 text-sm mt-1">{errors.availableStock}</p>}
-
+          {errors.availableStock && (
+            <p className="text-red-500 text-sm mt-1">{errors.availableStock}</p>
+          )}
 
           {/* Sale Field */}
-          <label className="block text-gray-700 mb-2">Sale (Integer number only)</label>
+          <label className="block text-gray-700 mb-2">
+            Sale (Integer number only)
+          </label>
           <input
             type="text"
             name="sale"
@@ -584,11 +604,10 @@ export const EditProduct: React.FC = () => {
             onChange={handleInputChange}
             className={`w-full border rounded-lg p-2 ${errors.sale ? 'border-red-500' : 'border-gray-300'}`}
           />
-          {errors.sale && <p className="text-red-500 text-sm mt-1">{errors.sale}</p>}
-
-
+          {errors.sale && (
+            <p className="text-red-500 text-sm mt-1">{errors.sale}</p>
+          )}
         </div>
-
 
         <div className="col-span-1 md:col-span-2 justify-end text-right mt-4 mb-2">
           <button

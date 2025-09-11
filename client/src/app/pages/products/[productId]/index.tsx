@@ -1,12 +1,12 @@
-import { Link } from "react-router-dom";
-import { useState, useEffect } from "react";
-import toast from "react-hot-toast";
+import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import toast from 'react-hot-toast';
 
-import { useShopCart } from "@/features/layout/navbar/stores/ShopCartDataContext";
-import { useProductDetail } from "@/features/shop/stores/ProductDetailDataContext";
-import { AiOutlineShopping } from "react-icons/ai";
-import { Skeleton } from "@/components/ui/skeleton";
-import NotFoundProduct from "@/features/shop/components/NotFoundProduct";
+import { useShopCart } from '@/features/layout/navbar/stores/ShopCartDataContext';
+import { useProductDetail } from '@/features/shop/stores/ProductDetailDataContext';
+import { AiOutlineShopping } from 'react-icons/ai';
+import { Skeleton } from '@/components/ui/skeleton';
+import NotFoundProduct from '@/features/shop/components/NotFoundProduct';
 
 const ProductDetail = () => {
   const [quantity, setQuantity] = useState(1);
@@ -80,11 +80,14 @@ const ProductDetail = () => {
             // Có sale
             <div className="flex items-center space-x-2">
               <p className="text-gray-500 text-md line-through">
-                {Intl.NumberFormat("vi-VN").format(product?.price)} đ
+                {Intl.NumberFormat('vi-VN').format(product?.price)} đ
               </p>
 
               <p className="text-red-500 text-lg font-semibold">
-                {Intl.NumberFormat("vi-VN").format(product?.price * (1 - product?.sale / 100))} đ
+                {Intl.NumberFormat('vi-VN').format(
+                  product?.price * (1 - product?.sale / 100),
+                )}{' '}
+                đ
               </p>
 
               <span className="text-sm ml-1.5">Tax included</span>
@@ -92,7 +95,7 @@ const ProductDetail = () => {
           ) : (
             // Không sale
             <p className="text-lg">
-              {Intl.NumberFormat("vi-VN").format(product?.price)} đ
+              {Intl.NumberFormat('vi-VN').format(product?.price)} đ
             </p>
           )}
           {/* Quantity + Add to cart */}
@@ -138,8 +141,9 @@ const ProductDetail = () => {
         <footer className="min-h-[90px] flex items-center justify-between mt-4">
           <div className="flex items-center gap-3">
             <div
-              className={`w-[70px] aspect-1 border border-black rounded-full overflow-hidden ${vendor?.profilePicture === "" ? "bg-[#eef1f1]" : ""
-                }`}
+              className={`w-[70px] aspect-1 border border-black rounded-full overflow-hidden ${
+                vendor?.profilePicture === '' ? 'bg-[#eef1f1]' : ''
+              }`}
             >
               {vendor?.profilePicture && (
                 <img

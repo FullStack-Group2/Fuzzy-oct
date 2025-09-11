@@ -11,7 +11,7 @@ import type { VendorOrderListDTO } from '@/models/VendorDTO';
 import { apiVendorGetOrders } from '@/api/VendorAPI';
 import { VendorOrdersTable } from '@/components/VendorOrdersUI';
 import HeroBanner from '@/components/HeroBanner';
-import bed from '../../../assets/icon/bed.webp' 
+import bed from '../../../assets/icon/bed.webp';
 
 type Status = 'PENDING' | 'ACTIVE' | 'DELIVERED' | 'CANCELED';
 

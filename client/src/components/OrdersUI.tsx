@@ -7,6 +7,7 @@
 
 import React, { useEffect, useId, useRef, useState } from 'react';
 import { Location, To, NavigateFunction } from 'react-router-dom';
+import { Portal } from './Portal';
 
 /* ---------- Small UI atoms ---------- */
 type OrderStatus = 'PENDING' | 'ACTIVE' | 'DELIVERED' | 'CANCELED';
@@ -252,13 +253,55 @@ export function StatusHeader({
 }) {
   const [open, setOpen] = useState(false);
   const ref = useOutsideClose<HTMLDivElement>(open, () => setOpen(false));
-  const uid = useId();
+  const [pos, setPos] = useState<{ top: number; left: number } | null>(null);
+  const triggerRef = useRef<HTMLButtonElement | null>(null);
 
   const toggleStatus = (s: Status) => {
     onChangeSelected(selected.includes(s) ? [] : [s]);
   };
 
   const clearFilter = () => onChangeSelected([]);
+
+  const placeMenu = () => {
+    const el = triggerRef.current;
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    // Align right edge of a ~256px menu to the trigger, small gap below
+    const menuWidth = 256;
+    const left = Math.min(
+      window.innerWidth - 8 - menuWidth, // keep inside viewport
+      Math.max(8, r.right - menuWidth),
+    );
+    const top = r.bottom + 8;
+    setPos({ top, left });
+  };
+
+  useEffect(() => {
+    if (!open) return;
+    placeMenu();
+
+    const onDocDown = (e: MouseEvent) => {
+      const menu = document.getElementById('status-filter-menu');
+      if (
+        menu &&
+        !menu.contains(e.target as Node) &&
+        !triggerRef.current?.contains(e.target as Node)
+      ) {
+        setOpen(false);
+      }
+    };
+    const onScrollOrResize = () => placeMenu();
+
+    document.addEventListener('mousedown', onDocDown);
+    window.addEventListener('scroll', onScrollOrResize, true);
+    window.addEventListener('resize', onScrollOrResize);
+    return () => {
+      document.removeEventListener('mousedown', onDocDown);
+      window.removeEventListener('scroll', onScrollOrResize, true);
+      window.removeEventListener('resize', onScrollOrResize);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
 
   const icon =
     sortOrder === 'asc' ? (
@@ -270,76 +313,88 @@ export function StatusHeader({
     );
 
   return (
-    <div className="relative" ref={ref}>
-      <div className="flex items-center gap-2">
-        <span className="text-sm md:text-base">Status</span>
-        <button
-          type="button"
-          onClick={() => setOpen((v) => !v)}
-          className="inline-flex items-center gap-1 rounded border px-2 py-1 text-xs hover:bg-gray-50"
-          title="Filter statuses"
-        >
-          <FunnelIcon className="h-4 w-4" />
-          <span className="hidden sm:inline">
-            {selected.length ? `${selected.length} filter` : 'Filter'}
-          </span>
-          {/* tiny count badge on xs if active */}
-          {selected.length > 0 && (
-            <span className="sm:hidden text-[10px]">({selected.length})</span>
-          )}
-        </button>
-        <button
-          type="button"
-          onClick={() =>
-            onChangeSortOrder(
-              sortOrder === 'asc'
-                ? 'desc'
-                : sortOrder === 'desc'
-                  ? undefined
-                  : 'asc',
-            )
-          }
-          className="inline-flex items-center gap-1 rounded border px-2 py-1 text-xs hover:bg-gray-50"
-          title={sortOrder ? `Sort: ${sortOrder.toUpperCase()}` : 'Sort A→Z'}
-        >
-          {icon}
-        </button>
-      </div>
+    <div className="flex items-center gap-2">
+      <span className="text-sm md:text-base">Status</span>
 
-      {open && (
-        <div className="absolute right-0 z-10 mt-2 w-64 md:w-56 max-w-[calc(100vw-2rem)] rounded-lg border bg-white p-3 shadow">
-          <div className="mb-2 text-xs font-medium text-gray-700">
-            Show statuses
+      {/* Trigger stays inside the table header cell */}
+      <button
+        ref={triggerRef}
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="inline-flex items-center gap-1 rounded border px-2 py-1 text-xs hover:bg-gray-50"
+        title="Filter statuses"
+      >
+        <FunnelIcon className="h-4 w-4" />
+        <span className="hidden sm:inline">
+          {selected.length ? `${selected.length} filter` : 'Filter'}
+        </span>
+        {selected.length > 0 && (
+          <span className="sm:hidden text-[10px]">({selected.length})</span>
+        )}
+      </button>
+
+      <button
+        type="button"
+        onClick={() =>
+          onChangeSortOrder(
+            sortOrder === 'asc'
+              ? 'desc'
+              : sortOrder === 'desc'
+              ? undefined
+              : 'asc',
+          )
+        }
+        className="inline-flex items-center gap-1 rounded border px-2 py-1 text-xs hover:bg-gray-50"
+        title={sortOrder ? `Sort: ${sortOrder.toUpperCase()}` : 'Sort A→Z'}
+      >
+        {icon}
+      </button>
+
+      {/* Menu lives in a portal with position:fixed, so it overlays the table */}
+      {open && pos && (
+        <Portal>
+          <div
+            id="status-filter-menu"
+            className="z-[9999] w-64 md:w-56 max-w-[calc(100vw-2rem)] rounded-lg border bg-white p-3 shadow"
+            style={{
+              position: 'fixed',
+              top: pos.top,
+              left: pos.left,
+            }}
+          >
+            <div className="mb-2 text-xs font-medium text-gray-700">
+              Show statuses
+            </div>
+            <div className="space-y-1">
+              {ALL_STATUSES.map((s) => (
+                <label key={s} className="flex items-center gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    checked={selected.includes(s)}
+                    onChange={() => toggleStatus(s)}
+                  />
+                  <span>{s}</span>
+                </label>
+              ))}
+            </div>
+            <div className="mt-3 flex items-center justify-between">
+              <button
+                className="text-xs text-gray-600 hover:underline"
+                onClick={clearFilter}
+                type="button"
+              >
+                Clear
+              </button>
+              <button
+                className="rounded bg-black px-2 py-1 text-xs text-white"
+                onClick={() => setOpen(false)}
+                type="button"
+              >
+                Done
+              </button>
+            </div>
           </div>
-          <div className="space-y-1">
-            {ALL_STATUSES.map((s) => (
-              <label key={s} className="flex items-center gap-2 text-sm">
-                <input
-                  type="checkbox"
-                  checked={selected.includes(s)}
-                  onChange={() => toggleStatus(s)}
-                />
-                <span>{s}</span>
-              </label>
-            ))}
-          </div>
-          <div className="mt-3 flex items-center justify-between">
-            <button
-              className="text-xs text-gray-600 hover:underline"
-              onClick={clearFilter}
-              type="button"
-            >
-              Clear
-            </button>
-            <button
-              className="rounded bg-black px-2 py-1 text-xs text-white"
-              onClick={() => setOpen(false)}
-              type="button"
-            >
-              Done
-            </button>
-          </div>
-        </div>
+        </Portal>
       )}
     </div>
   );
@@ -379,11 +434,10 @@ export function RejectReasonSelector({
         return (
           <label
             key={r}
-            className={`block cursor-pointer rounded-lg border p-3 transition-colors ${
-              active
+            className={`block cursor-pointer rounded-lg border p-3 transition-colors ${active
                 ? 'border-blue-500'
                 : 'border-gray-300 hover:border-gray-400'
-            }`}
+              }`}
             onClick={() => {
               onChangeReason(r);
               if (!isOther) onChangeNotes('');

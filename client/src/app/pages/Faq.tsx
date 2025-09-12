@@ -26,7 +26,7 @@ interface FAQSection {
 
 interface AccordionItemProps {
   qa: Question;
-}
+} 
 
 // ------------------
 // Accordion Item Component

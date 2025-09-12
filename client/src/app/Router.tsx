@@ -51,6 +51,7 @@ import { ProductDetailDataProvider } from '@/features/shop/stores/ProductDetailD
 import { ShopProductDataProvider } from '@/features/shop/stores/ShopProductDataContext';
 import { toast, Toaster, ToastBar } from 'react-hot-toast';
 import About from './pages/About';
+import ChatPanel from './pages/ChatPanel';
 
 // Wrapper for Logout if it needs user from context
 const LogoutWrapper = () => {
@@ -93,8 +94,13 @@ function InnerRoutes() {
           {/* Public routes */}
           <Route path="/about" element={<About />} />
           <Route path="/privacy" element={<PrivacyPolicy />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/faq" element={<Faq />} />
+
+          <Route
+            path="/contact"
+            element={
+              <Contact />
+            }
+          />
 
           {/* Auth (public-only) */}
           <Route
@@ -213,6 +219,13 @@ function InnerRoutes() {
           />
 
           {/* VENDOR */}
+          <Route path="/chat"
+            element={
+              <ProtectedRoute allowedRoles={['VENDOR']}>
+                <ChatPanel />
+              </ProtectedRoute>
+
+            } />
           <Route
             path="/products"
             element={

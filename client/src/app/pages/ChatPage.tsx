@@ -56,8 +56,6 @@
 //   )
 // }
 
-
-
 import { useAuth } from '@/stores/AuthProvider';
 import React, { useEffect, useState, useRef } from 'react';
 import { io, Socket } from 'socket.io-client';
@@ -72,7 +70,10 @@ interface Message {
 }
 
 export default function ChatPage() {
-  const { senderId, receiverId } = useParams<{ senderId: string; receiverId: string }>();
+  const { senderId, receiverId } = useParams<{
+    senderId: string;
+    receiverId: string;
+  }>();
   const { user, isAuth } = useAuth();
   const [socket, setSocket] = useState<Socket | null>(null);
   const [message, setMessage] = useState('');
@@ -92,18 +93,21 @@ export default function ChatPage() {
       try {
         const token = localStorage.getItem('token');
         if (!token) {
-          setError("No authentication token found");
+          setError('No authentication token found');
           setLoading(false);
           return;
         }
 
-        const response = await fetch(`http://localhost:5001/api/chat/${receiverId}`, {
-          method: 'GET',
-          headers: { 
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
+        const response = await fetch(
+          `http://localhost:5001/api/chat/${receiverId}`,
+          {
+            method: 'GET',
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            },
           },
-        });
+        );
 
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -113,8 +117,8 @@ export default function ChatPage() {
         setMessages(data);
         setError(null);
       } catch (error) {
-        console.error("Failed to fetch chat history", error);
-        setError("Failed to load chat history");
+        console.error('Failed to fetch chat history', error);
+        setError('Failed to load chat history');
       } finally {
         setLoading(false);
       }
@@ -138,11 +142,13 @@ export default function ChatPage() {
     setSocket(s);
 
     s.on('receive-message', (newMsg: Message) => {
-       // Only add the message if it belongs to the current conversation
-       if ((newMsg.senderId === user.id && newMsg.receiverId === receiverId) || 
-           (newMsg.senderId === receiverId && newMsg.receiverId === user.id)) {
-            setMessages((prev) => [...prev, newMsg]);
-       }
+      // Only add the message if it belongs to the current conversation
+      if (
+        (newMsg.senderId === user.id && newMsg.receiverId === receiverId) ||
+        (newMsg.senderId === receiverId && newMsg.receiverId === user.id)
+      ) {
+        setMessages((prev) => [...prev, newMsg]);
+      }
     });
 
     s.on('connect_error', (error) => {
@@ -162,7 +168,7 @@ export default function ChatPage() {
 
   const handleSendMessage = () => {
     if (message.trim() === '' || !socket || !user) return;
-    
+
     socket.emit('send-message', { receiver: receiverId, content: message });
     setMessage('');
   };
@@ -196,7 +202,9 @@ export default function ChatPage() {
       <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
         {messages.length === 0 ? (
           <div className="flex items-center justify-center h-full">
-            <p className="text-gray-500">No messages yet. Start the conversation!</p>
+            <p className="text-gray-500">
+              No messages yet. Start the conversation!
+            </p>
           </div>
         ) : (
           messages.map((m) => (
@@ -212,12 +220,14 @@ export default function ChatPage() {
                 }`}
               >
                 <p className="break-words">{m.message}</p>
-                <p className={`text-xs mt-1 ${
-                  m.senderId === user.id ? 'text-blue-100' : 'text-gray-500'
-                }`}>
-                  {new Date(m.createdAt).toLocaleTimeString([], { 
-                    hour: '2-digit', 
-                    minute: '2-digit' 
+                <p
+                  className={`text-xs mt-1 ${
+                    m.senderId === user.id ? 'text-blue-100' : 'text-gray-500'
+                  }`}
+                >
+                  {new Date(m.createdAt).toLocaleTimeString([], {
+                    hour: '2-digit',
+                    minute: '2-digit',
                   })}
                 </p>
               </div>
@@ -242,7 +252,7 @@ export default function ChatPage() {
             className="flex-1 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             disabled={!socket}
           />
-          <button 
+          <button
             onClick={handleSendMessage}
             disabled={!socket || message.trim() === ''}
             className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"

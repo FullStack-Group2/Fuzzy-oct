@@ -20,14 +20,14 @@ dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
 const port = process.env.PORT || 5001;
 
-const server = http.createServer(app)
+const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
     origin: '*',
     methods: ['GET', 'POST'],
   },
-})
+});
 
 // const onlineUsers = new Map<string, string>() // userId → socketId
 
@@ -35,20 +35,20 @@ io.use(async (socket, next) => {
   try {
     const token =
       socket.handshake.auth.token ||
-      socket.handshake.headers?.authorization?.split(' ')[1]
+      socket.handshake.headers?.authorization?.split(' ')[1];
 
     if (!token) {
-      return next(new Error('Authentication error: No token provided'))
+      return next(new Error('Authentication error: No token provided'));
     }
 
-    const user = await verifyToken(token)
-    ;(socket as any).user = user
-    next()
+    const user = await verifyToken(token);
+    (socket as any).user = user;
+    next();
   } catch (err: any) {
-    console.error('Socket auth error:', err.message)
-    next(new Error('Authentication failed'))
+    console.error('Socket auth error:', err.message);
+    next(new Error('Authentication failed'));
   }
-})
+});
 
 // io.on('connection', (socket) => {
 //   const user = (socket as any).user
@@ -78,40 +78,44 @@ io.use(async (socket, next) => {
 //   })
 // })
 
-app.get('/api/chat/conversations/:customerId', authMiddleware, async (req, res) => {
-  try {
-    // 1. Get the logged-in user's ID (the vendor)
-    const vendorId = (req as any).user.userId;
-    const customerId = req.params.customerId
-    // 2. Find all chats where the vendor is either the sender or receiver
-    const chats = await ChatModel.find({
-      $or: [{ senderId: vendorId }, { receiverId: vendorId }],
-    });
+app.get(
+  '/api/chat/conversations/:customerId',
+  authMiddleware,
+  async (req, res) => {
+    try {
+      // 1. Get the logged-in user's ID (the vendor)
+      const vendorId = (req as any).user.userId;
+      const customerId = req.params.customerId;
+      // 2. Find all chats where the vendor is either the sender or receiver
+      const chats = await ChatModel.find({
+        $or: [{ senderId: vendorId }, { receiverId: vendorId }],
+      });
 
-    // 3. Get a unique list of the OTHER user's ID from those chats
-    const customerIds = [
-      ...new Set(
-        chats.map((chat) =>
-          // If the sender was the vendor, get the receiver ID, otherwise get the sender ID
-          chat.senderId.toString() === vendorId
-            ? chat.receiverId.toString()
-            : chat.senderId.toString()
-        )
-      ),
-    ];
+      // 3. Get a unique list of the OTHER user's ID from those chats
+      const customerIds = [
+        ...new Set(
+          chats.map((chat) =>
+            // If the sender was the vendor, get the receiver ID, otherwise get the sender ID
+            chat.senderId.toString() === vendorId
+              ? chat.receiverId.toString()
+              : chat.senderId.toString(),
+          ),
+        ),
+      ];
 
-    // 4. Find the user details for those unique customer IDs
-    const customers = await UserModel.find({ _id: { $in: customerIds } }).select(
-      '-password'
-    );
+      // 4. Find the user details for those unique customer IDs
+      const customers = await UserModel.find({
+        _id: { $in: customerIds },
+      }).select('-password');
 
-    // 5. Return the list of customers
-    res.json(customers);
-  } catch (error) {
-    console.error("Error fetching conversations:", error);
-    res.status(500).json({ message: 'Error fetching conversations' });
-  }
-});
+      // 5. Return the list of customers
+      res.json(customers);
+    } catch (error) {
+      console.error('Error fetching conversations:', error);
+      res.status(500).json({ message: 'Error fetching conversations' });
+    }
+  },
+);
 
 app.get('/api/chat/:receiverId', authMiddleware, async (req, res) => {
   try {
@@ -131,12 +135,13 @@ app.get('/api/chat/:receiverId', authMiddleware, async (req, res) => {
   }
 });
 
-
 const onlineUsers = new Map<string, string>(); // userId → socketId
 
 io.use(async (socket, next) => {
   try {
-    const token = socket.handshake.auth.token || socket.handshake.headers?.authorization?.split(' ')[1];
+    const token =
+      socket.handshake.auth.token ||
+      socket.handshake.headers?.authorization?.split(' ')[1];
     if (!token) {
       return next(new Error('Authentication error: No token provided'));
     }
@@ -171,9 +176,8 @@ io.on('connection', (socket) => {
       }
       // ➕ ADDED: Also send the message back to the sender to confirm it was saved
       socket.emit('receive-message', newMsg);
-      
     } catch (error) {
-      console.error("Error saving message:", error);
+      console.error('Error saving message:', error);
     }
   });
 
@@ -186,4 +190,3 @@ io.on('connection', (socket) => {
 server.listen(port, () => {
   console.log(`Server is listening on port ${port}`);
 });
-

@@ -96,12 +96,7 @@ function InnerRoutes() {
           <Route path="/about" element={<About />} />
           <Route path="/privacy" element={<PrivacyPolicy />} />
 
-          <Route
-            path="/contact"
-            element={
-              <Contact />
-            }
-          />
+          <Route path="/contact" element={<Contact />} />
 
           {/* Auth (public-only) */}
           <Route
@@ -220,18 +215,22 @@ function InnerRoutes() {
           />
 
           {/* VENDOR */}
-          <Route path="/chat"
+          <Route
+            path="/chat"
             element={
               <ProtectedRoute>
                 <ChatPanel />
               </ProtectedRoute>
-            } />
-          <Route path="/chat/:senderId/:receiverId"
+            }
+          />
+          <Route
+            path="/chat/:senderId/:receiverId"
             element={
               <ProtectedRoute>
                 <ChatPage />
               </ProtectedRoute>
-            } />
+            }
+          />
           <Route
             path="/products"
             element={

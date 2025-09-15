@@ -9,8 +9,7 @@ import ExploredCategories from '@/features/home/components/ExploredCateogires';
 import FeaturedCategories from '@/features/home/components/FeaturedCategories';
 import HeroSection from '@/features/home/components/HeroSection';
 
-import ChatPage from "./ChatPage";
-
+import ChatPage from './ChatPage';
 
 const Home = () => {
   {
@@ -23,7 +22,7 @@ const Home = () => {
         <FeaturedCategories />
         <ExploredCategories />
       </section>
-  </>
+    </>
   );
 };
 

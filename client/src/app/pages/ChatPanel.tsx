@@ -59,11 +59,10 @@
 //   );
 // }
 
-
-import React, { useState, useEffect } from "react";
-import { useAuth } from "@/stores/AuthProvider";
-import { useNavigate, useParams } from "react-router-dom";
-import ChatPage from "./ChatPage";
+import React, { useState, useEffect } from 'react';
+import { useAuth } from '@/stores/AuthProvider';
+import { useNavigate, useParams } from 'react-router-dom';
+import ChatPage from './ChatPage';
 
 interface Customer {
   _id: string;
@@ -77,8 +76,10 @@ export default function ChatPanel() {
   const { user, isAuth } = useAuth();
   const navigate = useNavigate();
   const { receiverId } = useParams<{ receiverId: string }>();
-  const [listOfCustomers, setListOfCustomers] = useState<Customer[]>([]); 
-  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
+  const [listOfCustomers, setListOfCustomers] = useState<Customer[]>([]);
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(
+    null,
+  );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -90,20 +91,23 @@ export default function ChatPanel() {
       }
 
       try {
-        const token = localStorage.getItem("token");
+        const token = localStorage.getItem('token');
         if (!token) {
-          setError("No authentication token found");
+          setError('No authentication token found');
           setLoading(false);
           return;
         }
 
-        const response = await fetch("http://localhost:5001/api/chat/conversations", {
-          method: 'GET',
-          headers: { 
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
+        const response = await fetch(
+          'http://localhost:5001/api/chat/conversations',
+          {
+            method: 'GET',
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            },
           },
-        });
+        );
 
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -113,8 +117,8 @@ export default function ChatPanel() {
         setListOfCustomers(data);
         setError(null);
       } catch (err) {
-        console.error("Error fetching conversations:", err);
-        setError("Failed to fetch conversations");
+        console.error('Error fetching conversations:', err);
+        setError('Failed to fetch conversations');
       } finally {
         setLoading(false);
       }
@@ -126,7 +130,7 @@ export default function ChatPanel() {
   // Update selectedCustomer when receiverId changes from URL
   useEffect(() => {
     if (receiverId && listOfCustomers.length > 0) {
-      const customer = listOfCustomers.find(c => c._id === receiverId);
+      const customer = listOfCustomers.find((c) => c._id === receiverId);
       if (customer) {
         setSelectedCustomer(customer);
       }
@@ -151,7 +155,7 @@ export default function ChatPanel() {
       {/* Sidebar on the left */}
       <div className="w-64 border-r border-gray-200 p-4 bg-gray-50 overflow-y-auto">
         <h3 className="text-lg font-semibold mb-3">Customer Chats</h3>
-        
+
         {loading ? (
           <p className="text-gray-500">Loading conversations...</p>
         ) : error ? (
@@ -165,11 +169,13 @@ export default function ChatPanel() {
               onClick={() => handleSetCustomer(customer)}
               className={`w-full px-4 py-2 mb-2 rounded-lg text-left transition-colors ${
                 receiverId === customer._id
-                  ? "bg-blue-100 text-blue-600 border border-blue-300"
-                  : "bg-white hover:bg-gray-100 border border-gray-300"
+                  ? 'bg-blue-100 text-blue-600 border border-blue-300'
+                  : 'bg-white hover:bg-gray-100 border border-gray-300'
               }`}
             >
-              <div className="font-medium">{customer.name || customer.username}</div>
+              <div className="font-medium">
+                {customer.name || customer.username}
+              </div>
               {customer.email && (
                 <div className="text-sm text-gray-500">{customer.email}</div>
               )}
@@ -184,7 +190,10 @@ export default function ChatPanel() {
           <div className="flex-1 flex flex-col">
             <div className="mb-4 pb-2 border-b">
               <h2 className="text-lg font-semibold">
-                Chat with {selectedCustomer?.name || selectedCustomer?.username || 'Customer'}
+                Chat with{' '}
+                {selectedCustomer?.name ||
+                  selectedCustomer?.username ||
+                  'Customer'}
               </h2>
             </div>
             <ChatPage />

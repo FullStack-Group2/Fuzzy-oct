@@ -167,58 +167,61 @@ export const RegisterShipper: React.FC<RegisterShipperProps> = ({
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setLoading(true);
+  setError('');
+  setFieldErrors({}); // Clear previous errors
 
-    if (!validateForm()) {
-      return;
-    }
+  try {
+    const registrationData = {
+      username: formData.username,
+      email: formData.email,
+      password: formData.password,
+      assignedHubId: formData.distributionHub!,
+      profilePicture: formData.profilePicture,
+    };
 
-    setLoading(true);
-    setError('');
-
-    try {
-      const registrationData = {
-        username: formData.username,
-        email: formData.email,
-        password: formData.password,
-        assignedHubId: formData.distributionHub!, // Send as distributionHubId to match backend expectation
-        profilePicture: formData.profilePicture,
-      };
-
-      const response = await fetch(
-        'http://localhost:5001/api/auth/register/shipper',
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(registrationData),
+    const response = await fetch(
+      'http://localhost:5001/api/auth/register/shipper',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
         },
-      );
+        body: JSON.stringify(registrationData),
+      },
+    );
 
-      const data = await response.json();
+    const data = await response.json();
 
-      if (response.ok) {
-        console.log('Shipper registration successful:', data);
-
-        // Store Shipper data and token in localStorage
-        localStorage.setItem('Shipper', JSON.stringify(data.Shipper));
-        localStorage.setItem('token', data.token);
-
-        onRegistrationSuccess?.(data.Shipper);
-        toast.success('Shipper registration successful!');
+    if (response.ok) {
+      console.log('Shipper registration successful:', data);
+      localStorage.setItem('Shipper', JSON.stringify(data.Shipper));
+      localStorage.setItem('token', data.token);
+      onRegistrationSuccess?.(data.Shipper);
+      toast.success('Shipper registration successful!');
+    } else {
+      // Check for structured validation errors from the backend
+      if (data.errors && Array.isArray(data.errors)) {
+        const newFieldErrors: Record<string, string> = {};
+        data.errors.forEach((err: { field: string; message: string }) => {
+          newFieldErrors[err.field] = err.message;
+        });
+        setFieldErrors(newFieldErrors);
+        setError('Please fix the validation errors.');
       } else {
         setError(data.message || 'Registration failed');
-        console.error('Registration failed:', data);
       }
-    } catch (error) {
-      console.error('Error during registration:', error);
-      setError('Network error. Please try again.');
-    } finally {
-      setLoading(false);
+      console.error('Registration failed:', data);
     }
-  };
+  } catch (error) {
+    console.error('Error during registration:', error);
+    setError('Network error. Please try again.');
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="flex">

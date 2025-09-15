@@ -78,6 +78,15 @@ export const registerVendor = async (req: Request, res: Response) => {
       return res.status(409).json({ message: 'Username already exists' });
     }
 
+    // Check if a vendor with this specific businessName AND businessAddress already exists
+    const existingVendor = await VendorModel.findOne({
+      businessName: businessName.trim(),
+      businessAddress: businessAddress.trim(),
+    });
+    if (existingVendor) {
+      return res.status(409).json({ message: 'A vendor with this business name and address already exists.' });
+    }
+
     const hashedPassword = await bcrypt.hash(password, 12);
 
     const vendor = await createVendor({

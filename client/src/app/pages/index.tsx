@@ -18,10 +18,6 @@ const Home = () => {
   }
   return (
     <>
-    <button onClick={() => {
-      // Open chat page
-      // navigate, have vendorid
-    }}>Chat to vendor</button>
       <HeroSection />
       <section className="m-auto w-4/5">
         <FeaturedCategories />

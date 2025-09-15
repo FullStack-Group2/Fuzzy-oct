@@ -1,4 +1,4 @@
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { useShopProducts } from '../stores/ShopProductDataContext';
 import { Skeleton } from '@/components/ui/skeleton';
 export default function VendorHeader() {
@@ -32,6 +32,13 @@ export default function VendorHeader() {
           )}
         </div>
         <p className="text-lg font-extralight">{data?.vendor?.businessName}</p>
+
+        <Link
+          to={`/chat/${1}/${data?.vendor?._id}`} // senderId
+          className="text-[#1E7A5A] border border-[#1E7A5A] hover:bg-[#1E7A5A] hover:text-white p-2 rounded"
+        >
+          Chat with vendor
+        </Link>
       </div>
     </header>
   );

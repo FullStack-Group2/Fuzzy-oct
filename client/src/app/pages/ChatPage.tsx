@@ -1,49 +1,57 @@
 import React, { useEffect, useState } from 'react'
-import { io } from 'socket.io-client';
+import { io, Socket } from 'socket.io-client'
+import { useParams } from 'react-router-dom'
 
-export default function ChatPage({receiver}: {receiver: string}) {
-    const [socket, setSocket] = useState<any>(null)
-    const [message, setMessage] = useState('')
-    const [messages, setMessages] = useState<string[]>([]);
+export default function ChatPage() {
+  const { sender, receiver } = useParams() as { sender: string; receiver: string }
 
-    useEffect(() => {
-        if (socket) {
-            socket.on("receive-message", (msg) => {
-                setIncoming({ fromSelf: false, message: msg })
-            });
-        }
+  const [socket, setSocket] = useState<Socket | null>(null)
+  const [message, setMessage] = useState('')
+  const [messages, setMessages] = useState<any[]>([])
+
+  useEffect(() => {
+    // connect socket
+    const s = io('http://localhost:3000', {
+      auth: {
+        token: localStorage.getItem('token'),
+      },
     })
 
-    useEffect(() => {
-        const s = io('', {
-            auth: {
-                token: localStorage.getItem('token')
-            }
-        })
-        setSocket(s);
+    setSocket(s)
 
-        // receive message
-        s.on('receive-message', (msg: string) => {
-            setMessages(prev => [...prev, msg]);
-        })
+    // lắng nghe tin nhắn từ server
+    s.on('receive-message', (msg) => {
+      setMessages((prev) => [...prev, msg])
+    })
 
-    }, [])
-    const handleSendMessage = () => {
-        if (message.trim() === '' || !socket) return;
-
-        // emit message to back end
-        socket.emit('send-message', { receiver, message })
-        setMessage('');
+    return () => {
+      s.disconnect()
     }
-    return (
-        <>
-            <div>
-                {messages.map((m, i) => <p key={i}>{m}</p>)}
-            </div>
-            {/* Message */}
-            <input placeholder='Enter text' value={message} onChange={(e) => setMessage(e.target.value)} />
-            <button onClick={handleSendMessage}>Enter</button>
-        </>
-    )
-}
+  }, [])
 
+  const handleSendMessage = () => {
+    if (message.trim() === '' || !socket) return
+
+    socket.emit('send-message', { receiver, content: message }) // ✅ sửa cho khớp với server
+    setMessage('')
+  }
+
+  return (
+    <>
+      <div>
+        {messages.map((m, i) => (
+          <p key={i}>
+            <b>{m.senderId}</b>: {m.content}
+          </p>
+        ))}
+      </div>
+
+      <input
+        placeholder="Enter text"
+        value={message}
+        onChange={(e) => setMessage(e.target.value)}
+      />
+      <button onClick={handleSendMessage}>Enter</button>
+    </>
+  )
+}

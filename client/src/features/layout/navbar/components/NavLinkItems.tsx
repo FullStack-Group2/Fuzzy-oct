@@ -17,7 +17,7 @@ export default function NavLinkItems({ role }: { role: Exclude<Role, null> }) {
     VENDOR: [
       { name: 'Product', path: '/products' },
       { name: 'Order', path: `/vendors/orders` },
-      {name:'View Message', path:``}
+      { name: 'View Message', path: '/chat' }
     ],
     SHIPPER: [{ name: 'Delivery', path: `/shippers/orders` }],
   };

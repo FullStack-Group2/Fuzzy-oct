@@ -1,9 +1,11 @@
 import { Link, useParams } from 'react-router-dom';
 import { useShopProducts } from '../stores/ShopProductDataContext';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useAuth } from '@/stores/AuthProvider';
 export default function VendorHeader() {
   const { shopId } = useParams<{ shopId?: string }>();
   const { data, loading, error } = useShopProducts();
+  const { user, isAuth } = useAuth();
 
   if (!shopId) return <></>;
   if (loading)
@@ -33,12 +35,21 @@ export default function VendorHeader() {
         </div>
         <p className="text-lg font-extralight">{data?.vendor?.businessName}</p>
 
-        <Link
-          to={`/chat/${1}/${data?.vendor?._id}`} // senderId
-          className="text-[#1E7A5A] border border-[#1E7A5A] hover:bg-[#1E7A5A] hover:text-white p-2 rounded"
-        >
-          Chat with vendor
-        </Link>
+        {isAuth && user ? (
+          <Link
+            to={`/chat/${user.id}/${data?.vendor?._id}`}
+            className="text-[#1E7A5A] border border-[#1E7A5A] hover:bg-[#1E7A5A] hover:text-white p-2 rounded"
+          >
+            Chat with vendor
+          </Link>
+        ) : (
+          <Link
+            to="/auth/login"
+            className="text-[#1E7A5A] border border-[#1E7A5A] hover:bg-[#1E7A5A] hover:text-white p-2 rounded"
+          >
+            Login to Chat
+          </Link>
+        )}
       </div>
     </header>
   );

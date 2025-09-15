@@ -7,7 +7,7 @@
 
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-// @ts-ignore
+
 import couch from "../../assets/icon/couch.png"
 
 // ------------------

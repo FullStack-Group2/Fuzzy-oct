@@ -52,6 +52,7 @@ import { ShopProductDataProvider } from '@/features/shop/stores/ShopProductDataC
 import { toast, Toaster, ToastBar } from 'react-hot-toast';
 import About from './pages/About';
 import ChatPanel from './pages/ChatPanel';
+import ChatPage from './pages/ChatPage';
 
 // Wrapper for Logout if it needs user from context
 const LogoutWrapper = () => {
@@ -221,10 +222,15 @@ function InnerRoutes() {
           {/* VENDOR */}
           <Route path="/chat"
             element={
-              <ProtectedRoute allowedRoles={['VENDOR']}>
+              <ProtectedRoute>
                 <ChatPanel />
               </ProtectedRoute>
-
+            } />
+          <Route path="/chat/:senderId/:receiverId"
+            element={
+              <ProtectedRoute>
+                <ChatPage />
+              </ProtectedRoute>
             } />
           <Route
             path="/products"

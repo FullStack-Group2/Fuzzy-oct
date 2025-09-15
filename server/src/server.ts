@@ -50,33 +50,6 @@ io.use(async (socket, next) => {
   }
 });
 
-// io.on('connection', (socket) => {
-//   const user = (socket as any).user
-//   onlineUsers.set(user.userId, socket.id)
-
-//   console.log(`User connected: ${user.username}`)
-
-//   socket.on('send-message', async ({ receiver, content }) => {
-//     // save to DB
-//     const newMsg = await ChatModel.create({
-//       senderId: user.userId,
-//       receiverId: receiver,
-//       content,
-//       createdAt: new Date(),
-//     })
-
-//     // gửi tới người nhận
-//     const receiverSocketId = onlineUsers.get(receiver)
-//     if (receiverSocketId) {
-//       io.to(receiverSocketId).emit('receive-message', newMsg)
-//     }
-//   })
-
-//   socket.on('disconnect', () => {
-//     onlineUsers.delete(user.userId)
-//     console.log(`User disconnected: ${user.username}`)
-//   })
-// })
 
 app.get(
   '/api/chat/conversations/:customerId',

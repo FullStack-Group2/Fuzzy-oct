@@ -215,7 +215,7 @@ function InnerRoutes() {
           />
 
           {/* VENDOR */}
-          <Route
+          {/* <Route
             path="/chat"
             element={
               <ProtectedRoute>
@@ -230,7 +230,18 @@ function InnerRoutes() {
                 <ChatPage />
               </ProtectedRoute>
             }
-          />
+          /> */}
+          <Route
+            path="/chat"
+            element={
+              <ProtectedRoute>
+                <ChatPanel />  {/* sidebar + Outlet */}
+              </ProtectedRoute>
+            }
+          >
+            <Route path=":senderId/:receiverId" element={<ChatPage />} />
+          </Route>
+
           <Route
             path="/products"
             element={

@@ -182,7 +182,7 @@ export const RegisterShipper: React.FC<RegisterShipperProps> = ({
         username: formData.username,
         email: formData.email,
         password: formData.password,
-        distributionHubId: formData.distributionHub!, // Send as distributionHubId to match backend expectation
+        assignedHubId: formData.distributionHub!, // Send as distributionHubId to match backend expectation
         profilePicture: formData.profilePicture,
       };
 

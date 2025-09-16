@@ -40,7 +40,7 @@ export default function FilterBar() {
       minPrice: String(min),
       maxPrice: String(max),
       category: categoryValue,
-      page: String(1)
+      page: String(1),
     });
   }
 

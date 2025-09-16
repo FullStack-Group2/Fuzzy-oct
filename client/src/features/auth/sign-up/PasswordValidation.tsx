@@ -9,17 +9,21 @@ import React, { useMemo } from 'react';
 import { Check } from 'lucide-react';
 import { z } from 'zod';
 
-// Reusable Zod schema for password validation
+// Reusable Zod schema for password validation - matches backend validation
 export const passwordValidationSchema = z
   .string()
   .min(8, 'Password must be at least 8 characters long')
-  .max(100, 'Password must be less than 100 characters')
+  .max(20, 'Password must not exceed 20 characters')
   .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
   .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
   .regex(/\d/, 'Password must contain at least one number')
   .regex(
-    /[!@#$%^&*(),.?":{}|<>]/,
-    'Password must contain at least one special character',
+    /[!@#$%^&*]/,
+    'Password must contain at least one special character (!@#$%^&*)',
+  )
+  .regex(
+    /^[A-Za-z0-9!@#$%^&*]+$/,
+    'Password can only contain letters, digits, and special characters (!@#$%^&*)',
   );
 
 // Password validation checks interface
@@ -35,11 +39,11 @@ export interface PasswordChecks {
 export const usePasswordChecks = (password: string): PasswordChecks => {
   return useMemo(
     () => ({
-      length: password.length >= 8,
+      length: password.length >= 8 && password.length <= 20,
       uppercase: /[A-Z]/.test(password),
       lowercase: /[a-z]/.test(password),
       number: /\d/.test(password),
-      special: /[!@#$%^&*(),.?":{}|<>]/.test(password),
+      special: /[!@#$%^&*]/.test(password),
     }),
     [password],
   );

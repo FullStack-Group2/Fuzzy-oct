@@ -192,3 +192,4 @@ coverage/
 .pnp.*
 client/client_src.zip
 server/server_src.zip
+client/src/app/pages/Faq.tsx

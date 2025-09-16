@@ -11,7 +11,7 @@ import { apiCustomerGetOrders } from '@/api/CustomerAPI';
 import type { CustomerOrderListDTO } from '@/models/CustomerDTO';
 import { CustomerOrdersTable } from '@/components/CustomerOrdersUI';
 import HeroBanner from '@/components/HeroBanner';
-import bed from "../../../assets/icon/bed2.jpg"
+import bed from '../../../assets/icon/bed2.jpg';
 
 export default function CustomerOrders() {
   const [orders, setOrders] = useState<CustomerOrderListDTO[]>([]);

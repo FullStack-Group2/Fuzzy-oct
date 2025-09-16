@@ -11,7 +11,7 @@ type ProductDetailType = {
   vendor: string; // vendorId reference
   availableStock: number;
   category: string;
-  sale:number;
+  sale: number;
 };
 
 export type VendorType = {
@@ -40,7 +40,7 @@ const defaultProduct: ProductDetailType = {
   vendor: '',
   availableStock: 0,
   category: '',
-  sale:0,
+  sale: 0,
 };
 
 const defaultVendor: VendorType = {

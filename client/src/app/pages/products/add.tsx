@@ -7,7 +7,10 @@
 
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import ProductForm, { ProductFormErrors, ProductFormValues } from '@/components/products/ProductForm';
+import ProductForm, {
+  ProductFormErrors,
+  ProductFormValues,
+} from '@/components/products/ProductForm';
 import { uploadProductImage, createProduct } from '@/api/VendorAPI';
 
 export enum ProductCategory {

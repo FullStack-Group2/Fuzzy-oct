@@ -14,6 +14,7 @@ interface ShopCartItemProps {
   imgSrc: string;
   itemName: string;
   itemPrice: number;
+  itemSale: number;
 }
 
 const ShopCardItem: React.FC<ShopCartItemProps> = ({
@@ -21,6 +22,7 @@ const ShopCardItem: React.FC<ShopCartItemProps> = ({
   imgSrc,
   itemName,
   itemPrice,
+  itemSale
 }) => {
   const { addToCart } = useShopCart();
   return (
@@ -47,12 +49,37 @@ const ShopCardItem: React.FC<ShopCartItemProps> = ({
           </p>
         </button>
       </Link>
-      <div className="text-center gap-2">
+      {/* <div className="text-center gap-2">
         <p className="text-[20px] font-medium">{itemName}</p>
         <p className="text-[14px] font-extralight text-[#B1B1B1]">
           {Intl.NumberFormat('vi-VN').format(itemPrice)} vnd
         </p>
+      </div> */}
+      <div className="text-center gap-2">
+        <p className="text-[20px] font-medium">{itemName}</p>
+
+        {itemSale && itemSale > 0 ? (
+          // Có sale
+          <div className="flex items-center justify-center space-x-2">
+            <p className="text-gray-500 text-sm line-through">
+              {Intl.NumberFormat('vi-VN').format(itemPrice)} đ
+            </p>
+
+            <p className="text-red-500 text-md font-semibold">
+              {Intl.NumberFormat('vi-VN').format(
+                itemPrice * (1 - itemSale / 100),
+              )}{' '}
+              đ
+            </p>
+          </div>
+        ) : (
+          // Không sale
+          <p className="text-[14px] font-extralight text-[#B1B1B1]">
+            {Intl.NumberFormat('vi-VN').format(itemPrice)} đ
+          </p>
+        )}
       </div>
+
     </div>
   );
 };

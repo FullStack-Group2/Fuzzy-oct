@@ -13,16 +13,34 @@ import CartItem from './CartItem';
 import { useShopCart } from '../../stores/ShopCartDataContext';
 import { Skeleton } from '@/components/ui/skeleton';
 
+// function calculateTotal(products: any[]): number {
+//   if (!Array.isArray(products)) return 0;
+
+//   return products.reduce((sum, item) => {
+//     if (item && item.product) {
+//       return sum + (item.product.price || 0) * (item.quantity || 0);
+//     }
+//     return sum; // skip items without product
+//   }, 0);
+// }
+
 function calculateTotal(products: any[]): number {
   if (!Array.isArray(products)) return 0;
 
   return products.reduce((sum, item) => {
     if (item && item.product) {
-      return sum + (item.product.price || 0) * (item.quantity || 0);
+      const { price, sale } = item.product;
+
+      // Nếu có sale thì tính giá sau giảm
+      const finalPrice =
+        sale && sale > 0 ? price * (1 - sale / 100) : price;
+
+      return sum + (finalPrice || 0) * (item.quantity || 0);
     }
     return sum; // skip items without product
   }, 0);
 }
+
 
 export default function Cart() {
   const { cart, loading, error, createOrder } = useShopCart();

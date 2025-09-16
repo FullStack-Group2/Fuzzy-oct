@@ -5,8 +5,7 @@
 // Author:  Pham Nhat Minh, Truong Quoc Tri
 // ID: , 4010989
 
-
-import React from "react";
+import React from 'react';
 
 type HeroBannerProps = {
   image: string;
@@ -14,7 +13,11 @@ type HeroBannerProps = {
   subtitle: string;
 };
 
-export default function HeroBanner({ image, title, subtitle }: HeroBannerProps) {
+export default function HeroBanner({
+  image,
+  title,
+  subtitle,
+}: HeroBannerProps) {
   return (
     <div className="relative w-full h-[220px] sm:h-[250px] md:h-[300px] overflow-hidden bottom-6">
       <img
@@ -30,7 +33,9 @@ export default function HeroBanner({ image, title, subtitle }: HeroBannerProps) 
         <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white">
           {title}
         </h1>
-        <p className="text-white mt-1 sm:mt-2 text-sm sm:text-base">{subtitle}</p>
+        <p className="text-white mt-1 sm:mt-2 text-sm sm:text-base">
+          {subtitle}
+        </p>
       </div>
     </div>
   );

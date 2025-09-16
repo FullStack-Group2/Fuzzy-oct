@@ -17,6 +17,17 @@ export const orderBilling = (
     order: order._id,
     product: e.product,
     quantity: e.quantity,
-    priceAtPurchase: (e.product as any).price * e.quantity,
+    // priceAtPurchase: (e.product as any).price * e.quantity,
+
+    // priceAtPurchase:
+    //   ((e.product as any).sale
+    //     ? (e.product as any).price -
+    //       ((e.product as any).price * (e.product as any).sale) / 100
+    //     : (e.product as any).price) * e.quantity,
+
+    priceAtPurchase: (e.product as any).sale
+      ? (e.product as any).price -
+        ((e.product as any).price * (e.product as any).sale) / 100
+      : (e.product as any).price,
   })) as unknown as IOrderItem[];
 };

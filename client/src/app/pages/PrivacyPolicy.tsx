@@ -199,12 +199,8 @@ export default function PrivacyPolicy() {
 
   return (
     <>
-      <HeroBanner
-        image={kitchen}
-        title="Shop Page"
-        subtitle=""
-      />
-      
+      <HeroBanner image={kitchen} title="Shop Page" subtitle="" />
+
       <main className="min-h-screen">
         {/* BODY */}
         <section className="mx-auto max-w-6xl px-6 py-10 grid grid-cols-1 md:grid-cols-[240px_1fr] gap-10">

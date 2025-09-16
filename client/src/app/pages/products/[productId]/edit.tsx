@@ -345,7 +345,7 @@ export const EditProduct: React.FC = () => {
       availableStock:
         product?.availableStock != null ? String(product.availableStock) : '',
       imageUrl: product?.imageUrl,
-      sale: product?.sale != null ? Number(product.sale) : 0,
+      sale: product?.sale != null ? Number(product.sale) : '',
     }),
     [product],
   );
@@ -361,7 +361,7 @@ export const EditProduct: React.FC = () => {
     description: '',
     price: '',
     availableStock: '',
-    sale: 0,
+    sale: '',
   });
 
   const handleInputChange = (
@@ -610,6 +610,14 @@ export const EditProduct: React.FC = () => {
         </div>
 
         <div className="col-span-1 md:col-span-2 justify-end text-right mt-4 mb-2">
+          <button
+            type="button"
+            onClick={handleReset}
+            className="bg-black text-white rounded-lg px-4 py-2 mr-2"
+          >
+            Reset
+          </button>
+
           <button
             type="button"
             onClick={handleApplyEdit}

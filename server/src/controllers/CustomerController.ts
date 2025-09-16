@@ -191,13 +191,16 @@ export async function getCustomerOrderDetail(
       .lean()
       .exec();
 
+    console.log('DTOTOTOTOTORDER', order);
+
     if (!order) return res.status(404).json({ error: 'Order not found' });
 
     const itemsRaw = await OrderItemModel.find({ order: orderId })
       .select('product quantity price priceAtPurchase')
+      // .populate('product', 'name price sale vendor imageUrl')
       .lean()
       .exec();
-
+    console.log('DTOTOTOTOTitemsRaw', itemsRaw);
     const validProductIds = Array.from(
       new Set(
         itemsRaw
@@ -209,18 +212,27 @@ export async function getCustomerOrderDetail(
 
     const products = validProductIds.length
       ? await ProductModel.find({ _id: { $in: validProductIds } })
-          .select('name imageUrl price vendor')
+          .select('name imageUrl price vendor sale')
           .lean()
           .exec()
       : [];
+    console.log('DTOTOTOTOTproductstttt', products);
 
     const productMap = new Map(products.map((p) => [String(p._id), p as any]));
+    console.log('DTOTOTOTOTproductMap', productMap);
 
     const mappedItems = itemsRaw.map((it: any) => {
       const p: any = productMap.get(String(it.product));
-      const price = Number(it?.price ?? it?.priceAtPurchase ?? p?.price ?? 0);
+      console.log('SALE tu p:', p.sale);
+      // const price = Number(it?.price ?? it?.priceAtPurchase ?? p?.price ?? 0);
+      // const price = Number(it?.price ?? p?.price ?? 0 - p?.sale * 1000);
+      const price =
+        Number(it?.price ?? p?.price ?? 0) * (1 - (p?.sale ?? 0) / 100);
+
       const quantity = Number(it?.quantity ?? 0);
       const subtotal = Math.round(price * quantity * 100) / 100;
+      // console.log("CO XUONG DAY DUOC KHONG", it?.subtotal)
+
       return {
         id: String(it._id),
         productId: p
@@ -237,7 +249,6 @@ export async function getCustomerOrderDetail(
         vendor: p?.vendor ? String(p.vendor) : null,
       };
     });
-
     let vendorName = 'Unknown vendor';
     const firstVendorId = mappedItems.find((it) => it.vendor)?.vendor;
     if (firstVendorId) {
@@ -252,10 +263,16 @@ export async function getCustomerOrderDetail(
         'Unknown vendor';
     }
 
+    // const computedTotal = mappedItems.reduce((s, it) => s + it.subtotal, 0);
     const computedTotal = mappedItems.reduce((s, it) => s + it.subtotal, 0);
+
+    console.log('CO XUONG DAY DUOC ORDER', order);
+
     const storedTotal = Number(order.totalPrice ?? order.totalprice ?? 0);
     const totalPrice =
       storedTotal > 0 ? storedTotal : Math.round(computedTotal * 100) / 100;
+    console.log('CO XUONG DAY DUOC KHONG', storedTotal);
+    console.log('CO XUONG DAY DUOC KHONG', totalPrice);
 
     const customerAddress =
       order?.customer?.address ??

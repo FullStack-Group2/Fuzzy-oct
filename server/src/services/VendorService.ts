@@ -54,6 +54,56 @@ export const deleteProduct = async (productId: string) => {
   return ProductModel.findByIdAndDelete(productId);
 };
 
+// export const getVendorOrders = async (vendorId: string) => {
+//   const productIds = await ProductModel.find({ vendor: vendorId }).distinct(
+//     '_id',
+//   );
+
+//   return Order.aggregate([
+//     {
+//       $lookup: {
+//         from: 'orderitems',
+//         localField: '_id',
+//         foreignField: 'order',
+//         as: 'orderItems',
+//       },
+//     },
+//     {
+//       $addFields: {
+//         orderItems: {
+//           $filter: {
+//             input: '$orderItems',
+//             as: 'item',
+//             cond: { $in: ['$$item.product', productIds] },
+//           },
+//         },
+//       },
+//     },
+//     {
+//       $addFields: {
+//         totalVendorPrice: {
+//           $reduce: {
+//             input: '$orderItems',
+//             initialValue: 0,
+//             in: {
+//               $add: [
+//                 '$$value',
+//                 { $multiply: ['$$this.priceAtPurchase', '$$this.quantity'] },
+//               ],
+//             },
+//           },
+//         },
+//       },
+//     },
+//     {
+//       $match: {
+//         'orderItems.0': { $exists: true }, // Ensure there are orderItems after filtering
+//         status: OrderStatus.ACTIVE,
+//       },
+//     },
+//   ]);
+// };
+
 export const getVendorOrders = async (vendorId: string) => {
   const productIds = await ProductModel.find({ vendor: vendorId }).distinct(
     '_id',
@@ -88,7 +138,13 @@ export const getVendorOrders = async (vendorId: string) => {
             in: {
               $add: [
                 '$$value',
-                { $multiply: ['$$this.priceAtPurchase', '$$this.quantity'] },
+                {
+                  $multiply: [
+                    '$$this.priceAtPurchase',
+                    '$$this.quantity',
+                    { $subtract: [1, { $divide: ['$$this.sale', 100] }] }, // ✅ giảm giá %
+                  ],
+                },
               ],
             },
           },
@@ -97,7 +153,7 @@ export const getVendorOrders = async (vendorId: string) => {
     },
     {
       $match: {
-        'orderItems.0': { $exists: true }, // Ensure there are orderItems after filtering
+        'orderItems.0': { $exists: true },
         status: OrderStatus.ACTIVE,
       },
     },
@@ -138,7 +194,14 @@ export const getVendorOrderHistory = async (vendorId: string) => {
             in: {
               $add: [
                 '$$value',
-                { $multiply: ['$$this.priceAtPurchase', '$$this.quantity'] },
+                // { $multiply: ['$$this.priceAtPurchase', '$$this.quantity'] },
+                {
+                  $multiply: [
+                    '$$this.priceAtPurchase',
+                    '$$this.quantity',
+                    { $subtract: [1, { $divide: ['$$this.sale', 100] }] },
+                  ],
+                },
               ],
             },
           },

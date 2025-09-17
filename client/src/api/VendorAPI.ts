@@ -91,6 +91,8 @@ export interface Product {
   vendor: string;
   availableStock: number;
   salesCount?: number;
+  sale: number; 
+  category: string;
 }
 
 // Define a common base URL for the API
@@ -266,4 +268,19 @@ export const updateProduct = async (
     console.error('Error occurred:', err);
     return null;
   }
+};
+
+export const getProductById = async (
+  productId: string,
+  token: string,
+): Promise<Product | null> => {
+  const res = await fetch(`${VENDOR_BASE}/product/${productId}`, {
+    headers: { Authorization: token },
+  });
+  if (!res.ok) {
+    console.error('Failed to fetch product', await res.text());
+    return null;
+  }
+  const data = await res.json();
+  return data.product ?? data ?? null;
 };

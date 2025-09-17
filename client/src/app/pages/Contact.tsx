@@ -2,8 +2,8 @@
 // Course: COSC2769 - Full Stack Development
 // Semester: 2025B
 // Assessment: Assignment 02
-// Author: Le Nguyen Khuong Duy
-// ID: s4026694
+// Author: Tran Tu Tam
+// ID: s3999159
 
 import React from 'react';
 

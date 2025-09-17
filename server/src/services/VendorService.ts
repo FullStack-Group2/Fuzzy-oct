@@ -2,8 +2,8 @@
 // Course: COSC2769 - Full Stack Development
 // Semester: 2025B
 // Assessment: Assignment 02
-// Author: Pham Le Gia Huy
-// ID: s3975371
+// Author: Pham Le Gia Huy, Tran Tu Tam
+// ID: s3975371, s3999159
 
 import { IVendor, VendorModel } from '../models/Vendor';
 import Order from '../models/Order';

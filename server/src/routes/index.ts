@@ -1,13 +1,15 @@
+// RMIT University Vietnam
+// Course: COSC2769 - Full Stack Development
+// Semester: 2025B
+// Assessment: Assignment 02
+// Author: Pham Le Gia Huy, Truong Quoc Tri
+// ID: s3975371, s4010989
+
 import { Router } from 'express';
 
 import authRoutes from './authRoutes';
 import uploadRoutes from './uploadRoutes';
 import shipperRoutes from './shipperRoutes';
-// Hubs: file name diverged across branches
-// - HEAD: './distributionHubRoutes'
-// - dev : './hubRoutes'
-// Prefer the shorter 'hubRoutes' module; if your project actually exports from
-// 'distributionHubRoutes', you can re-export from 'hubRoutes.ts' to keep this import stable.
 import hubRoutes from './hubRoutes';
 import customerRoutes from './customerRoutes';
 import vendorRoutes from './vendorRoutes';

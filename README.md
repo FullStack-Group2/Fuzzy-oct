@@ -19,10 +19,20 @@ A full‑stack furniture e‑commerce app built as a pnpm monorepo with a Vite +
 - **Realtime**: Socket.IO
 - **Dev**: pnpm, ESLint, Prettier, ts-node, nodemon
 
+## GitHub Repository link
+
+Link: https://github.com/FullStack-Group2/Fuzzy-oct
+
 ## Monorepo Layout
 
 - `client/`: Vite React app (aliases `@ -> client/src`)
 - `server/`: Express API (`src/app.ts` mounted at `/api`, `src/server.ts` bootstraps HTTP + Socket.IO)
+
+## Getting Started
+
+Follow these instructions to get the project up and running on your local machine for development and testing purposes.
+Note: Our project uses a pnpm monorepo, so it does not start with `node index.js`.
+Please follow the below steps to run the website.
 
 ## Prerequisites
 
@@ -30,9 +40,21 @@ A full‑stack furniture e‑commerce app built as a pnpm monorepo with a Vite +
 - pnpm
 - MongoDB connection (Atlas or local)
 
+### Installation
+
+Clone the repository:
+
+```bash
+git clone https://github.com/FullStack-Group2/Fuzzy-oct
+cd Fuzzy-oct
+```
+
 ## Environment Variables
 
-Create a `.env` at the repository root (the server loads from the root path):
+A ready-to-use `.env` file is included in the submitted package (under the project root).  
+This file already contains all required keys with example/dummy values.  
+
+If you wish to run the app with your own database or services, you can edit `.env` or replace the values.  
 
 ```bash
 # .env (root)
@@ -140,3 +162,31 @@ Vendor can query conversations: `GET /api/chat/conversations/:customerId` (auth 
 - Static uploads are available at `/uploads/<filename>`.
 - Vite path alias: import with `@/...` from `client/src`.
 - Default ports: client 5173, server 5001. Adjust via `VITE_API_BASE` and `PORT` if needed.
+
+## Login Credentials for Testing
+- Vendor: fuzzyVendor - Fuzzy@123
+- Customer: fuzzyCustomer - Fuzzy@123
+- Shipper: fuzzyShipper - Fuzzy@123
+
+
+## OneDrive Video Demo Link
+
+Demo Video: https://rmiteduau-my.sharepoint.com/:v:/g/personal/s4010989_rmit_edu_vn/ESsaquupEpVKvCggwWslXywB5AsnFrSHDDJgA5O-7Jn29w
+
+## Contribution Score
+
+All team members contributed equally to the project in terms of planning, implementation, and documentation.  
+
+- Number of members: 5  
+- Default score per member: 5  
+- Total group score: 25  
+
+| Member                  | Student ID | Role | Assigned Task|  Contribution Score | 
+|-------------------------|------------|--------------------|-----------|---------------|
+| Le Nguyen Khuong Duy    | s4026694   | Full Stack Developer | Implemented features related to customers, vendors on both client and server sides. Implemented chatting feature |  5.0 |
+| Pham Le Gia Huy         | s3975371   | Technical Lead| Oversaw GitHub repo, code review, and merge approvals. Designed overall architecture. Implemented authentication and AI feature|  5.0 |
+| Pham Nhat Minh          | s4019811   | Full Stack Developer | Implemented features related to customers, vendors on both client and server sides. Lead of UIUX design |  5.0 |
+| Tran Tu Tam             | s3999159   | Full Stack Developer | Implemented features related to customers, vendors on both client and server sides. Lead of report & documentation |  5.0 |
+| Truong Quoc Tri         | s4010989   | Project Manager | Coordinated meetings, task allocation, and deadlines. Implemented features related to orders, shippers on both client and server sides|  5.0 |
+
+All scores are equal (5.0), in accordance with the project’s Contribution Score rules.

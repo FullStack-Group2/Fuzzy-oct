@@ -2,8 +2,8 @@
 // Course: COSC2769 - Full Stack Development
 // Semester: 2025B
 // Assessment: Assignment 02
-// Author: 
-// ID: 
+// Author: Le Nguyen Khuong Duy
+// ID: s402664
 
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";

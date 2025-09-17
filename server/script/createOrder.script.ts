@@ -1,3 +1,10 @@
+// RMIT University Vietnam
+// Course: COSC2769 - Full Stack Development
+// Semester: 2025B
+// Assessment: Assignment 02
+// Author: Le Nguyen Khuong Duy
+// ID: s402664
+
 const SUBSCRIPTION_SERVICE_URL = `http://localhost:5001`;
 
 let token = '';

@@ -1,3 +1,10 @@
+// RMIT University Vietnam
+// Course: COSC2769 - Full Stack Development
+// Semester: 2025B
+// Assessment: Assignment 02
+// Author: Le Nguyen Khuong Duy
+// ID: s402664
+
 import jwt from 'jsonwebtoken';
 import { UserRole } from '../models/UserRole';
 import { UserServices } from '../services/UserServices';

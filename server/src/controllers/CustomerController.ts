@@ -2,8 +2,8 @@
 // Course: COSC2769 - Full Stack Development
 // Semester: 2025B
 // Assessment: Assignment 02
-// Author: Truong Quoc Tri
-// ID: 4010989
+// Author: Truong Quoc Tri, Le Nguyen Khuong Duy
+// ID: 4010989, 4026694
 
 import { Request, Response } from 'express';
 import { Types } from 'mongoose';

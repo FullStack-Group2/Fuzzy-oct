@@ -1,3 +1,10 @@
+// RMIT University Vietnam
+// Course: COSC2769 - Full Stack Development
+// Semester: 2025B
+// Assessment: Assignment 02
+// Author: Le Nguyen Khuong Duy
+// ID: s402664
+
 import React, { useEffect, useState, useRef } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { useAuth } from '@/stores/AuthProvider';
@@ -112,7 +119,7 @@ export default function ChatBox({ senderId, receiverId }: ChatBoxProps) {
               <div
                 className={`max-w-xs md:max-w-md p-3 rounded-lg ${
                   m.senderId === senderId
-                    ? 'bg-blue-500 text-white'
+                    ? 'bg-[#1E7A5A] text-white'
                     : 'bg-white border text-gray-800'
                 }`}
               >
@@ -143,7 +150,7 @@ export default function ChatBox({ senderId, receiverId }: ChatBoxProps) {
         />
         <button
           onClick={handleSendMessage}
-          className="px-4 bg-blue-500 text-white rounded-lg"
+          className="px-4 bg-[#1E7A5A] text-white rounded-lg"
         >
           Send
         </button>

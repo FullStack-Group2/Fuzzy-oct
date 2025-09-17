@@ -1,3 +1,10 @@
+// RMIT University Vietnam
+// Course: COSC2769 - Full Stack Development
+// Semester: 2025B
+// Assessment: Assignment 02
+// Author: Le Nguyen Khuong Duy
+// ID: s402664
+
 import { useAuth } from '@/stores/AuthProvider';
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link, Outlet } from 'react-router-dom';

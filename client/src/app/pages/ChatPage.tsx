@@ -1,3 +1,10 @@
+// RMIT University Vietnam
+// Course: COSC2769 - Full Stack Development
+// Semester: 2025B
+// Assessment: Assignment 02
+// Author: Le Nguyen Khuong Duy
+// ID: s402664
+
 import { useAuth } from '@/stores/AuthProvider';
 import React, { useEffect, useState, useRef } from 'react';
 import { io, Socket } from 'socket.io-client';
@@ -157,7 +164,7 @@ export default function ChatPage() {
               <div
                 className={`max-w-xs md:max-w-md p-3 rounded-lg shadow-sm ${
                   m.senderId === user.id
-                    ? 'bg-blue-500 text-white rounded-br-sm'
+                    ? 'bg-[#1E7A5A] text-white rounded-br-sm'
                     : 'bg-white text-gray-800 border rounded-bl-sm'
                 }`}
               >
@@ -197,7 +204,7 @@ export default function ChatPage() {
           <button
             onClick={handleSendMessage}
             disabled={!socket || message.trim() === ''}
-            className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="px-6 py-3 bg-[#1E7A5A] text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             Send
           </button>

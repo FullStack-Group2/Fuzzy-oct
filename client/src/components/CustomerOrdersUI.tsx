@@ -10,7 +10,7 @@ import { StatusBadge, StatusHeader } from '@/components/OrdersUI';
 import type {
   CustomerOrderDetailDTO,
   CustomerOrderListDTO,
-} from '@/models/CustomerDTO';
+} from '@/types/CustomerDTO';
 import { useMemo, useState } from 'react';
 
 /** Customer list table (No., DB Order ID, Vendor, Status, Total, Action) */

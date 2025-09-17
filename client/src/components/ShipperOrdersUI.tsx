@@ -6,7 +6,7 @@
 // ID: 4010989
 
 import { Link, Location } from 'react-router-dom';
-import type { OrderListDTO, OrderDetailDTO } from '@/models/ShipperDTO';
+import type { OrderListDTO, OrderDetailDTO } from '@/types/ShipperDTO';
 
 /** List table for shipper orders (no Status col) */
 export function ShipperOrdersTable({

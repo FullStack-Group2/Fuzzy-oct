@@ -7,7 +7,7 @@
 
 import { useEffect, useState, useRef } from 'react';
 import { useLocation, useNavigate, useParams, Link } from 'react-router-dom';
-import type { OrderDetailDTO } from '@/models/ShipperDTO';
+import type { OrderDetailDTO } from '@/types/ShipperDTO';
 import { apiGetOrderDetail, apiPatchOrderStatus } from '@/api/ShipperAPI';
 import { OrderDetailHeader, useModalNavigation } from '@/components/OrdersUI';
 import { ShipperOrderItemsTable } from '@/components/ShipperOrdersUI';

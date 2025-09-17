@@ -8,7 +8,7 @@
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { apiCustomerGetOrders } from '@/api/CustomerAPI';
-import type { CustomerOrderListDTO } from '@/models/CustomerDTO';
+import type { CustomerOrderListDTO } from '@/types/CustomerDTO';
 import { CustomerOrdersTable } from '@/components/CustomerOrdersUI';
 import HeroBanner from '@/components/HeroBanner';
 import bed from '../../../assets/icon/bed2.jpg';

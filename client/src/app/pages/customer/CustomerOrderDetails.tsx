@@ -7,7 +7,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate, useParams, Link } from 'react-router-dom';
-import type { CustomerOrderDetailDTO } from '@/models/CustomerDTO';
+import type { CustomerOrderDetailDTO } from '@/types/CustomerDTO';
 import { apiCustomerGetOrderDetail } from '@/api/CustomerAPI';
 import {
   OrderDetailHeader,

@@ -5,7 +5,7 @@
 // Author: Truong Quoc Tri
 // ID: 4010989
 
-import type { OrderListDTO, OrderDetailDTO } from '../models/ShipperDTO';
+import type { OrderListDTO, OrderDetailDTO } from '../types/ShipperDTO';
 import API_BASE from './API';
 
 // Build the request headers (attach Authorization header if token exists)

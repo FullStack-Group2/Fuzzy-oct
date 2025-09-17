@@ -8,7 +8,7 @@
 import type {
   VendorOrderListDTO,
   VendorOrderDetailDTO,
-} from '../models/VendorDTO';
+} from '../types/VendorDTO';
 import API_BASE from './API';
 
 // Build the request headers (attach Authorization header if token exists)

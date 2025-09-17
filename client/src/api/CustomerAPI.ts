@@ -8,7 +8,7 @@
 import type {
   CustomerOrderDetailDTO,
   CustomerOrderListDTO,
-} from '../models/CustomerDTO';
+} from '../types/CustomerDTO';
 import API_BASE from './API';
 
 // Build the request headers (attach Content-Type and Authorization if token exists)

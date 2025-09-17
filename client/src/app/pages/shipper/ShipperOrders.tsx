@@ -7,7 +7,7 @@
 
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import type { OrderListDTO } from '@/models/ShipperDTO';
+import type { OrderListDTO } from '@/types/ShipperDTO';
 import { apiGetActiveOrders } from '@/api/ShipperAPI';
 import { ShipperOrdersTable } from '@/components/ShipperOrdersUI';
 import HeroBanner from '@/components/HeroBanner';

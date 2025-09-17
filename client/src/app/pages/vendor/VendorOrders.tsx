@@ -7,7 +7,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import type { VendorOrderListDTO } from '@/models/VendorDTO';
+import type { VendorOrderListDTO } from '@/types/VendorDTO';
 import { apiVendorGetOrders } from '@/api/VendorAPI';
 import { VendorOrdersTable } from '@/components/VendorOrdersUI';
 import HeroBanner from '@/components/HeroBanner';

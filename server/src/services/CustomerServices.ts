@@ -226,7 +226,10 @@ export const createOrderFromItem = async (userId: string) => {
   const status = OrderStatus.PENDING;
   const hub = await chooseHub();
   const cartItem = await getCustomerCart(userId);
+
+
   console.log('Cart items for order creation:', cartItem);
+
   const orders = await splitOrder(cartItem);
   console.log('Split orders by vendor:', orders);
 
@@ -260,6 +263,14 @@ export const createOrderFromItem = async (userId: string) => {
       throw new Error('Order item failed');
     }
   }
+  const bulkOps = cartItem.map(item => ({
+    updateOne: {
+      filter: { _id: item.product },
+      update: { $inc: { availableStock: -item.quantity } }
+    }
+  }));
+  console.log('Bulk operations for stock update:', bulkOps);
+await ProductModel.bulkWrite(bulkOps);
 
   // Clear all item in the cart
   await deleteAllItem(userId);

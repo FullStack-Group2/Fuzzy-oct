@@ -1,11 +1,23 @@
-import { Schema, model, Document } from 'mongoose';
+// RMIT University Vietnam
+// Course: COSC2769 - Full Stack Development
+// Semester: 2025B
+// Assessment: Assignment 02
+// Author: Pham Le Gia Huy
+// ID: s3975371
+
+import mongoose, { Schema, model, Document } from 'mongoose';
+import { ProductCategory } from './ProductCategory';
 
 export interface IProduct extends Document {
+  _id: mongoose.Types.ObjectId;
   name: string;
   price: number;
   imageUrl: string;
   description: string;
-  vendor: Schema.Types.ObjectId; // Reference to the User (Vendor)
+  category: ProductCategory;
+  vendor: mongoose.Types.ObjectId; // reference to Vendor
+  availableStock: number;
+  sale: number;
 }
 
 const ProductSchema = new Schema<IProduct>({
@@ -22,11 +34,30 @@ const ProductSchema = new Schema<IProduct>({
   },
   imageUrl: { type: String, required: true },
   description: { type: String, maxlength: 500 },
+  category: {
+    type: String,
+    enum: Object.values(ProductCategory),
+    default: ProductCategory.OTHERS,
+  },
   vendor: {
     type: Schema.Types.ObjectId,
     ref: 'Vendor',
     required: true,
   },
+  availableStock: {
+    type: Number,
+    required: true,
+    min: 0,
+    default: 0,
+  },
+
+  sale: {
+    type: Number,
+    required: false,
+    default: 0,
+    min: 0,
+    max: 100,
+  },
 });
 
-export default model<IProduct>('Product', ProductSchema);
+export const ProductModel = model<IProduct>('Product', ProductSchema);

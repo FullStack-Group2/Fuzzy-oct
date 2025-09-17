@@ -1,0 +1,66 @@
+// RMIT University Vietnam
+// Course: COSC2769 - Full Stack Development
+// Semester: 2025B
+// Assessment: Assignment 02
+// Author: Pham Le Gia Huy
+// ID: s3975371
+
+import { ReactNode } from 'react';
+import { Navigate, useLocation } from 'react-router-dom';
+import { useAuth } from '../../stores/AuthProvider';
+
+interface ProtectedRouteProps {
+  children: ReactNode;
+  allowedRoles?: ('CUSTOMER' | 'VENDOR' | 'SHIPPER')[];
+  redirectTo?: string;
+}
+
+export function ProtectedRoute({
+  children,
+  allowedRoles = [],
+  redirectTo = '/auth/login',
+}: ProtectedRouteProps) {
+  const { isAuth, isLoading, user } = useAuth();
+  const location = useLocation();
+
+  // Show loading spinner while checking authentication
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900"></div>
+      </div>
+    );
+  }
+
+  // Redirect to login if not authenticated
+  if (!isAuth || !user) {
+    return <Navigate to={redirectTo} state={{ from: location }} replace />;
+  }
+
+  // Check role-based access
+  if (allowedRoles.length > 0 && !allowedRoles.includes(user.role)) {
+    return <Navigate to="/" replace />;
+  }
+
+  return <>{children}</>;
+}
+
+// Component for routes that should only be accessible when NOT logged in (like login, register)
+export function PublicOnlyRoute({ children }: { children: ReactNode }) {
+  const { isAuth, isLoading } = useAuth();
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900"></div>
+      </div>
+    );
+  }
+
+  // If user is authenticated, redirect to home
+  if (isAuth) {
+    return <Navigate to="/" replace />;
+  }
+
+  return <>{children}</>;
+}

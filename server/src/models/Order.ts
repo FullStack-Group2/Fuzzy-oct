@@ -1,20 +1,28 @@
-import { Schema, model, Document } from 'mongoose';
+// RMIT University Vietnam
+// Course: COSC2769 - Full Stack Development
+// Semester: 2025B
+// Assessment: Assignment 02
+// Author: Pham Le Gia Huy
+// ID: s3975371
+
+import { Schema, model, Document, Types } from 'mongoose';
 import { IOrderItem } from './OrderItem';
 import { OrderStatus } from './OrderStatus';
 
 export interface IOrder extends Document {
   customer: Schema.Types.ObjectId;
-  hub: Schema.Types.ObjectId;
+  distributionHub: Schema.Types.ObjectId;
   orderDate: Date;
   status: OrderStatus;
   totalPrice: number;
   orderItems: IOrderItem[]; // This will be a populated virtual field
+  cancelReason: string; // reason when vendor or shipper rejects
 }
 
 const orderSchema = new Schema<IOrder>(
   {
-    customer: { type: Schema.Types.ObjectId, ref: 'Customer', required: true },
-    hub: {
+    customer: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    distributionHub: {
       type: Schema.Types.ObjectId,
       ref: 'DistributionHub',
       required: true,
@@ -23,9 +31,10 @@ const orderSchema = new Schema<IOrder>(
     status: {
       type: String,
       enum: Object.values(OrderStatus),
-      default: OrderStatus.ACTIVE,
+      default: OrderStatus.PENDING,
     },
     totalPrice: { type: Number, required: true },
+    cancelReason: { nullable: true, type: String },
   },
   {
     // Important: Enable virtuals for toJSON and toObject

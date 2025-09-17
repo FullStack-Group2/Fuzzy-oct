@@ -1,3 +1,10 @@
+// RMIT University Vietnam
+// Course: COSC2769 - Full Stack Development
+// Semester: 2025B
+// Assessment: Assignment 02
+// Author: Pham Le Gia Huy
+// ID: s3975371
+
 import { UserModel, IUser } from '../models/User';
 import { VendorModel, IVendor } from '../models/Vendor';
 import { CustomerModel, ICustomer } from '../models/Customer';
@@ -15,27 +22,7 @@ export class UserServices {
    * @returns Promise<AnyUser | null> - The user document or null if not found
    */
   static async findByUserName(username: string): Promise<AnyUser | null> {
-    try {
-      // Search across all user types using discriminator models
-      let user: AnyUser | null = await VendorModel.findOne({ username }).select(
-        '+password',
-      );
-
-      if (!user) {
-        user = await CustomerModel.findOne({ username }).select('+password');
-      }
-
-      if (!user) {
-        user = await ShipperModel.findOne({ username })
-          .select('+password')
-          .populate('assignedHub');
-      }
-
-      return user;
-    } catch (error) {
-      console.error('Error finding user by username:', error);
-      throw new Error('Failed to find user');
-    }
+    return UserModel.findOne({ username }).select('+password');
   }
 
   /**
@@ -61,7 +48,7 @@ export class UserServices {
         case UserRole.SHIPPER:
           user = await ShipperModel.findOne({ username })
             .select('+password')
-            .populate('assignedHub');
+            .populate('distributionHub');
           break;
         default:
           throw new Error('Invalid user role');
@@ -94,13 +81,7 @@ export class UserServices {
    * @returns Promise<IUser | null> - The user document or null if not found
    */
   static async findById(userId: string): Promise<IUser | null> {
-    try {
-      const user = await UserModel.findById(userId);
-      return user;
-    } catch (error) {
-      console.error('Error finding user by ID:', error);
-      throw new Error('Failed to find user');
-    }
+    return UserModel.findById(userId);
   }
 
   /**
@@ -121,7 +102,7 @@ export class UserServices {
       if (!user) {
         user = await ShipperModel.findById(userId)
           .select('+password')
-          .populate('assignedHub');
+          .populate('distributionHub');
       }
 
       return user;

@@ -1,0 +1,65 @@
+POST http://localhost:5001/api/auth/login HTTP/1.1
+Content-Type: application/json
+
+{
+  "username": "tony",
+  "password": "Tonyrmit@2301"
+}
+
+POST http://localhost:5001/api/auth/login HTTP/1.1
+Content-Type: application/json
+
+{
+  "username": "tonyVendor",
+  "password": "Tonyrmit@2301"
+}
+
+GET http://localhost:5001/api/vendors/68ab5457d3f2c6f1b9420df1
+
+GET http://localhost:5001/api/public/products?vendor=68ab616fc9699e4bca89a714
+
+GET http://localhost:5001/api/public/products/68a0a96bd24f3fdeb3eec4af
+
+GET http://localhost:5001/api/customers/cart
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OGFkMDI3ZTM0ZGQ4ZjgxM2QxMTk5NmYiLCJ1c2VybmFtZSI6InRvbnkiLCJyb2xlIjoiQ1VTVE9NRVIiLCJpYXQiOjE3NTY5MDcwMjYsImV4cCI6MTc1NzUxMTgyNn0.jccKewxQN3v839Aq_UhLaHUdR7GEX9czgIs3g_FIUFc
+
+
+GET http://localhost:5001/api/customers/products
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OGFkMDI3ZTM0ZGQ4ZjgxM2QxMTk5NmYiLCJ1c2VybmFtZSI6InRvbnkiLCJyb2xlIjoiQ1VTVE9NRVIiLCJpYXQiOjE3NTYyMDcyMzgsImV4cCI6MTc1NjgxMjAzOH0.AYxl5AReb_C1VmVNcSnqMNcNubLSBWNdLahx_h2xZOI
+
+GET http://localhost:5001/api/customers/stores/68ab616fc9699e4bca89a714
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OGFkMDI3ZTM0ZGQ4ZjgxM2QxMTk5NmYiLCJ1c2VybmFtZSI6InRvbnkiLCJyb2xlIjoiQ1VTVE9NRVIiLCJpYXQiOjE3NTYyMDcyMzgsImV4cCI6MTc1NjgxMjAzOH0.AYxl5AReb_C1VmVNcSnqMNcNubLSBWNdLahx_h2xZOI
+
+
+### Add item to cart
+POST http://localhost:5001/api/customers/cart HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OGFkMDI3ZTM0ZGQ4ZjgxM2QxMTk5NmYiLCJ1c2VybmFtZSI6InRvbnkiLCJyb2xlIjoiQ1VTVE9NRVIiLCJpYXQiOjE3NTcwMjU1OTIsImV4cCI6MTc1NzYzMDM5Mn0.hXkG-7SxscmNlvtHE4x1vl5IOFc54P4lQ8hm3R__M3k
+
+{
+  "itemId": "68a0a96bd24f3fdeb3eec4af",
+  "quantity": 4
+}
+
+### update item quantity in cart (this can be use for use case of increase and decrease)
+PUT http://localhost:5001/api/customers/cart HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OGFkMDI3ZTM0ZGQ4ZjgxM2QxMTk5NmYiLCJ1c2VybmFtZSI6InRvbnkiLCJyb2xlIjoiQ1VTVE9NRVIiLCJpYXQiOjE3NTcwMjU2NDAsImV4cCI6MTc1NzYzMDQ0MH0.SuM5CT9evKaCrl2y5CN3YzZ1a8_ZcNcYcN2i9EkLXIo
+
+{
+  "itemId": "68ba13eee086635168d6e69a",
+  "quantity": 5
+}
+
+### DELETE item to cart
+DELETE http://localhost:5001/api/customers/cart/68adfe99480c4bf1a1341870 HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OGFkMDI3ZTM0ZGQ4ZjgxM2QxMTk5NmYiLCJ1c2VybmFtZSI6InRvbnkiLCJyb2xlIjoiQ1VTVE9NRVIiLCJpYXQiOjE3NTYyMDcyMzgsImV4cCI6MTc1NjgxMjAzOH0.AYxl5AReb_C1VmVNcSnqMNcNubLSBWNdLahx_h2xZOI
+
+### Create order
+GET http://localhost:5001/api/customers/orders HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OGFkMDI3ZTM0ZGQ4ZjgxM2QxMTk5NmYiLCJ1c2VybmFtZSI6InRvbnkiLCJyb2xlIjoiQ1VTVE9NRVIiLCJpYXQiOjE3NTcwMjU2NDAsImV4cCI6MTc1NzYzMDQ0MH0.SuM5CT9evKaCrl2y5CN3YzZ1a8_ZcNcYcN2i9EkLXIo
+
+GET http://localhost:5001/api/vendors/orders HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OGJhMTM1N2UwODY2MzUxNjhkNmU2ODEiLCJ1c2VybmFtZSI6InRvbnlWZW5kb3IiLCJyb2xlIjoiVkVORE9SIiwiaWF0IjoxNzU3MDI2NjcxLCJleHAiOjE3NTc2MzE0NzF9.0A_lLMRUnJxAqjDKU2OgBgSdJYEqFkMNdnm9iGb_5Kk
+

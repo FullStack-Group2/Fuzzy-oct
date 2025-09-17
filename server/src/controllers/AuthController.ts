@@ -1,3 +1,10 @@
+// RMIT University Vietnam
+// Course: COSC2769 - Full Stack Development
+// Semester: 2025B
+// Assessment: Assignment 02
+// Author: Pham Le Gia Huy
+// ID: s3975371
+
 import { Request, Response } from 'express';
 import bcrypt from 'bcrypt';
 
@@ -6,6 +13,7 @@ import { CustomerModel } from '../models/Customer';
 import { ShipperModel } from '../models/Shipper';
 import { UserRole } from '../models/UserRole';
 import { UserServices } from '../services/UserServices';
+import { createVendor } from '../services/VendorService';
 import { signJWT } from '../utils/SignHelper';
 import twilio from 'twilio';
 import {
@@ -14,19 +22,47 @@ import {
   verifyResetToken,
 } from '../utils/ResetTokenStore';
 import DistributionHub from '../models/DistributionHub';
+import {
+  changePasswordSchema,
+  customerRegistrationSchema,
+  forgotPasswordSchema,
+  loginSchema,
+  resetPasswordSchema,
+  shipperRegistrationSchema,
+  vendorRegistrationSchema,
+  verifyResetCodeSchema,
+} from '../validations/authValidation';
 
 interface TokenPayload {
   userId: string;
   username: string;
   role: UserRole;
+  hubId?: string;
 }
+
 const client = twilio(
   process.env.TWILIO_ACCOUNT_SID,
   process.env.TWILIO_AUTH_TOKEN,
 );
+
 // Register Vendor
 export const registerVendor = async (req: Request, res: Response) => {
   try {
+    // Validate the request body using Zod schema
+    const validationResult = vendorRegistrationSchema.safeParse(req.body);
+
+    if (!validationResult.success) {
+      const formattedErrors = validationResult.error.issues.map((err) => ({
+        field: err.path.join('.'),
+        message: err.message,
+      }));
+
+      return res.status(400).json({
+        message: 'Validation failed',
+        errors: formattedErrors,
+      });
+    }
+
     const {
       username,
       email,
@@ -34,14 +70,7 @@ export const registerVendor = async (req: Request, res: Response) => {
       businessName,
       businessAddress,
       profilePicture,
-    } = req.body;
-
-    if (!username || !email || !password || !businessName || !businessAddress) {
-      return res.status(400).json({
-        message:
-          'Username, email, password, business name, and business address are required',
-      });
-    }
+    } = validationResult.data;
 
     // Check if username already exists
     const existingUser = await UserServices.usernameExists(username);
@@ -49,11 +78,23 @@ export const registerVendor = async (req: Request, res: Response) => {
       return res.status(409).json({ message: 'Username already exists' });
     }
 
-    // Hash password
+    // Check if a vendor with this specific businessName AND businessAddress already exists
+    const existingVendor = await VendorModel.findOne({
+      businessName: businessName.trim(),
+      businessAddress: businessAddress.trim(),
+    });
+    if (existingVendor) {
+      return res
+        .status(409)
+        .json({
+          message:
+            'A vendor with this business name and address already exists.',
+        });
+    }
+
     const hashedPassword = await bcrypt.hash(password, 12);
 
-    // Create vendor
-    const vendor = new VendorModel({
+    const vendor = await createVendor({
       username: username.trim(),
       email: email.trim().toLowerCase(),
       password: hashedPassword,
@@ -63,9 +104,6 @@ export const registerVendor = async (req: Request, res: Response) => {
       profilePicture: profilePicture || '',
     });
 
-    await vendor.save();
-
-    // Generate JWT token
     const tokenPayload: TokenPayload = {
       userId: vendor.id.toString(),
       username: vendor.username,
@@ -96,14 +134,23 @@ export const registerVendor = async (req: Request, res: Response) => {
 // Register Customer
 export const registerCustomer = async (req: Request, res: Response) => {
   try {
-    const { username, email, password, name, address, profilePicture } =
-      req.body;
+    // Validate the request body using Zod schema
+    const validationResult = customerRegistrationSchema.safeParse(req.body);
+    console.log('Customer registration validation result:', validationResult);
+    if (!validationResult.success) {
+      const formattedErrors = validationResult.error.issues.map((err) => ({
+        field: err.path.join('.'),
+        message: err.message,
+      }));
 
-    if (!username || !email || !password || !name || !address) {
       return res.status(400).json({
-        message: 'Username, email, password, name, and address are required',
+        message: 'Validation failed',
+        errors: formattedErrors,
       });
     }
+
+    const { username, email, password, name, address, profilePicture } =
+      validationResult.data;
 
     // Check if username already exists
     const existingUser = await UserServices.usernameExists(username);
@@ -111,10 +158,8 @@ export const registerCustomer = async (req: Request, res: Response) => {
       return res.status(409).json({ message: 'Username already exists' });
     }
 
-    // Hash password
     const hashedPassword = await bcrypt.hash(password, 12);
 
-    // Create customer
     const customer = new CustomerModel({
       username: username.trim(),
       email: email.trim().toLowerCase(),
@@ -127,7 +172,6 @@ export const registerCustomer = async (req: Request, res: Response) => {
 
     await customer.save();
 
-    // Generate JWT token
     const tokenPayload: TokenPayload = {
       userId: customer.id.toString(),
       username: customer.username,
@@ -151,7 +195,6 @@ export const registerCustomer = async (req: Request, res: Response) => {
     });
   } catch (error: unknown) {
     console.error('Customer Registration Error:', error);
-
     res.status(500).json({ message: 'Internal server error' });
   }
 };
@@ -159,48 +202,52 @@ export const registerCustomer = async (req: Request, res: Response) => {
 // Register Shipper
 export const registerShipper = async (req: Request, res: Response) => {
   try {
-    const { username, email, password, assignedHubId, profilePicture } =
-      req.body;
+    // Validate the request body using Zod schema
+    const validationResult = shipperRegistrationSchema.safeParse(req.body);
 
-    if (!username || !email || !password || !assignedHubId) {
+    if (!validationResult.success) {
+      const formattedErrors = validationResult.error.issues.map((err) => ({
+        field: err.path.join('.'),
+        message: err.message,
+      }));
+
       return res.status(400).json({
-        message: 'Username, email, password, and assigned hub are required',
+        message: 'Validation failed',
+        errors: formattedErrors,
       });
     }
+
+    const { username, email, password, assignedHubId, profilePicture } =
+      validationResult.data;
 
     // Check if username already exists
     const existingUser = await UserServices.usernameExists(username);
     if (existingUser) {
       return res.status(409).json({ message: 'Username already exists' });
     }
+
     const hub = await DistributionHub.findById(assignedHubId);
     if (!hub) {
       return res.status(404).json({ message: 'Assigned hub not found' });
     }
 
-    // Hash password
     const hashedPassword = await bcrypt.hash(password, 12);
 
-    // Create shipper
-    const shipper = new ShipperModel({
+    const shipper = await ShipperModel.create({
       username: username.trim(),
       email: email.trim().toLowerCase(),
       password: hashedPassword,
       role: UserRole.SHIPPER,
-      assignedHub: hub._id,
+      distributionHub: hub._id,
       profilePicture: profilePicture || '',
     });
 
-    await shipper.save();
-
-    // Populate hub details for response
-    await shipper.populate('assignedHub', 'hubName hubLocation');
-
-    // Generate JWT token
+    // Build JWT with hubId for shipper
     const tokenPayload: TokenPayload = {
       userId: shipper.id.toString(),
       username: shipper.username,
-      role: shipper.role,
+      role: UserRole.SHIPPER,
+      hubId: shipper.distributionHub?.toString(),
     };
 
     const token = signJWT(tokenPayload);
@@ -211,7 +258,7 @@ export const registerShipper = async (req: Request, res: Response) => {
         id: shipper._id,
         username: shipper.username,
         email: shipper.email,
-        assignedHub: shipper.assignedHub,
+        distributionHub: shipper.distributionHub,
         profilePicture: shipper.profilePicture,
         role: shipper.role,
       },
@@ -226,36 +273,50 @@ export const registerShipper = async (req: Request, res: Response) => {
 // Login for all user types
 export const login = async (req: Request, res: Response) => {
   try {
-    const { username, password } = req.body;
+    // Validate the request body using Zod schema
+    const validationResult = loginSchema.safeParse(req.body);
 
-    if (!username || !password) {
+    if (!validationResult.success) {
+      const formattedErrors = validationResult.error.issues.map((err) => ({
+        field: err.path.join('.'),
+        message: err.message,
+      }));
+
       return res.status(400).json({
-        message: 'Username and password are required',
+        message: 'Validation failed',
+        errors: formattedErrors,
       });
     }
 
+    const { username, password } = validationResult.data;
+
     const user = await UserServices.findByUserName(username);
     if (!user) {
-      res.status(401).json({ message: 'Invalid credentials' });
-      return;
-    }
-    // Verify password
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) {
-      res.status(401).json({ message: 'Invalid credentials' });
-      return;
+      return res.status(401).json({ message: 'Invalid credentials' });
     }
 
-    // Generate JWT token
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      return res.status(401).json({ message: 'Invalid credentials' });
+    }
+
+    // Prepare token payload (with hubId for shippers)
+    let hubId: string | undefined;
+    if (user.role === UserRole.SHIPPER) {
+      const shipper = await ShipperModel.findById(user._id).select(
+        'distributionHub',
+      );
+      if (shipper?.distributionHub) hubId = shipper.distributionHub.toString();
+    }
+
     const tokenPayload: TokenPayload = {
       userId: user.id.toString(),
       username: user.username,
       role: user.role,
+      ...(hubId ? { hubId } : {}),
     };
-
     const token = signJWT(tokenPayload);
 
-    // Prepare user data (without password)
     const userData: Record<string, unknown> = {
       id: user._id,
       username: user.username,
@@ -264,7 +325,7 @@ export const login = async (req: Request, res: Response) => {
       profilePicture: user.profilePicture,
     };
 
-    // Fetch role-specific data
+    // Attach role-specific extras (merge of HEAD + dev)
     switch (user.role) {
       case UserRole.VENDOR: {
         const vendor = await VendorModel.findById(user._id);
@@ -283,25 +344,21 @@ export const login = async (req: Request, res: Response) => {
         break;
       }
       case UserRole.SHIPPER: {
-        const shipper = await ShipperModel.findById(user._id).populate(
-          'assignedHub',
-          'hubName hubLocation',
+        const shipper = await ShipperModel.findById(user._id).select(
+          'distributionHub',
         );
-        if (shipper) {
-          userData.assignedHub = shipper.assignedHub;
-        }
+        if (shipper?.distributionHub)
+          userData.distributionHub = shipper.distributionHub;
         break;
       }
     }
 
-    return res.status(200).json({
-      message: 'Login successful',
-      user: userData,
-      token,
-    });
-  } catch (error) {
-    console.error('Login Error:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    return res
+      .status(200)
+      .json({ message: 'Login successful', user: userData, token });
+  } catch (err) {
+    console.error('Login Error:', err);
+    return res.status(500).json({ message: 'Internal server error' });
   }
 };
 
@@ -320,10 +377,22 @@ export const logout = async (req: Request, res: Response) => {
 
 export const forgotPassword = async (req: Request, res: Response) => {
   try {
-    const { email } = req.body;
-    if (!email) {
-      return res.status(400).json({ message: 'Email is required' });
+    // Validate the request body using Zod schema
+    const validationResult = forgotPasswordSchema.safeParse(req.body);
+
+    if (!validationResult.success) {
+      const formattedErrors = validationResult.error.issues.map((err) => ({
+        field: err.path.join('.'),
+        message: err.message,
+      }));
+
+      return res.status(400).json({
+        message: 'Validation failed',
+        errors: formattedErrors,
+      });
     }
+
+    const { email } = validationResult.data;
 
     // Check if user exists in your DB
     const user = await UserServices.findByEmail(email);
@@ -333,7 +402,6 @@ export const forgotPassword = async (req: Request, res: Response) => {
 
     console.log(`Sending OTP to email: ${email}`);
 
-    // Send OTP via Twilio Verify with timeout
     try {
       const verificationPromise = client.verify.v2
         .services(process.env.TWILIO_VERIFY_SERVICE_SID!)
@@ -377,11 +445,11 @@ export const forgotPassword = async (req: Request, res: Response) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 };
+
 interface TwilioError {
   message?: string;
   code?: string | number;
 }
-
 interface TwilioVerificationCheck {
   status: string;
   sid?: string;
@@ -389,21 +457,32 @@ interface TwilioVerificationCheck {
 
 export const verifyResetCode = async (req: Request, res: Response) => {
   try {
-    const { email, code } = req.body;
-    if (!email || !code) {
-      return res.status(400).json({ message: 'Email and code are required' });
+    // Validate the request body using Zod schema
+    const validationResult = verifyResetCodeSchema.safeParse(req.body);
+
+    if (!validationResult.success) {
+      const formattedErrors = validationResult.error.issues.map((err) => ({
+        field: err.path.join('.'),
+        message: err.message,
+      }));
+
+      return res.status(400).json({
+        message: 'Validation failed',
+        errors: formattedErrors,
+      });
     }
+
+    const { email, code } = validationResult.data;
 
     console.log(`Attempting to verify OTP for email: ${email}, code: ${code}`);
 
-    // Add timeout and retry logic
     let verificationCheck: TwilioVerificationCheck;
     try {
       const verificationPromise = client.verify.v2
         .services(process.env.TWILIO_VERIFY_SERVICE_SID!)
         .verificationChecks.create({
           to: email,
-          code: code.toString(), // Ensure code is string
+          code: code.toString(),
         });
 
       const timeoutPromise = new Promise<never>((_, reject) =>
@@ -419,7 +498,6 @@ export const verifyResetCode = async (req: Request, res: Response) => {
 
       const error = twilioError as TwilioError;
 
-      // Handle specific Twilio errors
       if (error.code === 20404) {
         return res.status(400).json({
           message: 'Verification code has expired or is invalid',
@@ -467,12 +545,22 @@ export const verifyResetCode = async (req: Request, res: Response) => {
 
 export const resetForgotPassword = async (req: Request, res: Response) => {
   try {
-    const { email, newPassword, resetToken } = req.body;
-    if (!email || !newPassword || !resetToken) {
-      return res
-        .status(400)
-        .json({ message: 'Email, new password, and reset token are required' });
+    // Validate the request body using Zod schema
+    const validationResult = resetPasswordSchema.safeParse(req.body);
+
+    if (!validationResult.success) {
+      const formattedErrors = validationResult.error.issues.map((err) => ({
+        field: err.path.join('.'),
+        message: err.message,
+      }));
+
+      return res.status(400).json({
+        message: 'Validation failed',
+        errors: formattedErrors,
+      });
     }
+
+    const { email, newPassword, resetToken } = validationResult.data;
 
     // Verify the reset token
     if (!verifyResetToken(email, resetToken)) {
@@ -481,18 +569,16 @@ export const resetForgotPassword = async (req: Request, res: Response) => {
         .json({ message: 'Invalid or expired reset token' });
     }
 
-    // Find user by email to get the userId
     const user = await UserServices.findByEmail(email);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    // Update password using userId
     const result = await UserServices.updatePassword(user.id, newPassword);
-
     console.log('Password reset result:', result);
-    //  Delete token so it can't be reused
+
     deleteResetToken(email);
+
     res.status(200).json({ status: 'Password reset successful' });
   } catch (error) {
     console.error('Reset Password Error:', error);
@@ -504,18 +590,27 @@ export const changePassword = async (req: Request, res: Response) => {
   try {
     const userId = req.params.id;
 
-    // Find user with password field included
     const user = await UserServices.findByIdWithPassword(userId);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    const { currentPassword, newPassword } = req.body;
-    if (!currentPassword || !newPassword) {
+    // Validate the request body using Zod schema
+    const validationResult = changePasswordSchema.safeParse(req.body);
+
+    if (!validationResult.success) {
+      const formattedErrors = validationResult.error.issues.map((err) => ({
+        field: err.path.join('.'),
+        message: err.message,
+      }));
+
       return res.status(400).json({
-        message: 'Current password and new password are required',
+        message: 'Validation failed',
+        errors: formattedErrors,
       });
     }
+
+    const { currentPassword, newPassword } = validationResult.data;
 
     // Check if password field exists
     if (!user.password) {
@@ -525,7 +620,6 @@ export const changePassword = async (req: Request, res: Response) => {
         .json({ message: 'User authentication data is corrupted' });
     }
 
-    // Verify current password
     const isPasswordValid = await bcrypt.compare(
       currentPassword,
       user.password,
@@ -536,7 +630,6 @@ export const changePassword = async (req: Request, res: Response) => {
       return res.status(401).json({ message: 'Current password is incorrect' });
     }
 
-    // Update password in database
     const result = await UserServices.updatePassword(userId, newPassword);
     console.log('Password change result:', result);
 

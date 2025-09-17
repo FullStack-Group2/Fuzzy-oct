@@ -1,0 +1,101 @@
+// RMIT University Vietnam
+// Course: COSC2769 - Full Stack Development
+// Semester: 2025B
+// Assessment: Assignment 02
+// Author: Truong Quoc Tri
+// ID: 4010989
+
+import { Router } from 'express';
+
+import * as vendorController from '../controllers/VendorController';
+import { authMiddleware } from '../middleware/authMiddleware';
+import { requireVendor } from '../middleware/roleMiddleware';
+
+const router = Router();
+
+router.get(
+  '/orders',
+  authMiddleware,
+  requireVendor,
+  vendorController.getAllOrders,
+);
+router.get(
+  '/orders/:id',
+  authMiddleware,
+  requireVendor,
+  vendorController.getOrderDetails,
+);
+router.patch(
+  '/orders/:id/status',
+  authMiddleware,
+  requireVendor,
+  vendorController.updateStatus,
+);
+
+// Routes
+router.get(
+  '/products',
+  authMiddleware,
+  requireVendor,
+  vendorController.getAllProducts,
+); // legacy: now move to public route
+
+router.get(
+  '/product/:productId',
+  authMiddleware,
+  requireVendor,
+  vendorController.getProduct,
+); // legacy: now move to public route
+
+router.get(
+  '/:id',
+  // authMiddleware,
+  // requireVendor,
+  vendorController.getVendorById,
+); // this will be use for public, specifically in function product detail
+
+router.post(
+  '/add-product',
+  authMiddleware,
+  requireVendor,
+  vendorController.addProduct,
+);
+router.get(
+  '/:vendorId/orders',
+  authMiddleware,
+  requireVendor,
+  vendorController.getActiveOrders,
+);
+router.get(
+  '/:vendorId/order-history',
+  authMiddleware,
+  requireVendor,
+  vendorController.getOrderHistory,
+);
+router.put(
+  '/product/:productId',
+  authMiddleware,
+  requireVendor,
+  vendorController.editProductDetails,
+);
+router.delete(
+  '/product/:productId',
+  authMiddleware,
+  requireVendor,
+  vendorController.deleteOneProduct,
+);
+router.get(
+  '/product/:productId/sales',
+  authMiddleware,
+  requireVendor,
+  vendorController.getProductSales,
+);
+
+router.put(
+  '/:id',
+  authMiddleware,
+  requireVendor,
+  vendorController.updateVendor,
+);
+
+export default router;

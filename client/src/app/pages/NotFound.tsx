@@ -2,8 +2,8 @@
 // Course: COSC2769 - Full Stack Development
 // Semester: 2025B
 // Assessment: Assignment 02
-// Author: Le Nguyen Khuong Duy
-// ID: s4026694
+// Author: Le Nguyen Khuong Duy, Pham Nhat Minh
+// ID: s4026694, s4019811
 
 const NotFound = () => {
   return (

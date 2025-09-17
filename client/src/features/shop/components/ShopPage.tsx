@@ -2,8 +2,8 @@
 // Course: COSC2769 - Full Stack Development
 // Semester: 2025B
 // Assessment: Assignment 02
-// Author: Pham Le Gia Huy
-// ID: s3975371
+// Author: Pham Nhat Minh
+// ID: s4019811
 
 import { useEffect } from 'react';
 import toast from 'react-hot-toast';

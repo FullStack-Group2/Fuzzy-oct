@@ -1,3 +1,10 @@
+// RMIT University Vietnam
+// Course: COSC2769 - Full Stack Development
+// Semester: 2025B
+// Assessment: Assignment 02
+// Author: Pham Nhat Minh
+// ID: s4019811
+
 export default function NotFoundProduct() {
   return (
     <section className="p-10 w-full aspect-1 flex flex-col gap-5 items-center justify-start">

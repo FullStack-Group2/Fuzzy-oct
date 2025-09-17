@@ -272,6 +272,15 @@ export const createOrderFromItem = async (userId: string) => {
   console.log('Bulk operations for stock update:', bulkOps);
 await ProductModel.bulkWrite(bulkOps);
 
+  const bulkOps = cartItem.map((item) => ({
+    updateOne: {
+      filter: { _id: item.product },
+      update: { $inc: { availableStock: -item.quantity } },
+    },
+  }));
+  console.log('Bulk operations for stock update:', bulkOps);
+  await ProductModel.bulkWrite(bulkOps);
+
   // Clear all item in the cart
   await deleteAllItem(userId);
   return { orders: createdOrders };

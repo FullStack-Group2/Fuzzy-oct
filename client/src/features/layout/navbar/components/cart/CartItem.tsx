@@ -57,7 +57,16 @@ const CartItem: React.FC<any> = ({ dataItem }) => {
           <div>
             <p className="text-[16px] font-medium">{product?.name}</p>
             <p className="text-[12px] font-extralight text-[#B1B1B1]">
-              {Intl.NumberFormat('vi-VN').format(product?.price)} Vnd
+              {/* {Intl.NumberFormat('vi-VN').format(product?.price)} Vnd */}
+              <p className="text-lg">
+                {Intl.NumberFormat('vi-VN').format(
+                  product?.sale && product?.sale > 0
+                    ? product?.price * (1 - product?.sale / 100) // giá sau giảm
+                    : product?.price // giá gốc
+                )}{' '}
+                Vnd
+              </p>
+
             </p>
           </div>
 

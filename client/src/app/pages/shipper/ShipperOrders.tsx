@@ -11,7 +11,7 @@ import type { OrderListDTO } from '@/models/ShipperDTO';
 import { apiGetActiveOrders } from '@/api/ShipperAPI';
 import { ShipperOrdersTable } from '@/components/ShipperOrdersUI';
 import HeroBanner from '@/components/HeroBanner';
-import bed3 from '../../../assets/icon/bed3.jpg'
+import bed3 from '../../../assets/icon/bed3.jpg';
 
 export default function ShipperOrders() {
   const [orders, setOrders] = useState<OrderListDTO[]>([]);
@@ -48,7 +48,6 @@ export default function ShipperOrders() {
       />
 
       <main className="mx-auto w-full max-w-7xl py-4 md:py-6">
-        
         <ShipperOrdersTable
           orders={orders}
           loading={loading}

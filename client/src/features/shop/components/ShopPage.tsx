@@ -45,6 +45,7 @@ const ShopPage: React.FC = () => {
             imgSrc={product.imageUrl}
             itemName={product.name}
             itemPrice={product.price}
+            itemSale = {product.sale}
           />
         ))}
       </body>

@@ -23,7 +23,7 @@ import 'jspdf-autotable';
 import autoTable from 'jspdf-autotable';
 import toast from 'react-hot-toast';
 import HeroBanner from '@/components/HeroBanner';
-import kitchen from '../../../assets/icon/kitchen.jpg'
+import kitchen from '../../../assets/icon/kitchen.jpg';
 
 interface Product {
   _id: string;
@@ -152,11 +152,7 @@ export const Products: React.FC = () => {
 
   return (
     <section className="w-full mb-10">
-      <HeroBanner
-        image={kitchen}
-        title="Product Page"
-        subtitle=""
-      />
+      <HeroBanner image={kitchen} title="Product Page" subtitle="" />
 
       <div
         className="flex flex-col 

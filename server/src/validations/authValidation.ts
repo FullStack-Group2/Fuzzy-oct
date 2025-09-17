@@ -10,19 +10,22 @@ const usernameSchema = z
 // Password validation: 8-20 characters, at least one uppercase, one lowercase, one digit, one special character (!@#$%^&*)
 const passwordSchema = z
   .string()
-  .min(8, 'Password must be at least 8 characters')
-  .max(20, 'Password must not exceed 20 characters')
-  .regex(/^(?=.*[a-z])/, 'Password must contain at least one lowercase letter')
-  .regex(/^(?=.*[A-Z])/, 'Password must contain at least one uppercase letter')
-  .regex(/^(?=.*\d)/, 'Password must contain at least one digit')
-  .regex(
-    /^(?=.*[!@#$%^&*])/,
-    'Password must contain at least one special character (!@#$%^&*)',
-  )
-  .regex(
-    /^[a-zA-Z0-9!@#$%^&*]+$/,
-    'Password can only contain letters, digits, and special characters (!@#$%^&*)',
-  );
+  .min(8, { message: 'Password must be at least 8 characters' })
+  .max(20, { message: 'Password must not exceed 20 characters' })
+  .regex(/[a-z]/, {
+    message: 'Password must contain at least one lowercase letter',
+  })
+  .regex(/[A-Z]/, {
+    message: 'Password must contain at least one uppercase letter',
+  })
+  .regex(/\d/, { message: 'Password must contain at least one digit' })
+  .regex(/[!@#$%^&*]/, {
+    message: 'Password must contain at least one special character (!@#$%^&*)',
+  })
+  .regex(/^[A-Za-z0-9!@#$%^&*]+$/, {
+    message:
+      'Password can only contain letters, digits, and special characters (!@#$%^&*)',
+  });
 
 // Email validation
 const emailSchema = z

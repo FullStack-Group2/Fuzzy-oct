@@ -5,8 +5,6 @@
 // Author: Tran Tu Tam
 // ID: s3999159
 
-import React from 'react';
-
 const Contact = () => {
   return (
     <div>

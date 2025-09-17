@@ -3,12 +3,12 @@
 // Semester: 2025B
 // Assessment: Assignment 02
 // Author: Truong Quoc Tri
-// ID: 4010989
+// ID: s4010989
 
 import { Link, Location } from 'react-router-dom';
 import type { OrderListDTO, OrderDetailDTO } from '@/types/ShipperDTO';
 
-/** List table for shipper orders (no Status col) */
+/** List table for shipper orders */
 export function ShipperOrdersTable({
   orders,
   loading,
@@ -74,13 +74,13 @@ export function ShipperOrdersTable({
   );
 }
 
-/** Items table for shipper order detail (uses totalPrice for footer) */
+/** Items table for shipper order detail*/
 export function ShipperOrderItemsTable({
   items,
   subtotal,
 }: {
   items: OrderDetailDTO['items'];
-  subtotal: number; // pass order.totalPrice
+  subtotal: number;
 }) {
   return (
     <div className="mt-4 md:mt-6 overflow-x-auto rounded-lg border">

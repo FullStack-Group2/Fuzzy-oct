@@ -3,7 +3,7 @@
 // Semester: 2025B
 // Assessment: Assignment 02
 // Author: Truong Quoc Tri, Pham Nhat Minh
-// ID: 4010989, s4019811
+// ID: s4010989, s4019811
 
 import { Router } from 'express';
 

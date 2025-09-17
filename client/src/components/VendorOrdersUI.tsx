@@ -3,19 +3,15 @@
 // Semester: 2025B
 // Assessment: Assignment 02
 // Author: Truong Quoc Tri
-// ID: 4010989
+// ID: s4010989
 
 import { Link, Location } from 'react-router-dom';
 import {
   StatusBadge,
-  FunnelIcon,
-  SortAZIcon,
-  SortZAIcon,
   StatusHeader,
 } from './OrdersUI';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useMemo, useState } from 'react';
 
-/* ---------- Types you already have (import from your models if preferred) ---------- */
 export type VendorOrderListDTO = {
   id: string;
   status: 'PENDING' | 'ACTIVE' | 'DELIVERED' | 'CANCELED';
@@ -80,7 +76,6 @@ export function VendorOrdersTable({
   const srt = (statusSortOrder as 'asc' | 'desc' | undefined) ?? localSort;
   const setSrt = onStatusSortOrderChange ?? setLocalSort;
 
-  /* local fallback behavior: filter and sort the already-loaded orders */
   const visibleOrders = useMemo(() => {
     let data = orders;
     if (sel.length) {

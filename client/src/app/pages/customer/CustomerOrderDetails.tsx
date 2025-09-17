@@ -3,7 +3,7 @@
 // Semester: 2025B
 // Assessment: Assignment 02
 // Author: Truong Quoc Tri
-// ID: 4010989
+// ID: s4010989
 
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate, useParams, Link } from 'react-router-dom';
@@ -109,7 +109,6 @@ export default function CustomerOrderDetails() {
       {order.status === 'CANCELED' && (
         <div className="mt-6 rounded-lg border border-red-300 bg-red-50 p-4">
           <h2 className="mb-1 font-medium text-red-800">Order canceled</h2>
-          {/* (Optional) show order.cancelReason if you expose it to customers */}
         </div>
       )}
     </main>

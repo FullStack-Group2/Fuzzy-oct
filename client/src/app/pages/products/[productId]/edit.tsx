@@ -1,14 +1,14 @@
-// // RMIT University Vietnam
-// // Course: COSC2769 - Full Stack Development
-// // Semester: 2025B
-// // Assessment: Assignment 02
-// // Author: Tran Tu Tam
-// // ID: s3999159
+// RMIT University Vietnam
+// Course: COSC2769 - Full Stack Development
+// Semester: 2025B
+// Assessment: Assignment 02
+// Author: Tran Tu Tam
+// ID: s3999159
 
 import React, { useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { updateProduct } from '@/api/VendorAPI';
-import { getProductById } from '@/api/VendorAPI'; // You may need to adjust the import path
+import { getProductById } from '@/api/VendorAPI';
 import { ProductCategory } from '../add';
 
 export const EditProduct: React.FC = () => {
@@ -39,7 +39,7 @@ export const EditProduct: React.FC = () => {
     }
   }, [productId, product, token]);
 
-  // ✅ Initial values
+  // Initial values
   const baseInitial = useMemo(
     () => ({
       name: product?.name,
@@ -54,7 +54,7 @@ export const EditProduct: React.FC = () => {
     [product],
   );
 
-  // ✅ Keep form state
+  // Keep form state
   const [formData, setFormData] = useState(baseInitial);
   useEffect(() => {
     setFormData(baseInitial);
@@ -83,7 +83,7 @@ export const EditProduct: React.FC = () => {
   };
 
   const handleReset = () => {
-    setFormData(baseInitial); // ✅ use initial values
+    setFormData(baseInitial); // use initial values
   };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -97,7 +97,7 @@ export const EditProduct: React.FC = () => {
     }
   };
 
-  // ✅ Validation
+  // Validation
   const validate = (v: typeof formData) => {
     const errs: Record<string, string> = {};
     if (!v.name) errs.name = 'Name is required';
@@ -127,7 +127,7 @@ export const EditProduct: React.FC = () => {
     return errs;
   };
 
-  // ✅ Submit handler
+  // Submit handler
   const handleApplyEdit = async () => {
     const errs = validate(formData);
     setErrors({

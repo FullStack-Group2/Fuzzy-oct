@@ -3,7 +3,7 @@
 // Semester: 2025B
 // Assessment: Assignment 02
 // Author: Truong Quoc Tri
-// ID: 4010989
+// ID: s4010989
 
 import { useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -22,7 +22,6 @@ export default function VendorOrders() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // ---- read initial state from URL (so refresh/share keeps filters) ----
   const initial = useMemo(() => {
     const sp = new URLSearchParams(location.search);
     const statuses = sp.getAll('status').map((s) => s.toUpperCase() as Status);
@@ -32,8 +31,7 @@ export default function VendorOrders() {
       statuses: (statuses.length ? statuses : []) as Status[],
       sortOrder: sortBy === 'status' && order ? order : undefined,
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // compute once on first render
+  }, []);
 
   const [selectedStatuses, setSelectedStatuses] = useState<Status[]>(
     initial.statuses,
@@ -59,7 +57,7 @@ export default function VendorOrders() {
     try {
       const params = buildSearchParams();
       setOrders(await apiVendorGetOrders(params));
-      // keep URL in sync (replace to avoid history spam)
+      // keep URL in sync
       navigate({ search: params.toString() }, { replace: true });
     } catch (e) {
       console.error(e);
@@ -71,7 +69,6 @@ export default function VendorOrders() {
   // initial load
   useEffect(() => {
     refetch();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // react to detail modal’s refresh tick
@@ -81,10 +78,8 @@ export default function VendorOrders() {
     refetch();
   }, [location.state]);
 
-  // whenever filters / sort change, refetch
   useEffect(() => {
     refetch();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedStatuses, statusSortOrder]);
 
   return (
@@ -107,7 +102,6 @@ export default function VendorOrders() {
           orders={orders}
           loading={loading}
           location={location}
-          // controlled status filter + sort (table shows the UI; this page refetches)
           selectedStatuses={selectedStatuses}
           onSelectedStatusesChange={setSelectedStatuses}
           statusSortOrder={statusSortOrder}

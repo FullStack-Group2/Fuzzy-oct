@@ -3,9 +3,7 @@
 // Semester: 2025B
 // Assessment: Assignment 02
 // Author:  Pham Nhat Minh, Truong Quoc Tri
-// ID: s4019811, 4010989
-
-import React from 'react';
+// ID: s4019811, s4010989
 
 type HeroBannerProps = {
   image: string;

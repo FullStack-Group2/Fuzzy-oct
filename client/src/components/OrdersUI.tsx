@@ -3,7 +3,7 @@
 // Semester: 2025B
 // Assessment: Assignment 02
 // Author: Truong Quoc Tri
-// ID: 4010989
+// ID: s4010989
 
 import React, { useEffect, useId, useRef, useState } from 'react';
 import { Location, To, NavigateFunction } from 'react-router-dom';
@@ -101,7 +101,6 @@ export function SortZAIcon(props: React.SVGProps<SVGSVGElement>) {
 }
 
 /* ---------- Modal navigation helper ---------- */
-/** Preserves background route (for modals) and allows pushing a refresh after mutations. */
 export function useModalNavigation(
   location: Location,
   navigate: NavigateFunction,
@@ -350,7 +349,6 @@ export function StatusHeader({
         {icon}
       </button>
 
-      {/* Menu lives in a portal with position:fixed, so it overlays the table */}
       {open && pos && (
         <Portal>
           <div
@@ -485,5 +483,5 @@ export function RejectReasonSelector({
 
 /* ---------- Derived helpers (if you want the same status mapping elsewhere) ---------- */
 export function vendorUiStatus(status: OrderStatus) {
-  return status; // keep signature identical to your existing mapping fn
+  return status;
 }

@@ -3,7 +3,7 @@
 // Semester: 2025B
 // Assessment: Assignment 02
 // Author: Truong Quoc Tri, Pham Nhat Minh, Le Nguyen Khuong Duy
-// ID: 4010989, s4019811, 4026694
+// ID: s4010989, s4019811, 4026694
 
 import { Request, Response } from 'express';
 import { Types } from 'mongoose';

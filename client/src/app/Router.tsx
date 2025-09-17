@@ -2,8 +2,8 @@
 // Course: COSC2769 - Full Stack Development
 // Semester: 2025B
 // Assessment: Assignment 02
-// Author: Truong Quoc Tri, Pham Nhat Minh
-// ID: 4010989, s4019811
+// Author: Truong Quoc Tri, Pham Nhat Minh, Pham Le Gia Huy
+// ID: s4010989, s4019811, s3975371
 
 import { Routes, Route, useLocation } from 'react-router-dom';
 import type { Location } from 'react-router-dom';
@@ -15,8 +15,6 @@ import {
 
 import Layout from './Layout';
 import NotFound from './pages/NotFound';
-import Home from './pages';
-import Orders from './pages/Orders';
 import Products from './pages/products';
 import AddProduct from './pages/products/add';
 import EditProduct from './pages/products/[productId]/edit';
@@ -131,14 +129,6 @@ function InnerRoutes() {
             element={
               <ProtectedRoute>
                 <HomeGate />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/orders"
-            element={
-              <ProtectedRoute>
-                <Orders />
               </ProtectedRoute>
             }
           />

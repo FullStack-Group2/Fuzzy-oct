@@ -12,6 +12,7 @@ import ProductForm, {
   ProductFormValues,
 } from '@/components/products/ProductForm';
 import { uploadProductImage, createProduct } from '@/api/VendorAPI';
+import toast from 'react-hot-toast';
 
 export enum ProductCategory {
   SOFAS = 'SOFAS',
@@ -74,7 +75,7 @@ export const AddProduct: React.FC = () => {
       imageUrl,
     });
 
-    alert('Product added successfully');
+    toast.success('Product added successfully');
   };
 
   return (

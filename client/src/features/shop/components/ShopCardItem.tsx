@@ -22,7 +22,7 @@ const ShopCardItem: React.FC<ShopCartItemProps> = ({
   imgSrc,
   itemName,
   itemPrice,
-  itemSale
+  itemSale,
 }) => {
   const { addToCart } = useShopCart();
   return (
@@ -79,7 +79,6 @@ const ShopCardItem: React.FC<ShopCartItemProps> = ({
           </p>
         )}
       </div>
-
     </div>
   );
 };

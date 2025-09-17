@@ -191,15 +191,15 @@ export const RegisterCustomer: React.FC<RegisterCustomerProps> = ({
       } else {
         // Check for structured validation errors from the backend
         if (data.errors && Array.isArray(data.errors)) {
-            const newFieldErrors: Record<string, string> = {};
-            data.errors.forEach((err: { field: string; message: string }) => {
-                newFieldErrors[err.field] = err.message;
-            });
-            setFieldErrors(newFieldErrors);
-            setError('Please fix the validation errors.');
+          const newFieldErrors: Record<string, string> = {};
+          data.errors.forEach((err: { field: string; message: string }) => {
+            newFieldErrors[err.field] = err.message;
+          });
+          setFieldErrors(newFieldErrors);
+          setError('Please fix the validation errors.');
         } else {
-            // Handle general errors like "Username already exists"
-            setError(data.message || 'Registration failed');
+          // Handle general errors like "Username already exists"
+          setError(data.message || 'Registration failed');
         }
         console.error('Registration failed:', data);
       }

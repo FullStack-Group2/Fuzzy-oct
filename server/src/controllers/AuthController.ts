@@ -84,7 +84,12 @@ export const registerVendor = async (req: Request, res: Response) => {
       businessAddress: businessAddress.trim(),
     });
     if (existingVendor) {
-      return res.status(409).json({ message: 'A vendor with this business name and address already exists.' });
+      return res
+        .status(409)
+        .json({
+          message:
+            'A vendor with this business name and address already exists.',
+        });
     }
 
     const hashedPassword = await bcrypt.hash(password, 12);

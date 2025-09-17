@@ -235,7 +235,7 @@ function InnerRoutes() {
             path="/chat"
             element={
               <ProtectedRoute>
-                <ChatPanel />  {/* sidebar + Outlet */}
+                <ChatPanel /> {/* sidebar + Outlet */}
               </ProtectedRoute>
             }
           >

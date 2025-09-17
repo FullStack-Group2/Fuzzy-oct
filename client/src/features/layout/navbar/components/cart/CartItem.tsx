@@ -62,11 +62,10 @@ const CartItem: React.FC<any> = ({ dataItem }) => {
                 {Intl.NumberFormat('vi-VN').format(
                   product?.sale && product?.sale > 0
                     ? product?.price * (1 - product?.sale / 100) // giá sau giảm
-                    : product?.price // giá gốc
+                    : product?.price, // giá gốc
                 )}{' '}
                 Vnd
               </p>
-
             </p>
           </div>
 

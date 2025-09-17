@@ -18,5 +18,5 @@ export const getTotalPrice = (orderItems: IOrderItem[]): number => {
     return sum + price * qty;
   }, 0);
 
-  return Math.round(total * 100) / 100; 
+  return Math.round(total * 100) / 100;
 };

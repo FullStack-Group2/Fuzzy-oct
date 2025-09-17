@@ -50,7 +50,6 @@ io.use(async (socket, next) => {
   }
 });
 
-
 app.get(
   '/api/chat/conversations/:customerId',
   authMiddleware,

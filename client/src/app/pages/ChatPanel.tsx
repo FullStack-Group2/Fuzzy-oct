@@ -1,7 +1,7 @@
-import { useAuth } from "@/stores/AuthProvider";
-import React, { useEffect, useState } from "react";
-import { useParams, useNavigate, Link, Outlet } from "react-router-dom";
-import { io, Socket } from "socket.io-client";
+import { useAuth } from '@/stores/AuthProvider';
+import React, { useEffect, useState } from 'react';
+import { useParams, useNavigate, Link, Outlet } from 'react-router-dom';
+import { io, Socket } from 'socket.io-client';
 
 export default function ChatPanel() {
   const { receiverId } = useParams<{ receiverId: string }>();
@@ -10,7 +10,7 @@ export default function ChatPanel() {
 
   const [listOfCustomers, setListOfCustomers] = useState<any[]>([]);
   const [messages, setMessages] = useState<any[]>([]);
-  const [newMessage, setNewMessage] = useState("");
+  const [newMessage, setNewMessage] = useState('');
   const [socket, setSocket] = useState<Socket | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -18,12 +18,15 @@ export default function ChatPanel() {
   useEffect(() => {
     if (!isAuth || !user) return;
 
-    const token = localStorage.getItem("token");
-    const newSocket = io(import.meta.env.VITE_API_URL || "http://localhost:5001", {
-      auth: { token },
-    });
+    const token = localStorage.getItem('token');
+    const newSocket = io(
+      import.meta.env.VITE_API_URL || 'http://localhost:5001',
+      {
+        auth: { token },
+      },
+    );
 
-    newSocket.on("receive-message", (msg) => {
+    newSocket.on('receive-message', (msg) => {
       setMessages((prev) => [...prev, msg]);
     });
 
@@ -35,17 +38,17 @@ export default function ChatPanel() {
   useEffect(() => {
     const fetchConversations = async () => {
       try {
-        const token = localStorage.getItem("token");
+        const token = localStorage.getItem('token');
         if (!token) return;
 
         const res = await fetch(
-          `${import.meta.env.VITE_API_URL || "http://localhost:5001"}/api/chat/conversations/${user.id}`,
-          { headers: { Authorization: `Bearer ${token}` } }
+          `${import.meta.env.VITE_API_URL || 'http://localhost:5001'}/api/chat/conversations/${user.id}`,
+          { headers: { Authorization: `Bearer ${token}` } },
         );
         const data = await res.json();
         setListOfCustomers(data);
       } catch (err) {
-        console.error("❌ Fetch conversations error:", err);
+        console.error('❌ Fetch conversations error:', err);
       } finally {
         setLoading(false);
       }
@@ -58,16 +61,16 @@ export default function ChatPanel() {
     const fetchMessages = async () => {
       if (!receiverId || !user) return;
       try {
-        const token = localStorage.getItem("token");
+        const token = localStorage.getItem('token');
         if (!token) return;
         const res = await fetch(
-          `${import.meta.env.VITE_API_URL || "http://localhost:5001"}/api/chat/${receiverId}`,
-          { headers: { Authorization: `Bearer ${token}` } }
+          `${import.meta.env.VITE_API_URL || 'http://localhost:5001'}/api/chat/${receiverId}`,
+          { headers: { Authorization: `Bearer ${token}` } },
         );
         const data = await res.json();
         setMessages(data);
       } catch (err) {
-        console.error("❌ Fetch messages error:", err);
+        console.error('❌ Fetch messages error:', err);
       }
     };
     fetchMessages();
@@ -76,11 +79,11 @@ export default function ChatPanel() {
   // Send message
   const handleSendMessage = () => {
     if (!newMessage.trim() || !user || !receiverId) return;
-    socket?.emit("send-message", {
+    socket?.emit('send-message', {
       receiver: receiverId,
       content: newMessage,
     });
-    setNewMessage("");
+    setNewMessage('');
   };
 
   if (loading) return <p className="p-4">Loading chats...</p>;
@@ -95,8 +98,9 @@ export default function ChatPanel() {
             <li key={c._id}>
               <Link
                 to={`/chat/${user.id}/${c._id}`}
-                className={`block p-2 rounded hover:bg-gray-100 ${receiverId === c._id ? "bg-gray-200" : ""
-                  }`}
+                className={`block p-2 rounded hover:bg-gray-100 ${
+                  receiverId === c._id ? 'bg-gray-200' : ''
+                }`}
               >
                 {c.name || c.email}
               </Link>
@@ -105,13 +109,11 @@ export default function ChatPanel() {
         </ul>
       </aside>
 
-
       {/* Chat area */}
       {/* Chat area */}
       <main className="flex-1 flex flex-col">
-        <Outlet />   {/* 👈 nơi ChatPage được render */}
+        <Outlet /> {/* 👈 nơi ChatPage được render */}
       </main>
-
     </div>
   );
 }

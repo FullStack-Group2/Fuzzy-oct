@@ -32,15 +32,13 @@ function calculateTotal(products: any[]): number {
       const { price, sale } = item.product;
 
       // Nếu có sale thì tính giá sau giảm
-      const finalPrice =
-        sale && sale > 0 ? price * (1 - sale / 100) : price;
+      const finalPrice = sale && sale > 0 ? price * (1 - sale / 100) : price;
 
       return sum + (finalPrice || 0) * (item.quantity || 0);
     }
     return sum; // skip items without product
   }, 0);
 }
-
 
 export default function Cart() {
   const { cart, loading, error, createOrder } = useShopCart();

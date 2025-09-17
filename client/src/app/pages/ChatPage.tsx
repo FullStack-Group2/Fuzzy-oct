@@ -1,5 +1,3 @@
-
-
 import { useAuth } from '@/stores/AuthProvider';
 import React, { useEffect, useState, useRef } from 'react';
 import { io, Socket } from 'socket.io-client';

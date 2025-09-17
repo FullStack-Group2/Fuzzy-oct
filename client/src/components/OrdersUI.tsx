@@ -340,8 +340,8 @@ export function StatusHeader({
             sortOrder === 'asc'
               ? 'desc'
               : sortOrder === 'desc'
-              ? undefined
-              : 'asc',
+                ? undefined
+                : 'asc',
           )
         }
         className="inline-flex items-center gap-1 rounded border px-2 py-1 text-xs hover:bg-gray-50"
@@ -434,10 +434,11 @@ export function RejectReasonSelector({
         return (
           <label
             key={r}
-            className={`block cursor-pointer rounded-lg border p-3 transition-colors ${active
+            className={`block cursor-pointer rounded-lg border p-3 transition-colors ${
+              active
                 ? 'border-blue-500'
                 : 'border-gray-300 hover:border-gray-400'
-              }`}
+            }`}
             onClick={() => {
               onChangeReason(r);
               if (!isOther) onChangeNotes('');

@@ -29,8 +29,9 @@ export default function VendorHeader() {
     <header className="w-full mb-10">
       <div className="flex items-center gap-3">
         <div
-          className={`w-[70px] aspect-1 border-[1px] border-black rounded-full overflow-hidden ${data?.vendor?.profilePicture == '' ? 'bg-[#eef1f1]' : ''
-            }`}
+          className={`w-[70px] aspect-1 border-[1px] border-black rounded-full overflow-hidden ${
+            data?.vendor?.profilePicture == '' ? 'bg-[#eef1f1]' : ''
+          }`}
         >
           {data?.vendor?.profilePicture !== '' && (
             <img
@@ -43,20 +44,15 @@ export default function VendorHeader() {
         <p className="text-lg font-extralight">{data?.vendor?.businessName}</p>
 
         {isAuth && user && (
-
-
           <FloatingChat
             senderId={user.id}
             receiverId={data?.vendor?._id}
             trigger={
-              <button
-                className="text-[#1E7A5A] border border-[#1E7A5A] hover:bg-[#1E7A5A] hover:text-white p-2 rounded"
-              >
+              <button className="text-[#1E7A5A] border border-[#1E7A5A] hover:bg-[#1E7A5A] hover:text-white p-2 rounded">
                 Chat with vendor
               </button>
             }
           />
-
         )}
       </div>
     </header>

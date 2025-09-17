@@ -2,8 +2,8 @@
 // Course: COSC2769 - Full Stack Development
 // Semester: 2025B
 // Assessment: Assignment 02
-// Author:
-// ID:
+// Author: Pham Le Gia Huy
+// ID: s3975371
 
 import mongoose from 'mongoose';
 import CartItem, { ICartItem } from '../models/CartItem';
@@ -272,14 +272,6 @@ export const createOrderFromItem = async (userId: string) => {
   console.log('Bulk operations for stock update:', bulkOps);
 await ProductModel.bulkWrite(bulkOps);
 
-  const bulkOps = cartItem.map((item) => ({
-    updateOne: {
-      filter: { _id: item.product },
-      update: { $inc: { availableStock: -item.quantity } },
-    },
-  }));
-  console.log('Bulk operations for stock update:', bulkOps);
-  await ProductModel.bulkWrite(bulkOps);
 
   // Clear all item in the cart
   await deleteAllItem(userId);

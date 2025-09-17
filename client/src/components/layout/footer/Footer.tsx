@@ -2,8 +2,8 @@
 // Course: COSC2769 - Full Stack Development
 // Semester: 2025B
 // Assessment: Assignment 02
-// Author:
-// ID:
+// Author: Pham Le Gia Huy
+// ID: s3975371
 
 import { Link } from 'react-router-dom';
 import { RiArrowUpDoubleLine } from 'react-icons/ri';

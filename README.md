@@ -1,92 +1,142 @@
-# Fuzzy-oct E-Commerce Platform
+## Fuzzy E‑Commerce Platform
 
-This is a full-stack e-commerce application built with a modern technology stack, structured as a monorepo with separate client and server workspaces managed by pnpm.
-
-The frontend is a dynamic and responsive React application powered by Vite, with state management handled by Redux Toolkit. The backend is a robust Node.js and Express API with TypeScript, connected to a MongoDB database.
+A full‑stack furniture e‑commerce app built as a pnpm monorepo with a Vite + React client and an Express + TypeScript + MongoDB API. Includes role‑based auth (Customer, Vendor, Shipper), product/catalog management, order workflows, image uploads, an AI helper, and real‑time chat via Socket.IO.
 
 ## Features
 
-- User authentication and authorization
-- Product catalog with search and filtering
-- Shopping cart functionality
-- Order management system
-- Admin dashboard for product and order management
-- Responsive design for mobile and desktop
-- Real-time updates
-- Secure payment processing
+- **Auth & roles**: JWT auth, registration/login for Vendor, Customer, Shipper
+- **Catalog**: Products, categories, search/filtering (on FE), stock/sale fields
+- **Orders**: Order, items, status tracking; vendor/customer views
+- **Uploads**: Image upload and static serving under `/uploads`
+- **AI assistant**: Product/navigation helper backed by Fireworks AI
+- **Realtime chat**: Authenticated Socket.IO messaging between users
+- **Responsive UI**: React, Tailwind CSS, Router, Redux Toolkit
 
 ## Tech Stack
 
-| Area            | Technology                                                              |
-| --------------- | ----------------------------------------------------------------------- |
-| **Client (FE)** | React, Vite, TypeScript, Redux Toolkit, React Router, Tailwind CSS      |
-| **Server (BE)** | Node.js, Express, TypeScript, MongoDB, Mongoose, JWT for authentication |
-| **Dev Tools**   | PNPM, ESLint, Prettier, Vercel, GitHub Actions                          |
+- **Client**: React 18, TypeScript, Vite, React Router, Redux Toolkit, Tailwind
+- **Server**: Node.js, Express, TypeScript, MongoDB/Mongoose, JWT, Zod, Multer
+- **Realtime**: Socket.IO
+- **Dev**: pnpm, ESLint, Prettier, ts-node, nodemon
 
-## Getting Started
+## Monorepo Layout
 
-Follow these instructions to get the project up and running on your local machine for development and testing purposes.
+- `client/`: Vite React app (aliases `@ -> client/src`)
+- `server/`: Express API (`src/app.ts` mounted at `/api`, `src/server.ts` bootstraps HTTP + Socket.IO)
 
-### Prerequisites
+## Prerequisites
 
-- Node.js (v18.x or later recommended)
+- Node.js 18+
 - pnpm
+- MongoDB connection (Atlas or local)
 
-### Installation
+## Environment Variables
 
-1. Clone the repository:
+Create a `.env` at the repository root (the server loads from the root path):
 
 ```bash
-git clone <your-repository-url>
-cd <your-project-directory>
+# .env (root)
+MONGO_URI=your_mongodb_connection_string
+JWT_SECRET=your_jwt_secret_key
+
+# Optional: AI assistant
+FIREWORKS_API_KEY=your_fireworks_api_key
+
+# Optional: Twilio (email OTP via Verify)
+TWILIO_ACCOUNT_SID=...
+TWILIO_AUTH_TOKEN=...
+TWILIO_VERIFY_SERVICE_SID=...
+
+# Server port (default 5001)
+PORT=5001
 ```
 
-2. Install dependencies for all workspaces:
+Client can work without config; to point it at a non‑default API, create `client/.env`:
+
+```bash
+# client/.env
+VITE_API_BASE=http://localhost:5001/api
+```
+
+## Install
 
 ```bash
 pnpm install
 ```
 
-3. Setup Environment Variables:
-   The server requires a `.env` file for configuration. Create a file named `.env` inside the `/server` directory and add the necessary variables.
+## Develop
 
-```bash
-# server/.env
-MONGO_URI=your_mongodb_connection_string
-JWT_SECRET=your_jwt_secret_key
-```
-
-## Development
-
-To start the development servers for both the client and the server simultaneously, run the following command from the root directory:
+Run client and server together from the repo root:
 
 ```bash
 pnpm dev
 ```
 
-This will concurrently:
+- **Client**: Vite on `http://localhost:5173`
+- **Server**: REST API on `http://localhost:5001/api`
 
-- Start the Vite development server for the React client (usually on http://localhost:3000).
-- Start the Nodemon development server for the Express backend (usually on http://localhost:5000).
+## Build
 
-## Available Scripts
+Build both workspaces:
 
-Here is a list of the most important scripts available in the project.
+```bash
+pnpm build
+```
 
-### Root
+To preview the built client locally:
 
-- `pnpm dev`: Starts both client and server in parallel.
+```bash
+pnpm -C client preview
+```
 
-### Client (/client)
+To run the built server:
 
-- `pnpm dev`: Starts the Vite development server.
+```bash
+pnpm -C server build && pnpm -C server start
+```
 
-### Server (/server)
+## Scripts
 
-- `pnpm dev`: Starts the Express server with Nodemon for auto-reloading.
+- **Root**
+  - `pnpm dev`: run client and server in parallel
+  - `pnpm build`: build client and server
+  - `pnpm lint`, `pnpm lint:fix`: ESLint
+  - `pnpm format`, `pnpm format:check`: Prettier
+- **Client** (`client/`)
+  - `pnpm dev`: Vite dev server
+  - `pnpm build`: Vite build
+  - `pnpm preview`: serve production build locally
+- **Server** (`server/`)
+  - `pnpm dev`: run `ts-node src/server.ts`
+  - `pnpm build`: TypeScript compile
+  - `pnpm start`: run compiled server (`dist/server.js`)
 
-### Linting & Formatting
+## API Overview (selected)
 
-- `pnpm lint`: Lints all files in the project.
-- `pnpm format`: Formats all files in the project with Prettier.
-- `pnpm format:check`: Checks for formatting issues without modifying files.# Fuzzy-Dop
+Base URL: `http://localhost:5001/api`
+
+- **Auth**: `POST /auth/register/vendor|customer|shipper`, `POST /auth/login`, `POST /auth/forgot-password`, `POST /auth/verify-code`, `POST /auth/reset-password`, `POST /auth/change-password/:id`
+- **Vendors**: mounted at `/vendors` (includes product creation/listing under vendor)
+- **Customers**: `/customers`
+- **Shippers**: `/shippers` (uses `hubId` in JWT payload)
+- **Hubs**: `/hubs` (also legacy `/distributionHub`)
+- **Uploads**: `POST /upload` (Multer), static files served at `/uploads/*`
+- **AI**: `POST /ai/chat` (requires `FIREWORKS_API_KEY`)
+- Legacy mapping: `/products` routes are exposed via `vendorRoutes`
+
+All protected routes require an `Authorization: Bearer <token>` header.
+
+## Realtime Chat
+
+Socket.IO server runs alongside HTTP on the same port (5001). Clients must provide a JWT via `handshake.auth.token` or `Authorization` header. Events:
+
+- `send-message` `{ receiver, content }` → server persists and emits `receive-message`
+- `receive-message` is emitted to both receiver and sender
+
+Vendor can query conversations: `GET /api/chat/conversations/:customerId` (auth required). History for a peer: `GET /api/chat/:receiverId`.
+
+## Notes
+
+- Static uploads are available at `/uploads/<filename>`.
+- Vite path alias: import with `@/...` from `client/src`.
+- Default ports: client 5173, server 5001. Adjust via `VITE_API_BASE` and `PORT` if needed.

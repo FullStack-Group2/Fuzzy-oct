@@ -53,6 +53,7 @@ import { toast, Toaster, ToastBar } from 'react-hot-toast';
 import About from './pages/About';
 import ChatPanel from './pages/ChatPanel';
 import ChatPage from './pages/ChatPage';
+import HomeGate from '@/components/HomeGate';
 
 // Wrapper for Logout if it needs user from context
 const LogoutWrapper = () => {
@@ -129,7 +130,7 @@ function InnerRoutes() {
             path="/"
             element={
               <ProtectedRoute>
-                <Home />
+                <HomeGate />
               </ProtectedRoute>
             }
           />

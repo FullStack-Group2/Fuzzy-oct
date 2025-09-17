@@ -1,3 +1,10 @@
+// RMIT University Vietnam
+// Course: COSC2769 - Full Stack Development
+// Semester: 2025B
+// Assessment: Assignment 02
+// Author: Pham Nhat Minh
+// ID: s4019811
+
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useAuth } from '@/stores/AuthProvider';

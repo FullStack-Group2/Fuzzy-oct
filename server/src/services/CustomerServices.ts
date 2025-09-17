@@ -2,8 +2,8 @@
 // Course: COSC2769 - Full Stack Development
 // Semester: 2025B
 // Assessment: Assignment 02
-// Author: Pham Le Gia Huy, Le Nguyen Khuong Duy
-// ID: s3975371, s4026694
+// Author: Pham Nhat Minh, Le Nguyen Khuong Duy
+// ID: s4019811, s4026694
 
 import mongoose from 'mongoose';
 import CartItem, { ICartItem } from '../models/CartItem';

@@ -2,8 +2,8 @@
 // Course: COSC2769 - Full Stack Development
 // Semester: 2025B
 // Assessment: Assignment 02
-// Author: Pham Le Gia Huy
-// ID: s3975371
+// Author: Pham Nhat Minh
+// ID: s4019811
 import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 
@@ -13,16 +13,6 @@ import CartItem from './CartItem';
 import { useShopCart } from '../../stores/ShopCartDataContext';
 import { Skeleton } from '@/components/ui/skeleton';
 
-// function calculateTotal(products: any[]): number {
-//   if (!Array.isArray(products)) return 0;
-
-//   return products.reduce((sum, item) => {
-//     if (item && item.product) {
-//       return sum + (item.product.price || 0) * (item.quantity || 0);
-//     }
-//     return sum; // skip items without product
-//   }, 0);
-// }
 
 function calculateTotal(products: any[]): number {
   if (!Array.isArray(products)) return 0;

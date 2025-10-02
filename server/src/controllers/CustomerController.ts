@@ -191,7 +191,6 @@ export async function getCustomerOrderDetail(
       .lean()
       .exec();
 
-    console.log('DTOTOTOTOTORDER', order);
 
     if (!order) return res.status(404).json({ error: 'Order not found' });
 
@@ -200,7 +199,6 @@ export async function getCustomerOrderDetail(
       // .populate('product', 'name price sale vendor imageUrl')
       .lean()
       .exec();
-    console.log('DTOTOTOTOTitemsRaw', itemsRaw);
     const validProductIds = Array.from(
       new Set(
         itemsRaw
@@ -216,22 +214,16 @@ export async function getCustomerOrderDetail(
           .lean()
           .exec()
       : [];
-    console.log('DTOTOTOTOTproductstttt', products);
 
     const productMap = new Map(products.map((p) => [String(p._id), p as any]));
-    console.log('DTOTOTOTOTproductMap', productMap);
 
     const mappedItems = itemsRaw.map((it: any) => {
       const p: any = productMap.get(String(it.product));
-      console.log('SALE tu p:', p.sale);
-      // const price = Number(it?.price ?? it?.priceAtPurchase ?? p?.price ?? 0);
-      // const price = Number(it?.price ?? p?.price ?? 0 - p?.sale * 1000);
       const price =
         Number(it?.price ?? p?.price ?? 0) * (1 - (p?.sale ?? 0) / 100);
 
       const quantity = Number(it?.quantity ?? 0);
       const subtotal = Math.round(price * quantity * 100) / 100;
-      // console.log("CO XUONG DAY DUOC KHONG", it?.subtotal)
 
       return {
         id: String(it._id),
@@ -263,16 +255,12 @@ export async function getCustomerOrderDetail(
         'Unknown vendor';
     }
 
-    // const computedTotal = mappedItems.reduce((s, it) => s + it.subtotal, 0);
     const computedTotal = mappedItems.reduce((s, it) => s + it.subtotal, 0);
 
-    console.log('CO XUONG DAY DUOC ORDER', order);
 
     const storedTotal = Number(order.totalPrice ?? order.totalprice ?? 0);
     const totalPrice =
       storedTotal > 0 ? storedTotal : Math.round(computedTotal * 100) / 100;
-    console.log('CO XUONG DAY DUOC KHONG', storedTotal);
-    console.log('CO XUONG DAY DUOC KHONG', totalPrice);
 
     const customerAddress =
       order?.customer?.address ??
@@ -416,9 +404,6 @@ export const updateCartItem = async (
     const { itemId, quantity } = req.body;
     const { userId } = req.user!;
 
-    // console.log(
-    //   `check data in updateCart Item:\n userId:${userId} \nitemId: ${itemId},\n quantity: ${quantity}`,
-    // );
     if (quantity <= 0) {
       return res
         .status(400)
@@ -594,7 +579,6 @@ const validCategory = (v: unknown): v is ProductCategory =>
 export const getAllProducts = async (req: Request, res: Response) => {
   const PAGE_SIZE = 4;
   try {
-    // console.log(`check request: ${JSON.stringify(req.query)}`);
     // ----- read raw query -----
     const rawVendor = (req.query.vendor as string | undefined) ?? null;
     const rawMin = toNumOrNull(req.query.minPrice);
@@ -635,7 +619,6 @@ export const getAllProducts = async (req: Request, res: Response) => {
         ? (rawOrder as 'asc' | 'desc')
         : null;
 
-    // console.log(`check request query after validated: \n minPrice: ${minPrice}\n maxPrice: ${maxPrice}\n category: ${category} \n keyword: ${keyword} \n page: ${page}\n pageSize ${PAGE_SIZE} priceOrder: ${priceOrder}`)
     // ----- call service -----
     const result = await getProducts(
       { minPrice, maxPrice, category, keyword, vendor },

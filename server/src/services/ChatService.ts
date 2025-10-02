@@ -11,7 +11,7 @@ import { Application } from 'express';
 const onlineUsers = new Map<string, string>();
 
 export function initChatRoutes(app: Application) {
-  // ✅ Get vendor's conversations
+  // Get vendor's conversations
   app.get(
     '/api/chat/conversations/:customerId',
     authMiddleware,
@@ -46,7 +46,7 @@ export function initChatRoutes(app: Application) {
     },
   );
 
-  // ✅ Get chat messages between sender and receiver
+  // Get chat messages between sender and receiver
   app.get('/api/chat/:receiverId', authMiddleware, async (req, res) => {
     try {
       const senderId = (req as any).user.userId;

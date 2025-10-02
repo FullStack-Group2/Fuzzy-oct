@@ -31,7 +31,6 @@ export default function ChatBox({ senderId, receiverId }: ChatBoxProps) {
   const [error, setError] = useState<string | null>(null);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
-  // fetch lịch sử chat
   useEffect(() => {
     const fetchHistory = async () => {
       try {

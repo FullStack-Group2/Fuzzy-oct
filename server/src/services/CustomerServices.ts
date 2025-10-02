@@ -193,7 +193,6 @@ export const modifyItemCart = async ({
   // 1. Check product stock
   const cartItem = await CartItem.findOne({ product: itemId });
   const productItem = await ProductModel.findOne({ _id: itemId });
-  // console.log('cartItem in update: '+JSON.stringify(cartItem));
   if (!productItem || !cartItem) {
     throw new Error('Product not found');
   }

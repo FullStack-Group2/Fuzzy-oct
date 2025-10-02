@@ -51,7 +51,6 @@ export const authMiddleware = async (
     let decoded: TokenPayload;
     try {
       decoded = jwt.verify(token, JWT_SECRET) as TokenPayload;
-      // console.log('Decoded JWT:', decoded);
     } catch {
       return res.status(401).json({ message: 'Invalid token.' });
     }
@@ -71,8 +70,6 @@ export const authMiddleware = async (
       }
       case UserRole.CUSTOMER: {
         const customer = await UserServices.findById(decoded.userId);
-        // console.log('decode user id', decoded.userId);
-        // console.log('customer', customer);
         if (!customer)
           return res.status(401).json({ message: 'User no longer exists.' });
         req.user = {
